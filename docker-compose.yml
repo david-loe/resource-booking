@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    depends_on:
+      - db  
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:  
+      - MONGO_URL=mongodb://db:27017
+      - BACKEND_PORT=8000
+    ports:
+      - '8000:8000'
+
+  db:
+    container_name: db
+    image: mongo
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - '5000:5000'
+    environment:  
+      - BACKEND_URL=http://backend:8000
+      - FRONTEND_PORT=5000
