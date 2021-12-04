@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: "Login",
   props: {
@@ -28,7 +30,8 @@ export default {
     }
   },
   methods:{
-    login() {
+    async login() {
+      axios.post('')
       console.log(this.email)
     }
   }

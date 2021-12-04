@@ -13,7 +13,6 @@ services:
       - .env
 
   db:
-    container_name: db
     image: mongo
     restart: always
     volumes:
@@ -29,3 +28,6 @@ services:
       - '${FRONTEND_PORT}:${FRONTEND_PORT}'
     env_file:
       - .env
+# Test LDAP for development
+  ldap:
+    image: rroemhild/test-openldap
