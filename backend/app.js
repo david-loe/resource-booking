@@ -6,6 +6,7 @@ const cookierParser = require('cookie-parser')
 const passport = require('passport')
 const LdapStrategy = require('passport-ldapauth')
 const bodyParser = require('body-parser')
+const session = require("express-session")
 
 const port = process.env.BACKEND_PORT
 
@@ -35,14 +36,32 @@ app.use(cors({
   origin: ['frontend:' + process.env.FRONTEND_PORT]
 }))
 app.use(cookierParser())
+app.use(session({ secret: "cats" }))
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize())
+app.use(passport.session());
 
-app.post('/login', passport.authenticate('ldapauth', { session: false }), function (req, res) {
+app.post('/login', passport.authenticate('ldapauth', { session: true }), function (req, res) {
+  console.log(req.user)
   res.send({ status: 'ok' })
 });
+
+app.use('/api', (req, res, next) => {
+  if (req.isAuthenticated())
+    next();
+  else
+    return res.status(400).send({message: "unauthorized"})
+})
 
 //app.use('/api', routes)
 
