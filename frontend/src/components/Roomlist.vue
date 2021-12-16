@@ -158,7 +158,10 @@ export default {
     },
     changeFile(event) {
       const reader = new FileReader();
-      if (event.target.files.length === 1) {
+      if (
+        event.target.files.length === 1 &&
+        event.target.files[0].size < 1000000
+      ) {
         reader.readAsDataURL(event.target.files[0]);
         reader.onload = () => {
           this.newRoom.img = reader.result;
