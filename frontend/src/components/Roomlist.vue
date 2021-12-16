@@ -10,7 +10,7 @@
         aria-current="true"
       >
         <img
-          src="../assets/home-solid.svg"
+          v-bind:src="room.img"
           alt="twbs"
           width="32"
           height="32"
@@ -26,7 +26,8 @@
             <button
               type="button"
               class="btn btn-danger"
-              v-on:click="deleteRoom(room.name)">
+              v-on:click="deleteRoom(room.name)"
+            >
               Delete
             </button>
           </div>
@@ -56,13 +57,27 @@
         />
       </div>
       <div class="mb-3">
-        <label for="addRoomFormDes" class="form-label"> Description </label>
-        <textarea
-          class="form-control"
-          id="addRoomFormDes"
-          rows="3"
-          v-model="newRoom.description"
-        ></textarea>
+        <div class="row">
+          <div class="col">
+            <label for="addRoomFormDes" class="form-label"> Description </label>
+            <textarea
+              class="form-control"
+              id="addRoomFormDes"
+              rows="3"
+              v-model="newRoom.description"
+            ></textarea>
+          </div>
+          <div class="col">
+            <label for="addRoomFormImg" class="form-label"> Image </label>
+            <input
+              class="form-control"
+              type="file"
+              id="addRoomFormImg"
+              @change="changeFile"
+              accept="image/*"
+            />
+          </div>
+        </div>
       </div>
       <div class="mb-3">
         <p>
@@ -96,7 +111,7 @@ export default {
     return {
       rooms: [],
       addRoomForm: false,
-      newRoom: { name: "", size: null, description: "" },
+      newRoom: { name: "", size: null, description: "", img: null },
     };
   },
   methods: {
@@ -140,6 +155,15 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+    },
+    changeFile(event) {
+      const reader = new FileReader();
+      if (event.target.files.length === 1) {
+        reader.readAsDataURL(event.target.files[0]);
+        reader.onload = () => {
+          this.newRoom.img = reader.result;
+        };
+      }
     },
   },
   beforeMount() {
