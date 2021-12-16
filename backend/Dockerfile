@@ -8,4 +8,5 @@ RUN npm install
 
 COPY . .
 
-CMD ["node", "app.js"]
+# dev or start
+CMD ["npm", "run", "dev"]

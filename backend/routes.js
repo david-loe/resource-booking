@@ -1,74 +1,56 @@
 const router = require('express').Router()
+const Room = require('./models/room')
 const User = require('./models/user')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-
-router.post('/register', async (req, res) => {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-
-    const user = new User({
-        name: req.body.name,
-        email: req.body.email,
-        password: hashedPassword
-    })
-    try {
-        const result = await user.save()
-        const { password, ...saveResult } = result.toJSON()
-        res.send(saveResult)
-    } catch (error) {
-        res.status(400).send({ message: "Unable to save user", error: error })
-    }
-
-})
-
-router.post('/login', async (req, res) => {
-    const user = await User.findOne({ email: req.body.email })
-
-    if (!user) {
-        res.status(404).send({ message: "User not found" })
-
-    } else if (!await bcrypt.compare(req.body.password, user.password)) {
-        res.status(400).send({ message: "Invalid credentials" })
-
-    } else {
-
-        const token = jwt.sign({ _id: user._id }, "secret")
-        res.cookie('jwt', token, {
-            httpOnly: true,
-            maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days
-        })
-        const { password, ...saveUser } = user.toJSON()
-        res.send(saveUser)
-    }
-})
+const Ical = require('ical.js')
+const fs = require('fs')
 
 router.get('/user', async (req, res) => {
-    var claims
+    res.send({
+        email: req.user.uid,
+        name: req.user.displayName
+    })
+})
+
+router.post('/room', async (req, res) => {
+    const room = new Room({
+        name: req.body.name,
+        size: req.body.size,
+        description: req.body.description
+    })
     try {
-        const cookie = req.cookies['jwt']
-        claims = jwt.verify(cookie, "secret")
-
+        const result = await room.save()
+        const content = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nEND:VCALENDAR"
+        fs.writeFile('rooms/' + result.name + '.ical', content, err => {
+            if (err) {
+                console.error(err)
+            }
+        })
+        res.send(result)
     } catch (error) {
-    }
-
-    if (!claims) {
-        res.status(401).send({ message: "Unauthenticated" })
-    } else {
-        const user = await User.findOne({ _id: claims._id })
-        if (!user) {
-            res.status(404).send({ message: "User not found" })
-
-        } else {
-            const { password, ...saveUser } = user.toJSON()
-            res.send(saveUser)
-        }
-
+        res.status(400).send({ message: "Unable to save room", error: error })
     }
 })
 
-router.post('/logout', (req, res) => {
-    res.cookie('jwt', '', { maxAge: 0 })
-    res.send({ message: 'success' })
+router.delete('/room', async (req, res) => {
+    if (req.query.name) {
+        try {
+            await Room.deleteOne({ name: req.query.name })
+            fs.unlink('rooms/' + req.query.name + '.ical', (err) =>{
+                if (err) console.log(err);
+                else console.log("deleted " + req.query.name)
+            })
+            res.send({ status: 'ok' })
+        } catch (error) {
+            res.status(400).send({ message: "Unable to delete room " + req.query.name, error: error })
+        }
+    } else {
+        res.status(400).send({ message: "Name Missing" })
+    }
+})
+
+router.get('/room', async (req, res) => {
+    const rooms = await Room.find()
+    res.send({rooms: rooms})
 })
 
 module.exports = router;
