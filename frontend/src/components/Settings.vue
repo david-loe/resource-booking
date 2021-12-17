@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Roomlist from "./Roomlist.vue"
+import Roomlist from "./Settings/Roomlist.vue"
 export default {
   name: "Settings",
   components: {

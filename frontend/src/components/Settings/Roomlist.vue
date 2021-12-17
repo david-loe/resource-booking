@@ -11,7 +11,6 @@
       >
         <img
           v-bind:src="room.img"
-          alt="twbs"
           width="32"
           height="32"
           class="rounded-circle flex-shrink-0"
@@ -34,7 +33,7 @@
         </div>
       </a>
     </div>
-    <form v-if="addRoomForm" class="container" @submit.prevent="addRoom()">
+    <form v-if="addRoomForm" class="container" @submit.prevent="addRoom()" style="max-width: 650px">
       <div class="mb-3">
         <label for="addRoomFormName" class="form-label"> Name </label>
         <input
@@ -68,7 +67,7 @@
             ></textarea>
           </div>
           <div class="col">
-            <label for="addRoomFormImg" class="form-label"> Image </label>
+            <label for="addRoomFormImg" class="form-label"> Image (max 1MB)</label>
             <input
               class="form-control"
               type="file"
@@ -111,7 +110,7 @@ export default {
     return {
       rooms: [],
       addRoomForm: false,
-      newRoom: { name: "", size: null, description: "", img: null },
+      newRoom: { name: "", size: null, description: "", img: undefined },
     };
   },
   methods: {
@@ -124,7 +123,11 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err);
+          if(err.response.status === 401){
+            this.$router.push("login");
+          } else {
+            console.log(err);
+          }
         });
     },
     deleteRoom(name) {
@@ -139,7 +142,11 @@ export default {
           }
         })
         .catch((err) => {
-          console.log(err);
+          if(err.response.status === 401){
+            this.$router.push("login");
+          } else {
+            console.log(err);
+          }
         });
     },
     addRoom() {
@@ -149,11 +156,16 @@ export default {
         })
         .then((res) => {
           if (res.status === 200) {
-            this.getRooms();
+            this.getRooms()
+            this.newRoom = { name: "", size: null, description: "", img: undefined }
           }
         })
         .catch((err) => {
-          console.log(err);
+          if(err.response.status === 401){
+            this.$router.push("login");
+          } else {
+            console.log(err);
+          }
         });
     },
     changeFile(event) {
@@ -166,6 +178,8 @@ export default {
         reader.onload = () => {
           this.newRoom.img = reader.result;
         };
+      } else {
+        this.newRoom.img = undefined
       }
     },
   },
