@@ -6,9 +6,8 @@ services:
       - db  
     volumes:
       - ./backend:/app
-      - /app/node_modules
     ports:
-      - '${BACKEND_PORT}:${BACKEND_PORT}'
+      - ${VUE_APP_BACKEND_PORT}:${VUE_APP_BACKEND_PORT}
     env_file:
       - .env
 
@@ -16,18 +15,41 @@ services:
     image: mongo
     restart: always
     volumes:
-      - /data/db
+      - db_data:/data/db
 
   frontend:
     build: ./frontend
     restart: always
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+    depends_on:
+      - open-web-calendar 
+      - backend
     ports:
-      - '${FRONTEND_PORT}:${FRONTEND_PORT}'
+      - ${VUE_APP_FRONTEND_PORT}:${VUE_APP_FRONTEND_PORT}
     env_file:
       - .env
+    
+  open-web-calendar:
+    build: ./calendar
+    restart: always
+    volumes:
+      - ./calendar/open-web-calendar:/app
+    environment:
+      - APP_DEBUG=false
+      - PORT=${VUE_APP_CALENDAR_PORT}
+      - CACHE_REQUESTED_URLS_FOR_SECONDS=7
+      - LOCATION_URL_PREFIX=${VUE_APP_URL}:${VUE_APP_FRONTEND_PORT}${VUE_APP_ROOM_DETAILS_PATH}/
+    env_file:
+      - .env
+    ports:
+     - ${VUE_APP_CALENDAR_PORT}:${VUE_APP_CALENDAR_PORT}
+
 # Test LDAP for development
   ldap:
     image: rroemhild/test-openldap
+    environment:
+      - DEBUG=false
+
+volumes:
+  db_data:

@@ -114,7 +114,7 @@ export default {
   methods: {
     async authen() {
       try {
-        const res = await axios.get("http://localhost:8000/api/user", {
+        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/user", {
           withCredentials: true,
         });
         this.name = res.data.name;
@@ -137,18 +137,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
 }
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
 html {
   position: relative;
   min-height: 100%;

@@ -2,13 +2,12 @@ const router = require('express').Router()
 const Room = require('./models/room')
 const User = require('./models/user')
 const ICAL = require('ical.js')
-const fs = require('fs')
 
 function hasConflict(ical, startDate, endDate) {
     const confStart = new Date(startDate)
     const confEnd = new Date(endDate)
     const comp = new ICAL.Component(ical)
-    for (const vevent of comp.getAllSubcomponents('vevent')){
+    for (const vevent of comp.getAllSubcomponents('vevent')) {
         const event = new ICAL.Event(vevent);
         const eventStart = event.startDate.toJSDate()
         const eventEnd = event.endDate.toJSDate()
@@ -39,7 +38,8 @@ router.post('/room', async (req, res) => {
         name: req.body.name,
         size: req.body.size,
         description: req.body.description,
-        img: req.body.img
+        img: req.body.img,
+        color: req.body.color
     })
     try {
         const result = await room.save()
@@ -69,25 +69,33 @@ router.get('/room', async (req, res) => {
 
 router.post('/booking', async (req, res) => {
     const bookedRooms = []
-    await Promise.all(req.body.rooms.map(async roomName => {
-        const room = await Room.findOne({ name: roomName })
-        if (room) {
-            const vevent = new ICAL.Component('vevent')
-            const event = new ICAL.Event(vevent)
-            event.summary = req.body.summary
-            event.startDate = ICAL.Time.fromDateTimeString(req.body.startDate)
-            event.endDate = ICAL.Time.fromDateTimeString(req.body.endDate)
-            const comp = new ICAL.Component(room.ical)
-            comp.addSubcomponent(vevent)
-            room.markModified('ical');
-            const result = await room.save()
-            bookedRooms.push(result)
+    if (new Date(req.body.startDate) < new Date(req.body.endDate)) {
+        await Promise.all(req.body.rooms.map(async roomName => {
+            const room = await Room.findOne({ name: roomName })
+            if (room) {
+                const vevent = new ICAL.Component('vevent')
+                const event = new ICAL.Event(vevent)
+                event.summary = req.body.summary
+                event.location = room.name;
+                event.startDate = ICAL.Time.fromDateTimeString(req.body.startDate)
+                event.endDate = ICAL.Time.fromDateTimeString(req.body.endDate)
+                if(room.color){
+                    vevent.addPropertyWithValue('color', room.color)
+                }
+                const comp = new ICAL.Component(room.ical)
+                comp.addSubcomponent(vevent)
+                room.markModified('ical');
+                const result = await room.save()
+                bookedRooms.push(result)
+            }
+        }))
+        if (bookedRooms.length > 0) {
+            res.send(bookedRooms)
+        } else {
+            res.status(400).send({ message: "No Room Booked" })
         }
-    }))
-    if (bookedRooms.length > 0) {
-        res.send(bookedRooms)
     } else {
-        res.status(400).send({ message: "No Room Booked" })
+        res.status(400).send({ message: "Start Date > End Date" })
     }
 })
 

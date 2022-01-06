@@ -35,7 +35,9 @@
     </div>
     <form v-if="addRoomForm" class="container" @submit.prevent="addRoom()" style="max-width: 650px">
       <div class="mb-3">
-        <label for="addRoomFormName" class="form-label"> Name </label>
+        <div class="row">
+          <div class="col-sm">
+            <label for="addRoomFormName" class="form-label"> Name </label>
         <input
           type="text"
           class="form-control"
@@ -45,19 +47,36 @@
           required
           pattern='^[^<>\/\\\*\|":\?]*$'
         />
-      </div>
-      <div class="mb-3">
-        <label for="addRoomFormSize" class="form-label"> Size </label>
+          </div>
+        <div class="col-sm">
+          
+          <div class="row">
+                <div class="col">
+                 <label for="addRoomFormSize" class="form-label"> Size </label>
         <input
           type="number"
           class="form-control"
           id="addRoomFormSize"
           v-model="newRoom.size"
         />
+              </div>
+              <div class="col-auto">
+                <label for="addRoomFormColor" class="form-label"> Color </label>
+        <input
+          type="color"
+          class="form-control"
+          id="addRoomFormColor"
+          v-model="newRoom.color"
+        />
+              </div>
+              </div>
+         
+        </div>
+      </div>
       </div>
       <div class="mb-3">
         <div class="row">
-          <div class="col">
+          <div class="col-sm">
             <label for="addRoomFormDes" class="form-label"> Description </label>
             <textarea
               class="form-control"
@@ -66,7 +85,8 @@
               v-model="newRoom.description"
             ></textarea>
           </div>
-          <div class="col">
+          <div class="col-sm">
+            
             <label for="addRoomFormImg" class="form-label"> Image (max 1MB)</label>
             <input
               class="form-control"
@@ -75,7 +95,9 @@
               @change="changeFile"
               accept="image/*"
             />
-          </div>
+              </div>
+              
+            
         </div>
       </div>
       <div class="mb-3">
@@ -104,19 +126,21 @@
 
 <script>
 import axios from "axios";
+//import Login from '../Login.vue';
 export default {
+  components: { },
   name: "Roomlist",
   data() {
     return {
       rooms: [],
       addRoomForm: false,
-      newRoom: { name: "", size: null, description: "", img: undefined },
+      newRoom: { name: "", size: null, description: "", img: undefined, color: undefined},
     };
   },
   methods: {
     getRooms() {
       axios
-        .get("http://localhost:8000/api/room", { withCredentials: true })
+        .get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", { withCredentials: true })
         .then((res) => {
           if (res.status === 200) {
             this.rooms = res.data.rooms;
@@ -132,7 +156,7 @@ export default {
     },
     deleteRoom(name) {
       axios
-        .delete("http://localhost:8000/api/room", {
+        .delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", {
           params: { name: name },
           withCredentials: true,
         })
@@ -151,7 +175,7 @@ export default {
     },
     addRoom() {
       axios
-        .post("http://localhost:8000/api/room", this.newRoom, {
+        .post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", this.newRoom, {
           withCredentials: true,
         })
         .then((res) => {

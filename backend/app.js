@@ -1,13 +1,12 @@
 const express = require('express')
 const mongoose = require('mongoose')
-const routes = require('./routes')
 const cors = require('cors')
 const cookierParser = require('cookie-parser')
 const passport = require('passport')
 const LdapStrategy = require('passport-ldapauth')
 const session = require("express-session")
 
-const port = process.env.BACKEND_PORT
+const port = process.env.VUE_APP_BACKEND_PORT
 
 mongoose.connect(process.env.MONGO_URL, {}, () => {
   console.log('Successfully connected to the Database.')
@@ -33,7 +32,7 @@ app.use(express.json({limit: '2mb'}))
 app.use(express.urlencoded({limit: '2mb'}));
 app.use(cors({
   credentials: true,
-  origin: 'http://localhost:' + process.env.FRONTEND_PORT
+  origin: 'http://localhost:' + process.env.VUE_APP_FRONTEND_PORT
 }))
 app.use(cookierParser())
 
@@ -57,7 +56,7 @@ app.use(passport.initialize())
 app.use(passport.session());
 
 app.post('/login', passport.authenticate('ldapauth', { session: true }), function (req, res) {
-  console.log(req.user.uid)
+  // console.log(req.user.uid)
   res.send({ status: 'ok' })
 });
 
@@ -68,10 +67,13 @@ app.use('/api', (req, res, next) => {
   else{
     return res.status(401).send({ message: "unauthorized" })
   } 
-    
 })
 
+const routes = require('./routes')
 app.use('/api', routes)
+
+const icalRoute = require('./icalRoute')
+app.use(icalRoute)
 
 app.listen(port, () => {
   console.log(`Backend listening at http://localhost:${port}`)

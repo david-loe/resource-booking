@@ -1,0 +1,3 @@
+[submodule "calendar/open-web-calendar"]
+	path = calendar/open-web-calendar
+	url = https://github.com/david-loe/open-web-calendar.git

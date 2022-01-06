@@ -141,7 +141,7 @@ export default {
     },
     search() {
       axios
-        .get("http://localhost:8000/api/room/search", {
+        .get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room/search", {
           params: {
             startDate: this.getDateTime(this.bookingData.startDate, this.bookingData.startTime),
             endDate: this.getDateTime(this.bookingData.endDate, this.bookingData.endTime),
@@ -173,7 +173,7 @@ export default {
       };
       console.log(data);
       axios
-        .post("http://localhost:8000/api/booking", data, {
+        .post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/booking", data, {
           withCredentials: true,
         })
         .then((res) => {
@@ -191,7 +191,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .form-check-input:checked + .form-checked-content {
   opacity: 0.5;
 }
