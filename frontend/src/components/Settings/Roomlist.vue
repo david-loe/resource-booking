@@ -1,7 +1,6 @@
 <template>
   <div class="container">
-    <h2>Rooms</h2>
-    <div class="list-group mb-3">
+      <div class="list-group mb-3 border" style="max-height: 400px ; overflow-y:scroll;">
       <a
         v-for="room of rooms"
         v-bind:key="room"
@@ -33,46 +32,55 @@
         </div>
       </a>
     </div>
-    <form v-if="addRoomForm" class="container" @submit.prevent="addRoom()" style="max-width: 650px">
+    
+    <form
+      v-if="addRoomForm"
+      class="container"
+      @submit.prevent="addRoom()"
+      style="max-width: 650px"
+    >
       <div class="mb-3">
         <div class="row">
           <div class="col-sm">
             <label for="addRoomFormName" class="form-label"> Name </label>
-        <input
-          type="text"
-          class="form-control"
-          id="addRoomFormName"
-          placeholder="e.g. Room 2"
-          v-model="newRoom.name"
-          required
-          pattern='^[^<>\/\\\*\|":\?]*$'
-        />
+            <input
+              type="text"
+              class="form-control"
+              id="addRoomFormName"
+              placeholder="e.g. Room 2"
+              v-model="newRoom.name"
+              required
+              pattern='^[^<>\/\\\*\|":\?]*$'
+            />
           </div>
-        <div class="col-sm">
-          
-          <div class="row">
-                <div class="col">
-                 <label for="addRoomFormSize" class="form-label"> Size </label>
-        <input
-          type="number"
-          class="form-control"
-          id="addRoomFormSize"
-          v-model="newRoom.size"
-        />
+          <div class="col-sm">
+            <div class="row">
+              <div class="col">
+                <label for="addRoomFormSize" class="form-label"> Size </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="addRoomFormSize"
+                  v-model="newRoom.size"
+                />
               </div>
               <div class="col-auto">
                 <label for="addRoomFormColor" class="form-label"> Color </label>
-        <input
-          type="color"
-          class="form-control"
-          id="addRoomFormColor"
-          v-model="newRoom.color"
-        />
+                <input
+                  type="color"
+                  class="form-control"
+                  id="addRoomFormColor"
+                  v-model="newRoom.color"
+                  @change="
+                    this.newRoom.color = correctColorLuminance(
+                      this.newRoom.color
+                    )
+                  "
+                />
               </div>
-              </div>
-         
+            </div>
+          </div>
         </div>
-      </div>
       </div>
       <div class="mb-3">
         <div class="row">
@@ -86,8 +94,9 @@
             ></textarea>
           </div>
           <div class="col-sm">
-            
-            <label for="addRoomFormImg" class="form-label"> Image (max 1MB)</label>
+            <label for="addRoomFormImg" class="form-label">
+              Image (max 1MB)</label
+            >
             <input
               class="form-control"
               type="file"
@@ -95,9 +104,7 @@
               @change="changeFile"
               accept="image/*"
             />
-              </div>
-              
-            
+          </div>
         </div>
       </div>
       <div class="mb-3">
@@ -128,26 +135,38 @@
 import axios from "axios";
 //import Login from '../Login.vue';
 export default {
-  components: { },
+  components: {},
   name: "Roomlist",
   data() {
     return {
       rooms: [],
       addRoomForm: false,
-      newRoom: { name: "", size: null, description: "", img: undefined, color: undefined},
+      newRoom: {
+        name: "",
+        size: null,
+        description: "",
+        img: undefined,
+        color: undefined,
+      },
     };
   },
   methods: {
     getRooms() {
       axios
-        .get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", { withCredentials: true })
+        .get(
+          process.env.VUE_APP_URL +
+            ":" +
+            process.env.VUE_APP_BACKEND_PORT +
+            "/api/room",
+          { withCredentials: true }
+        )
         .then((res) => {
           if (res.status === 200) {
             this.rooms = res.data.rooms;
           }
         })
         .catch((err) => {
-          if(err.response.status === 401){
+          if (err.response.status === 401) {
             this.$router.push("login");
           } else {
             console.log(err);
@@ -156,17 +175,23 @@ export default {
     },
     deleteRoom(name) {
       axios
-        .delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", {
-          params: { name: name },
-          withCredentials: true,
-        })
+        .delete(
+          process.env.VUE_APP_URL +
+            ":" +
+            process.env.VUE_APP_BACKEND_PORT +
+            "/api/room",
+          {
+            params: { name: name },
+            withCredentials: true,
+          }
+        )
         .then((res) => {
           if (res.status === 200) {
             this.getRooms();
           }
         })
         .catch((err) => {
-          if(err.response.status === 401){
+          if (err.response.status === 401) {
             this.$router.push("login");
           } else {
             console.log(err);
@@ -175,22 +200,36 @@ export default {
     },
     addRoom() {
       axios
-        .post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", this.newRoom, {
-          withCredentials: true,
-        })
+        .post(
+          process.env.VUE_APP_URL +
+            ":" +
+            process.env.VUE_APP_BACKEND_PORT +
+            "/api/room",
+          this.newRoom,
+          {
+            withCredentials: true,
+          }
+        )
         .then((res) => {
           if (res.status === 200) {
-            this.getRooms()
-            this.newRoom = { name: "", size: null, description: "", img: undefined }
+            this.getRooms();
+            this.newRoom = {
+              name: "",
+              size: null,
+              description: "",
+              img: undefined,
+              color: this.generateRandomColorHex(),
+            };
           }
         })
         .catch((err) => {
-          if(err.response.status === 401){
+          if (err.response.status === 401) {
             this.$router.push("login");
           } else {
             console.log(err);
           }
         });
+      this.correctColorLuminance(this.generateRandomColorHex());
     },
     changeFile(event) {
       const reader = new FileReader();
@@ -203,12 +242,59 @@ export default {
           this.newRoom.img = reader.result;
         };
       } else {
-        this.newRoom.img = undefined
+        this.newRoom.img = undefined;
       }
+    },
+    correctColorLuminance(hex) {
+      if (hex) {
+        // HEX to RGB
+        var rgb = this.hexToRgb(hex);
+        var luminance = this.calcRelativeLumiance(rgb);
+        // setting 0.4 as border
+        while (luminance > 0.4) {
+          rgb = [
+            rgb[0] >= 2 ? rgb[0] - 2 : 0,
+            rgb[1] >= 7 ? rgb[1] - 7 : 0,
+            rgb[2] >= 1 ? rgb[2] - 1 : 0,
+          ];
+          luminance = this.calcRelativeLumiance(rgb);
+        }
+        return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
+      }
+    },
+    generateRandomColorHex() {
+      const rgb = [255, 255, 255].map(function (v) {
+        return Math.round(Math.random() * v);
+      });
+      return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
+    },
+    calcRelativeLumiance(rgb) {
+      // CALC relative Lumiance https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+      const copy = rgb.map(function (v) {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return copy[0] * 0.2126 + copy[1] * 0.7152 + copy[2] * 0.0722;
+    },
+    rgbToHex(r, g, b) {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    },
+    hexToRgb(hex) {
+      const result = /^#?([a-fA-F\d]{2})([a-fA-F\d]{2})([a-fA-F\d]{2})$/i.exec(
+        hex
+      );
+      return [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16),
+      ];
     },
   },
   beforeMount() {
     this.getRooms();
+    this.newRoom.color = this.correctColorLuminance(
+      this.generateRandomColorHex()
+    );
   },
 };
 </script>

@@ -1,7 +1,11 @@
 <template>
   <div class="container">
     <h1>Settings</h1>
-    <Roomlist></Roomlist>
+    <div class="container">
+      <h2>Rooms</h2>
+      <Roomlist></Roomlist>
+    </div>
+    
   </div>
 </template>
 

@@ -2,6 +2,7 @@ const router = require('express').Router()
 const Room = require('./models/room')
 const User = require('./models/user')
 const ICAL = require('ical.js')
+const uid = require('uid')
 
 function hasConflict(ical, startDate, endDate) {
     const confStart = new Date(startDate)
@@ -77,6 +78,7 @@ router.post('/booking', async (req, res) => {
                 const event = new ICAL.Event(vevent)
                 event.summary = req.body.summary
                 event.location = room.name;
+                event.uid = uid()
                 event.startDate = ICAL.Time.fromDateTimeString(req.body.startDate)
                 event.endDate = ICAL.Time.fromDateTimeString(req.body.endDate)
                 if(room.color){

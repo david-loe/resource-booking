@@ -58,7 +58,7 @@
           v-bind:key="room"
         >
           <input
-            class="form-check-input flex-shrink-0"
+            class="form-check-input flex-shrink-0 my-auto"
             type="checkbox"
             v-bind:value="room.name"
             style="font-size: 1.375em"

@@ -79,9 +79,9 @@
     </header>
     <router-view />
 
-    <footer class="justify-content-between align-items-center py-3 my-4 border-top">
+    <footer class="py-3 border-top">
       <div class="container">
-        <div class="col-md-4 d-flex align-items-center">
+        <div class="col-md-4 d-flex">
           <a
             href="/"
             class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
@@ -93,7 +93,7 @@
               height="24"
             />
           </a>
-          <span class="text-muted">© {{ new Date().getFullYear() }} Room Booking</span>
+          <span class="text-muted align-middle">© {{ new Date().getFullYear() }} Room Booking</span>
         </div>
       </div>
     </footer>
@@ -142,13 +142,13 @@ html {
   min-height: 100%;
 }
 body {
-  margin-bottom: 40px; /* Margin bottom by footer height */
+  margin-bottom: 75px !important; /* Margin bottom by footer height */
 }
 footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 40px; /* Set the fixed height of the footer here */
+  height: 60px; /* Set the fixed height of the footer here */
   z-index: -999;
 }
 </style>

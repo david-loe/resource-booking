@@ -13,7 +13,7 @@
               p-2
             "
           >
-            <div v-for="(room, index) of rooms" v-bind:key="room">
+            <div v-for="(room, index) of rooms" v-bind:key="room" class="ps-2">
               <input
                 class="list-group-item-check"
                 type="checkbox"
@@ -28,10 +28,12 @@
                   v-bind:src="room.img"
                   width="24"
                   height="24"
-                  class="rounded-circle flex-shrink-0 mr-2"
+                  class="rounded-circle flex-shrink-0 border me-1"
                 />
-                <span class="align-middle">{{ room.name }}</span>
+                <span class="align-middle" :style="{color : room.color}">{{ room.name }}</span>
+                <span class="position-absolute top-50 start-0 translate-middle p-2 border border-light rounded-circle" :style="{backgroundColor : room.color}"></span>
               </label>
+              
             </div>
           </div>
         </div>
