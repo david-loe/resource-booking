@@ -78,7 +78,7 @@ router.post('/booking', async (req, res) => {
                 const event = new ICAL.Event(vevent)
                 event.summary = req.body.summary
                 event.location = room.name;
-                event.uid = uid()
+                event.uid = uid.uid()
                 event.startDate = ICAL.Time.fromDateTimeString(req.body.startDate)
                 event.endDate = ICAL.Time.fromDateTimeString(req.body.endDate)
                 if(room.color){

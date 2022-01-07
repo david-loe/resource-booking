@@ -1,0 +1,45 @@
+{
+  "headlines": {
+    "overview": "Overview",
+    "booking": "Booking",
+    "settings": "Settings",
+    "login": "Login",
+    "rooms": "Rooms"
+  },
+  "labels": {
+    "email": "Email address",
+    "password": "Password",
+    "name": "Name",
+    "size": "Size",
+    "color": "Color",
+    "description": "Description",
+    "summary": "Summary",
+    "from": "From",
+    "to": "To",
+    "cancel": "Cancel",
+    "search": "Search",
+    "book": "Book",
+    "addRoom": "Add Room"
+  },
+  "alerts": {
+    "noRoom": {
+      "heading": "No Room",
+      "text" : "There is no Room to view. Please setup a room under Settings."
+    }
+  },
+  "comp": {
+    "login": {
+      "signIn": "Please sign in"
+    },
+    "overview": {},
+    "booking": {
+      "exampleSummary": "e.g. John Doe for an interview",
+      "roomsBooked": "One room is already booked. | {count} rooms are already booked.",
+      "allRoomsBooked": "All rooms are booked in this time frame."
+    },
+    "settings": {},
+    "room": {
+      "exampleName" : "e.g. Room 2"
+    }
+  }
+}

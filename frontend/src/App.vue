@@ -1,103 +1,54 @@
 <template>
   <div>
     <header class="p-3 mb-3 border-bottom">
-      <div class="container">
-        <div
-          class="
-            d-flex
-            flex-wrap
-            align-items-center
-            justify-content-center justify-content-lg-start
-          "
-        >
-          <a
-            href="/"
-            class="
-              d-flex
-              align-items-center
-              mb-2 mb-lg-0
-              text-dark text-decoration-none
-            "
-          >
-            <img
-              class="px-2"
-              src="./assets/home-solid.svg"
-              alt=""
-              width="40"
-              height="32"
-            />
-          </a>
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
+                    <img class="px-2" src="./assets/home-solid.svg" alt="" width="40" height="32" />
+                </a>
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li>
+                        <router-link to="/overview" class="nav-link px-2 link-dark">{{
+                            $t("headlines.overview")
+                            }}</router-link>
+                    </li>
+                    <li>
+                        <router-link to="/booking" class="nav-link px-2 link-dark">{{
+                            $t("headlines.booking")
+                            }}</router-link>
+                    </li>
+                    <li>
+                        <router-link to="/settings" class="nav-link px-2 link-dark">{{
+                            $t("headlines.settings")
+                            }}</router-link>
+                    </li>
+                </ul>
+                <div class="dropdown text-end">
+                    <div v-if="auth">
+                        <img src="./assets/user-circle-regular.svg" alt="user" width="32" height="32"
+                            class="rounded-circle" />
+                        <span class="px-2 align-middle">{{ name }}</span>
+                    </div>
 
-          <ul
-            class="
-              nav
-              col-12 col-lg-auto
-              me-lg-auto
-              mb-2
-              justify-content-center
-              mb-md-0
-            "
-          >
-            <li>
-              <router-link to="/overview" class="nav-link px-2 link-dark"
-                >Overview</router-link
-              >
-            </li>
-            <li>
-              <router-link to="/booking" class="nav-link px-2 link-dark"
-                >Booking</router-link
-              >
-            </li>
-            <li>
-              <router-link to="/settings" class="nav-link px-2 link-dark"
-                >Settings</router-link
-              >
-            </li>
-          </ul>
-
-          <div class="dropdown text-end">
-            <div v-if="auth">
-              <img
-                src="./assets/user-circle-regular.svg"
-                alt="user"
-                width="32"
-                height="32"
-                class="rounded-circle"
-              />
-              <span class="px-2 align-middle">{{ name }}</span>
+                    <router-link v-if="!auth" to="/login" class="nav-link px-2 link-dark">{{ $t("headlines.login") }}
+                    </router-link>
+                </div>
             </div>
-
-            <router-link
-              v-if="!auth"
-              to="/login"
-              class="nav-link px-2 link-dark"
-              >Login</router-link
-            >
-          </div>
         </div>
-      </div>
     </header>
-    <router-view />
+    <router-view :rooms="this.rooms" />
 
     <footer class="py-3 border-top">
-      <div class="container">
-        <div class="col-md-4 d-flex">
-          <a
-            href="/"
-            class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
-            <img
-              class="bi"
-              src="./assets/home-solid.svg"
-              alt=""
-              width="30"
-              height="24"
-            />
-          </a>
-          <span class="text-muted align-middle">© {{ new Date().getFullYear() }} Room Booking</span>
+        <div class="container">
+            <div class="col-md-4 d-flex">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                    <img class="bi" src="./assets/home-solid.svg" alt="" width="30" height="24" />
+                </a>
+                <span class="text-muted align-middle">© {{ new Date().getFullYear() }} Room Booking</span>
+            </div>
         </div>
-      </div>
     </footer>
-  </div>
+</div>
 </template>
 
 
@@ -109,23 +60,51 @@ export default {
     return {
       auth: false,
       name: "",
+      rooms: []
     };
   },
   methods: {
     async authen() {
       try {
-        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/user", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          process.env.VUE_APP_URL +
+            ":" +
+            process.env.VUE_APP_BACKEND_PORT +
+            "/api/user",
+          {
+            withCredentials: true,
+          }
+        );
         this.name = res.data.name;
         this.auth = res.status === 200;
       } catch (error) {
         this.$router.push("login");
       }
     },
+    async getRooms() {
+      try {
+        const res = await axios.get(
+          process.env.VUE_APP_URL +
+            ":" +
+            process.env.VUE_APP_BACKEND_PORT +
+            "/api/room",
+          { withCredentials: true }
+        )
+        if (res.status === 200) {
+            this.rooms = res.data.rooms;
+          }
+      } catch (error) {
+        if (error.response.status === 401) {
+            this.$router.push("login");
+          } else {
+            console.log(error);
+          }
+      }
+    }
   },
   beforeMount() {
     this.authen();
+    this.getRooms();
   },
 };
 </script>

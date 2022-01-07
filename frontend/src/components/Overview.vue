@@ -1,7 +1,8 @@
 <template>
   <div class="container">
-    <h1>Overview</h1>
-    <div class="container my-3">
+    <h1>{{ $t('headlines.overview') }}</h1>
+    <div v-if="rooms.length > 0" >
+      <div class="container my-3">
       <div class="row justify-content-center">
         <div class="col-9">
           <div
@@ -51,42 +52,26 @@
         width="100%"
       ></iframe>
     </div>
+    </div>
+    <div v-else class="alert alert-primary" role="alert">
+      <h4 class="alert-heading">{{ $t('alerts.noRoom.heading') }}</h4>
+      {{ $t('alerts.noRoom.text') }}
+    </div>
+    
   </div>
 </template>
 
 <script>
-import axios from "axios";
 export default {
   name: "Overview",
+  props: ['rooms'],
   data() {
     return {
-      rooms: [],
       selectedRooms: [],
       calendarUrl: "",
     };
   },
   methods: {
-    async getRooms() {
-      await axios
-        .get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room", { withCredentials: true })
-        .then((res) => {
-          if (res.status === 200) {
-            this.rooms = res.data.rooms;
-            const roomNames = [];
-            for (var i = 0; i < res.data.rooms.length;i++) {
-              roomNames.push(res.data.rooms[i].name);
-            }
-            this.calendarUrl = this.genCalendarUrl(roomNames);
-          }
-        })
-        .catch((err) => {
-          if (err.response.status === 401) {
-            this.$router.push("login");
-          } else {
-            console.log(err);
-          }
-        });
-    },
     changeSelection() {
       this.calendarUrl = this.genCalendarUrl(this.selectedRooms);
     },
@@ -96,7 +81,8 @@ export default {
               roomNames.push(this.rooms[i].name);
             }
       }
-      const calendarUrlParts = [
+      if(roomNames.length > 0){
+        const calendarUrlParts = [
         "http://localhost:3112/calendar.html",
         "&skin=dhtmlxscheduler_flat.css&target=_blank&loader=&tabs=month&tabs=week&tabs=agenda&getColorFromEvent=true",
         "&locationUrlPrefix=",
@@ -115,13 +101,19 @@ export default {
         
       }
       calendarUrlParts.splice(1, 0, ...urls);
-      console.log(calendarUrlParts.join(""))
       return calendarUrlParts.join("");
+      }
+      
     },
   },
   async beforeMount() {
-    await this.getRooms();
+    this.calendarUrl = this.genCalendarUrl([]);
   },
+  watch: {
+    rooms: function(){
+      this.calendarUrl = this.genCalendarUrl([]);
+    }
+  }
 };
 </script>
 

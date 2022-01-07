@@ -8,7 +8,7 @@
         width="72"
         height="57"
       />
-      <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+      <h1 class="h3 mb-3 fw-normal">{{ $t('comp.login.signIn') }}</h1>
 
       <div class="form-floating">
         <input
@@ -19,18 +19,18 @@
           v-model="email"
           required
         />
-        <label for="floatingInput">Email address</label>
+        <label for="floatingInput">{{ $t('labels.email') }}</label>
       </div>
       <div class="form-floating">
         <input
           type="password"
           class="form-control"
           id="floatingPassword"
-          placeholder="Password"
+          placeholder="{{ $t('labels.password') }}"
           v-model="password"
           required
         />
-        <label for="floatingPassword">Password</label>
+        <label for="floatingPassword">{{ $t('labels.password') }}</label>
       </div>
 
       <button class="w-100 btn btn-lg btn-primary" type="submit">

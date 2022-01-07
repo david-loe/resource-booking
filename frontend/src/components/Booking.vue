@@ -1,90 +1,48 @@
 <template>
   <div class="container">
-    <h1>Booking</h1>
-    <div class="container mb-3">
+    <h1>{{ $t('headlines.booking') }}</h1>
+    <div v-if="rooms.length > 0">
+      <div class="container mb-3">
       <form @submit.prevent="search()">
         <div class="row justify-content-center">
           <div class="col-auto">
             <div class="row bg-light" style="max-width: 550px">
               <div class="col-auto p-2">
-                <label for="startDateInput" class="form-label">From</label>
-                <input
-                  id="startDateInput"
-                  class="form-control"
-                  type="date"
-                  v-model="bookingData.startDate"
-                  required
-                />
-                <input
-                  id="startTime"
-                  type="time"
-                  class="form-control"
-                  v-model="bookingData.startTime"
-                />
+                <label for="startDateInput" class="form-label">{{ $t('labels.from') }}</label>
+                <input id="startDateInput" class="form-control" type="date" v-model="bookingData.startDate" required />
+                <input id="startTime" type="time" class="form-control" v-model="bookingData.startTime" />
               </div>
               <div class="col-auto p-2">
-                <label for="endDateInput" class="form-label">To</label>
-                <input
-                  id="endDateInput"
-                  class="form-control"
-                  type="date"
-                  v-model="bookingData.endDate"
-                  required
-                  v-bind:min="bookingData.startDate"
-                />
-                <input
-                  id="endTime"
-                  type="time"
-                  class="form-control"
-                  v-model="bookingData.endTime"
-                />
+                <label for="endDateInput" class="form-label">{{ $t('labels.to') }}</label>
+                <input id="endDateInput" class="form-control" type="date" v-model="bookingData.endDate" required
+                  v-bind:min="bookingData.startDate" />
+                <input id="endTime" type="time" class="form-control" v-model="bookingData.endTime" />
               </div>
               <div class="col-auto p-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="submit" class="btn btn-primary">{{ $t('labels.search') }}</button>
               </div>
             </div>
           </div>
         </div>
       </form>
     </div>
-    <div
-      v-if="rooms.available.length > 0 || rooms.unavailable.length > 0"
-      class="container mb-3"
-    >
+    <div v-if="searchresult.available.length > 0 || searchresult.unavailable.length > 0" class="container mb-3">
       <div class="list-group">
-        <label
-          class="list-group-item d-flex gap-3"
-          v-for="room of rooms.available"
-          v-bind:key="room"
-        >
-          <input
-            class="form-check-input flex-shrink-0 my-auto"
-            type="checkbox"
-            v-bind:value="room.name"
-            style="font-size: 1.375em"
-            v-model="selectedRooms"
-          />
-          <img
-            v-bind:src="room.img"
-            width="45"
-            height="45"
-            class="rounded-circle flex-shrink-0"
-          />
+        <label class="list-group-item d-flex gap-3" v-for="room of searchresult.available" v-bind:key="room">
+          <input class="form-check-input flex-shrink-0 my-auto" type="checkbox" v-bind:value="room.name"
+            style="font-size: 1.375em" v-model="selectedRooms" />
+          <img v-bind:src="room.img" width="45" height="45" class="rounded-circle flex-shrink-0" />
           <span class="pt-1 form-checked-content">
             <h6>{{ room.name }}</h6>
             <small class="d-block text-muted">
-              {{ room.description }} - Size: {{ room.size }}
+              {{ room.description }} - {{ $t('labels.size') }}: {{ room.size }}
             </small>
           </span>
         </label>
-        <label
-          class="list-group-item d-flex gap-3 bg-light"
-          v-if="rooms.unavailable.length > 0"
-        >
+        <label class="list-group-item d-flex gap-3 bg-light" v-if="searchresult.unavailable.length > 0">
           <span class="pt-1">
-            <span class="w-100" v-if="rooms.unavailable.length > 0 && rooms.available.length === 0">All rooms are booked in this time frame.</span>
-            <span class="w-100" v-else-if="rooms.unavailable.length === 1">One room is already booked.</span>
-            <span class="w-100" v-else-if="rooms.unavailable.length > 1">{{ rooms.unavailable.length }} rooms are already booked.</span>
+            <span class="w-100" v-if="searchresult.unavailable.length > 0 && searchresult.available.length === 0">{{ $t('comp.booking.allRoomsBooked') }}</span>
+            <span class="w-100" v-else>{{ $t('comp.booking.roomsBooked', searchresult.unavailable.length) }}</span>
           </span>
         </label>
       </div>
@@ -95,23 +53,22 @@
           <div class="col-auto">
             <div class="row bg-light" style="max-width: 450px">
               <div class="col p-2">
-                <label for="summary" class="form-label"> Summary </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="summary"
-                  placeholder="e.g. John Doe for an interview"
-                  v-model="bookingData.summary"
-                  required
-                />
+                <label for="summary" class="form-label"> {{ $t('labels.summary') }} </label>
+                <input type="text" class="form-control" id="summary" :placeholder="$t('comp.booking.exampleSummary')"
+                  v-model="bookingData.summary" required />
               </div>
               <div class="col-auto p-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary">Book</button>
+                <button type="submit" class="btn btn-primary">{{ $t('labels.book') }}</button>
               </div>
             </div>
           </div>
         </div>
       </form>
+    </div>
+    </div>
+    <div v-else class="alert alert-primary" role="alert">
+      <h4 class="alert-heading">{{ $t('alerts.noRoom.heading') }}</h4>
+      {{ $t('alerts.noRoom.text') }}
     </div>
   </div>
 </template>
@@ -120,6 +77,7 @@
 import axios from "axios";
 export default {
   name: "Booking",
+  props: ['rooms'],
   data() {
     return {
       bookingData: {
@@ -131,7 +89,7 @@ export default {
         endTime: "12:00",
         summary: "",
       },
-      rooms: { available: [], unavailable: [] },
+      searchresult: { available: [], unavailable: [] },
       selectedRooms: [],
     };
   },
@@ -150,9 +108,8 @@ export default {
         })
         .then((res) => {
           if (res.status === 200) {
-            console.log(res);
-            this.rooms.available = res.data.available;
-            this.rooms.unavailable = res.data.unavailable;
+            this.searchresult.available = res.data.available;
+            this.searchresult.unavailable = res.data.unavailable;
             this.selectedRooms = [];
           }
         })
@@ -171,13 +128,14 @@ export default {
         startDate: this.getDateTime(this.bookingData.startDate, this.bookingData.startTime),
         endDate: this.getDateTime(this.bookingData.endDate, this.bookingData.endTime),
       };
-      console.log(data);
       axios
         .post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/booking", data, {
           withCredentials: true,
         })
         .then((res) => {
-          console.log(res);
+          if(res.status == 200){
+            alert('success')
+          }
         })
         .catch((err) => {
           if (err.response.status === 401) {

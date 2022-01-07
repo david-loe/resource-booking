@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <h1>Settings</h1>
+    <h1>{{ $t('headlines.settings') }}</h1>
     <div class="container">
-      <h2>Rooms</h2>
-      <Roomlist></Roomlist>
+      <h2>{{ $t('headlines.rooms') }}</h2>
+      <Roomlist :rooms="this.rooms"></Roomlist>
     </div>
     
   </div>
@@ -16,6 +16,7 @@ export default {
   components: {
     Roomlist
   },
+  props: ['rooms'],
   data() {
     return {
     };
