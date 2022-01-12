@@ -53,25 +53,23 @@ export default {
   },
   methods: {
     async login() {
-      axios
-        .post(
-          process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/login",
+      try {
+        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/login",
           {
             username: this.email,
             password: this.password,
           },
           { withCredentials: true }
         )
-        .then((res) => {
-          if (res.status === 200) {
-            this.$root.authen();
-            this.$router.push("booking");
-          }
-        })
-        .catch(() => {
-            this.password = "";
-            alert("Failed to Login!");
-        });
+        if (res.status === 200) {
+          this.$root.authAndGetRoom();
+          this.$router.push("booking");
+        }
+      } catch (error) {
+        this.password = "";
+        alert("Failed to Login!");
+      }
+      
     },
   },
 };

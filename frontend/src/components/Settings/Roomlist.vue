@@ -30,7 +30,7 @@
                         <div class="row">
                             <div class="col">
                                 <label for="addRoomFormSize" class="form-label"> {{ $t('labels.size') }} </label>
-                                <input type="number" class="form-control" id="addRoomFormSize" v-model="newRoom.size" />
+                                <input type="text" class="form-control" id="addRoomFormSize" v-model="newRoom.size" />
                             </div>
                             <div class="col-auto">
                                 <label for="addRoomFormColor" class="form-label"> {{ $t('labels.color') }} </label>
@@ -83,7 +83,7 @@ export default {
       addRoomForm: false,
       newRoom: {
         name: "",
-        size: null,
+        size: "",
         description: "",
         img: undefined,
         color: undefined,
@@ -91,64 +91,53 @@ export default {
     };
   },
   methods: {
-    deleteRoom(name) {
-      axios
-        .delete(
-          process.env.VUE_APP_URL +
-            ":" +
-            process.env.VUE_APP_BACKEND_PORT +
-            "/api/room",
+    async deleteRoom(name) {
+      try {
+        const res = await axios.delete(
+          process.env.VUE_APP_URL + ":" + process.env.VUE_APP_BACKEND_PORT + "/api/room",
           {
             params: { name: name },
             withCredentials: true,
           }
         )
-        .then((res) => {
-          if (res.status === 200) {
-            this.$root.getRooms();
-          }
-        })
-        .catch((err) => {
-          if (err.response.status === 401) {
-            this.$router.push("login");
-          } else {
-            console.log(err);
-          }
-        });
+        if (res.status === 200) {
+          this.$root.getRooms();
+        }
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.$router.push("login");
+        } else {
+          console.log(error);
+        }
+      }
     },
-    addRoom() {
-      axios
-        .post(
-          process.env.VUE_APP_URL +
-            ":" +
-            process.env.VUE_APP_BACKEND_PORT +
-            "/api/room",
+    
+    async addRoom() {
+      try {
+        const res = await axios.post(process.env.VUE_APP_URL + ":" + process.env.VUE_APP_BACKEND_PORT + "/api/room",
           this.newRoom,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         )
-        .then((res) => {
-          if (res.status === 200) {
-            this.$root.getRooms();
-            this.newRoom = {
-              name: "",
-              size: null,
-              description: "",
-              img: undefined,
-              color: this.generateRandomColorHex(),
-            };
+        if (res.status === 200) {
+          this.$root.getRooms();
+          this.newRoom = {
+            name: "",
+            size: "",
+            description: "",
+            img: undefined,
+            color: this.generateRandomColorHex(),
           }
-        })
-        .catch((err) => {
-          if (err.response.status === 401) {
+        }
+      } catch (error) {
+        if (error.response.status === 401) {
             this.$router.push("login");
           } else {
-            console.log(err);
+            console.log(error);
           }
-        });
+      }
       this.correctColorLuminance(this.generateRandomColorHex());
     },
+
     changeFile(event) {
       const reader = new FileReader();
       if (
@@ -163,6 +152,7 @@ export default {
         this.newRoom.img = undefined;
       }
     },
+
     correctColorLuminance(hex) {
       if (hex) {
         // HEX to RGB
@@ -180,12 +170,14 @@ export default {
         return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
       }
     },
+
     generateRandomColorHex() {
       const rgb = [255, 255, 255].map(function (v) {
         return Math.round(Math.random() * v);
       });
       return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
     },
+
     calcRelativeLumiance(rgb) {
       // CALC relative Lumiance https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
       const copy = rgb.map(function (v) {
@@ -194,9 +186,11 @@ export default {
       });
       return copy[0] * 0.2126 + copy[1] * 0.7152 + copy[2] * 0.0722;
     },
+
     rgbToHex(r, g, b) {
       return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     },
+
     hexToRgb(hex) {
       const result = /^#?([a-fA-F\d]{2})([a-fA-F\d]{2})([a-fA-F\d]{2})$/i.exec(
         hex
@@ -208,6 +202,7 @@ export default {
       ];
     },
   },
+
   beforeMount() {
     this.newRoom.color = this.correctColorLuminance(
       this.generateRandomColorHex()

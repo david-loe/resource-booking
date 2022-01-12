@@ -54,7 +54,7 @@ router.delete('/room', async (req, res) => {
     if (req.query.name) {
         try {
             await Room.deleteOne({ name: req.query.name })
-            res.send({ status: 'ok' })
+            res.send({ message: 'ok' })
         } catch (error) {
             res.status(400).send({ message: "Unable to delete room " + req.query.name, error: error })
         }
@@ -79,10 +79,13 @@ router.post('/booking', async (req, res) => {
                 event.summary = req.body.summary
                 event.location = room.name;
                 event.uid = uid.uid()
-                event.startDate = ICAL.Time.fromDateTimeString(req.body.startDate)
-                event.endDate = ICAL.Time.fromDateTimeString(req.body.endDate)
+                event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
+                event.endDate = ICAL.Time.fromJSDate(new Date(req.body.endDate))
                 if(room.color){
                     vevent.addPropertyWithValue('color', room.color)
+                }
+                if(req.body.roomService != undefined){
+                    vevent.addPropertyWithValue('x-room-service', req.body.roomService.toString().toUpperCase())
                 }
                 const comp = new ICAL.Component(room.ical)
                 comp.addSubcomponent(vevent)
@@ -92,7 +95,7 @@ router.post('/booking', async (req, res) => {
             }
         }))
         if (bookedRooms.length > 0) {
-            res.send(bookedRooms)
+            res.send({rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate})
         } else {
             res.status(400).send({ message: "No Room Booked" })
         }

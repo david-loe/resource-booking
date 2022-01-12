@@ -64,7 +64,7 @@ export default {
     };
   },
   methods: {
-    async authen() {
+    async authAndGetRoom() {
       try {
         const res = await axios.get(
           process.env.VUE_APP_URL +
@@ -77,6 +77,7 @@ export default {
         );
         this.name = res.data.name;
         this.auth = res.status === 200;
+        this.getRooms()
       } catch (error) {
         this.$router.push("login");
       }
@@ -103,8 +104,7 @@ export default {
     }
   },
   beforeMount() {
-    this.authen();
-    this.getRooms();
+    this.authAndGetRoom();
   },
 };
 </script>

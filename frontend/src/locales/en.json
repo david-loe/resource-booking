@@ -19,7 +19,8 @@
     "cancel": "Cancel",
     "search": "Search",
     "book": "Book",
-    "addRoom": "Add Room"
+    "addRoom": "Add Room",
+    "roomService": "Room Service"
   },
   "alerts": {
     "noRoom": {
@@ -35,7 +36,15 @@
     "booking": {
       "exampleSummary": "e.g. John Doe for an interview",
       "roomsBooked": "One room is already booked. | {count} rooms are already booked.",
-      "allRoomsBooked": "All rooms are booked in this time frame."
+      "allRoomsBooked": "All rooms are booked in this time frame.",
+      "bookingSuccess": {
+        "heading": "Successfully Booked",
+        "text": "You've booked {rooms} from {startDate} to {endDate}."
+      },
+      "bookingFailure": {
+        "heading": "Something went wrong",
+        "text": "Your booking was not successful."
+      }
     },
     "settings": {},
     "room": {

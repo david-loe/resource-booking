@@ -1,4 +1,23 @@
 <template>
+<div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 v-if="booked.startDate" class="modal-title" id="exampleModalLabel">{{ $t('comp.booking.bookingSuccess.heading') }}</h5>
+        <h5 v-else class="modal-title" id="exampleModalLabel">{{ $t('comp.booking.bookingFailure.heading') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div v-if="booked.startDate" class="modal-body">
+        {{ $t('comp.booking.bookingSuccess.text', {rooms: booked.roomNames, startDate: new Date(booked.startDate).toLocaleString(), endDate: new Date(booked.endDate).toLocaleString()}) }}
+      </div>
+      <div v-else class="modal-body">
+        {{ $t('comp.booking.bookingFailure.text') }}
+      </div>
+    </div>
+  </div>
+</div>
   <div class="container">
     <h1>{{ $t('headlines.booking') }}</h1>
     <div v-if="rooms.length > 0">
@@ -6,17 +25,15 @@
       <form @submit.prevent="search()">
         <div class="row justify-content-center">
           <div class="col-auto">
-            <div class="row bg-light" style="max-width: 550px">
+            <div class="row bg-light" style="max-width: 600px">
               <div class="col-auto p-2">
                 <label for="startDateInput" class="form-label">{{ $t('labels.from') }}</label>
-                <input id="startDateInput" class="form-control" type="date" v-model="bookingData.startDate" required />
-                <input id="startTime" type="time" class="form-control" v-model="bookingData.startTime" />
+                <input id="startDateInput" class="form-control" type="datetime-local" v-model="bookingData.startDate" required />
               </div>
               <div class="col-auto p-2">
                 <label for="endDateInput" class="form-label">{{ $t('labels.to') }}</label>
-                <input id="endDateInput" class="form-control" type="date" v-model="bookingData.endDate" required
+                <input id="endDateInput" class="form-control" type="datetime-local" v-model="bookingData.endDate" required
                   v-bind:min="bookingData.startDate" />
-                <input id="endTime" type="time" class="form-control" v-model="bookingData.endTime" />
               </div>
               <div class="col-auto p-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary">{{ $t('labels.search') }}</button>
@@ -51,13 +68,20 @@
       <form @submit.prevent="book()">
         <div class="row justify-content-center">
           <div class="col-auto">
-            <div class="row bg-light" style="max-width: 450px">
+            <div class="row bg-light" style="max-width: 350px">
               <div class="col p-2">
                 <label for="summary" class="form-label"> {{ $t('labels.summary') }} </label>
                 <input type="text" class="form-control" id="summary" :placeholder="$t('comp.booking.exampleSummary')"
                   v-model="bookingData.summary" required />
               </div>
-              <div class="col-auto p-2 d-flex align-items-end">
+              <div class="w-100"></div>
+              <div class="col p-2">
+                <div class="form-check">
+                  <label for="roomService" class="form-check-label text-nowrap"> {{ $t('labels.roomService') }}</label>
+                  <input class="form-check-input" type="checkbox" id="roomService" role="switch" v-model="bookingData.roomService">
+                </div>
+              </div>
+              <div class="col-auto p-2">
                 <button type="submit" class="btn btn-primary">{{ $t('labels.book') }}</button>
               </div>
             </div>
@@ -71,81 +95,92 @@
       {{ $t('alerts.noRoom.text') }}
     </div>
   </div>
+</div>
+  
 </template>
 
 <script>
 import axios from "axios";
+import {Modal} from 'bootstrap';
+import jp from 'jsonpath';
 export default {
   name: "Booking",
   props: ['rooms'],
   data() {
     return {
       bookingData: {
-        startDate: new Date().toISOString().split("T")[0],
-        endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+        startDate: (new Date().toISOString().split("T")[0]) + "T16:00",
+        endDate: (new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
           .toISOString()
-          .split("T")[0],
-        startTime: "16:00",
-        endTime: "12:00",
+          .split("T")[0]) + "T12:00",
         summary: "",
+        roomService: false
       },
       searchresult: { available: [], unavailable: [] },
       selectedRooms: [],
+      modal: undefined,
+      booked: {
+        startDate: undefined,
+        endDate: undefined,
+        roomNames: []
+      }
     };
   },
   methods: {
-    getDateTime(date,time) {
-      return new Date(date + " " + time)
-    },
-    search() {
-      axios
-        .get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room/search", {
+    async search() {
+      try {
+        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/room/search", {
           params: {
-            startDate: this.getDateTime(this.bookingData.startDate, this.bookingData.startTime),
-            endDate: this.getDateTime(this.bookingData.endDate, this.bookingData.endTime),
+            startDate: new Date(this.bookingData.startDate),
+            endDate: new Date(this.bookingData.endDate),
           },
           withCredentials: true,
         })
-        .then((res) => {
-          if (res.status === 200) {
-            this.searchresult.available = res.data.available;
-            this.searchresult.unavailable = res.data.unavailable;
-            this.selectedRooms = [];
-          }
-        })
-        .catch((err) => {
-          if (err.response.status === 401) {
-            this.$router.push("login");
-          } else {
-            console.log(err);
-          }
-        });
+        if (res.status === 200) {
+          this.searchresult.available = res.data.available;
+          this.searchresult.unavailable = res.data.unavailable;
+          this.selectedRooms = [];
+        }
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.$router.push("login");
+        } else {
+          console.log(error);
+        }
+      }
     },
-    book() {
-      const data = {
-        rooms: this.selectedRooms,
-        summary: this.bookingData.summary,
-        startDate: this.getDateTime(this.bookingData.startDate, this.bookingData.startTime),
-        endDate: this.getDateTime(this.bookingData.endDate, this.bookingData.endTime),
-      };
-      axios
-        .post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/booking", data, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          if(res.status == 200){
-            alert('success')
+    async book() {
+      try {
+        const data = {
+          rooms: this.selectedRooms,
+          summary: this.bookingData.summary,
+          startDate: new Date(this.bookingData.startDate),
+          endDate: new Date(this.bookingData.endDate),
+          roomService: this.bookingData.roomService,
+        }
+        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/api/booking", data, { withCredentials: true })
+        if(res.status === 200){
+            console.log(res)
+            this.searchresult = { available: [], unavailable: [] }
+            this.selectedRooms = []
+            this.booked.startDate = res.data.startDate
+            this.booked.endDate = res.data.endDate
+            this.booked.roomNames = jp.query(res.data.rooms, '$..name')
           }
-        })
-        .catch((err) => {
-          if (err.response.status === 401) {
+      } catch (error) {
+        if (error.response.status === 401) {
             this.$router.push("login");
           } else {
-            console.log(err);
+            console.log(error);
           }
-        });
+        this.booked= { startDate: undefined, endDate: undefined, roomNames: [] }
+      }
+      this.modal.show()
     },
   },
+  mounted() {
+    this.modal = new Modal(document.getElementById("exampleModal"), {})
+  }
 };
 </script>
 
