@@ -43,7 +43,7 @@ services:
     env_file:
       - .env
     ports:
-     - ${VUE_APP_CALENDAR_PORT}:${VUE_APP_CALENDAR_PORT}
+      - ${VUE_APP_CALENDAR_PORT}:${VUE_APP_CALENDAR_PORT}
 
 # Test LDAP for development
   ldap:

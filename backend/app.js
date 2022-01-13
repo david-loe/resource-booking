@@ -7,6 +7,7 @@ const LdapStrategy = require('passport-ldapauth')
 const session = require("express-session")
 
 const port = process.env.VUE_APP_BACKEND_PORT
+const url = process.env.VUE_APP_URL
 
 mongoose.connect(process.env.MONGO_URL, {}, () => {
   console.log('Successfully connected to the Database.')
@@ -32,7 +33,7 @@ app.use(express.json({limit: '2mb'}))
 app.use(express.urlencoded({limit: '2mb'}));
 app.use(cors({
   credentials: true,
-  origin: 'http://localhost:' + process.env.VUE_APP_FRONTEND_PORT
+  origin: url + ':' + process.env.VUE_APP_FRONTEND_PORT
 }))
 app.use(cookierParser())
 
@@ -76,5 +77,5 @@ const icalRoute = require('./icalRoute')
 app.use(icalRoute)
 
 app.listen(port, () => {
-  console.log(`Backend listening at http://localhost:${port}`)
+  console.log(`Backend listening at ${url}:${port}`)
 })

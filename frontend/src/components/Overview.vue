@@ -82,7 +82,8 @@ export default {
       }
       if(roomNames.length > 0){
         const calendarUrlParts = [
-        "http://localhost:3112/calendar.html",
+          process.env.VUE_APP_URL,
+        ":3112/calendar.html",
         "&skin=dhtmlxscheduler_flat.css&target=_blank&loader=&tabs=month&tabs=week&tabs=agenda&getColorFromEvent=true",
         "&locationUrlPrefix=",
         encodeURIComponent(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_FRONTEND_PORT + process.env.VUE_APP_ROOM_DETAILS_PATH + '/'),
@@ -101,7 +102,7 @@ export default {
         }
         
       }
-      calendarUrlParts.splice(1, 0, ...urls);
+      calendarUrlParts.splice(2, 0, ...urls);
       return calendarUrlParts.join("");
       }
       
