@@ -6,6 +6,7 @@ services:
       - db  
     volumes:
       - ./backend:/app
+      - /app/node_modules
     ports:
       - ${VUE_APP_BACKEND_PORT}:${VUE_APP_BACKEND_PORT}
     env_file:
@@ -22,6 +23,7 @@ services:
     restart: always
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - open-web-calendar 
       - backend
