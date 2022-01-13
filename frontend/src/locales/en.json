@@ -26,7 +26,8 @@
     "noRoom": {
       "heading": "No Room",
       "text" : "There is no Room to view. Please setup a room under Settings."
-    }
+    },
+    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'roomservice'."
   },
   "comp": {
     "login": {

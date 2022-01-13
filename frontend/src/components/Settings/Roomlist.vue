@@ -24,7 +24,7 @@
                     <div class="col-sm">
                         <label for="addRoomFormName" class="form-label"> {{ $t('labels.name') }} </label>
                         <input type="text" class="form-control" id="addRoomFormName" :placeholder="$t('comp.room.exampleName')"
-                            v-model="newRoom.name" required pattern='^[^<>\/\\\*\|":\?]*$' />
+                            v-model="newRoom.name" required pattern='^(?!roomservice\b)[^<>\/\\\*\|":\?]*$' :title='$t("alerts.nameValidation")'/>
                     </div>
                     <div class="col-sm">
                         <div class="row">
