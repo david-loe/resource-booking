@@ -15,13 +15,14 @@ mongoose.connect(process.env.MONGO_URL, {}, () => {
 
 passport.use(new LdapStrategy({
   server: {
-    url: 'ldaps://ldap:10636',
-    bindDN: 'cn=admin,dc=planetexpress,dc=com',
-    bindCredentials: 'GoodNewsEveryone',
-    searchBase: 'ou=people,dc=planetexpress,dc=com',
-    searchFilter: '(uid={{username}})',
+    url: process.env.LDAP_URL,
+    bindDN: process.env.LDAP_BINDDN,
+    bindCredentials: process.env.LDAP_BINDCREDENTIALS,
+    searchBase: process.env.LDAP_SEARCHBASE,
+    searchFilter: process.env.LDAP_SEARCHFILTER,
     tlsOptions: {
-      rejectUnauthorized: false
+      requestCert: process.env.LDAP_TLS_REQUESTCERT.toLowerCase() === 'true',
+      rejectUnauthorized: process.env.LDAP_TLS_REJECTUNAUTHORIZED.toLowerCase() === 'true'
     }
   },
 
@@ -40,7 +41,7 @@ app.use(cookierParser())
 app.use(session({
   secret: Date(Math.random * 100000).toUpperCase(),
   cookie: {
-    maxAge: 600000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     secure: false
   }
 }))
