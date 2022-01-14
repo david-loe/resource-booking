@@ -58,7 +58,6 @@ app.use(passport.initialize())
 app.use(passport.session());
 
 app.post('/login', passport.authenticate('ldapauth', { session: true }), function (req, res) {
-  // console.log(req.user.uid)
   res.send({ status: 'ok' })
 });
 

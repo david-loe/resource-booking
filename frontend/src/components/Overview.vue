@@ -86,7 +86,7 @@ export default {
         ":3112/calendar.html",
         "&skin=dhtmlxscheduler_flat.css&target=_blank&loader=&tabs=month&tabs=week&tabs=agenda&getColorFromEvent=true",
         "&locationUrlPrefix=",
-        encodeURIComponent(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_FRONTEND_PORT + process.env.VUE_APP_ROOM_DETAILS_PATH + '/'),
+        process.env.VUE_APP_USE_LINK_LOCATION.toLowerCase() === 'true' ? encodeURIComponent(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_FRONTEND_PORT + process.env.VUE_APP_ROOM_DETAILS_PATH + '/') : 'false',
         "&language=",
         process.env.VUE_APP_I18N_LOCALE
       ]
