@@ -34,7 +34,7 @@
                             </div>
                             <div class="col-auto">
                                 <label for="addRoomFormColor" class="form-label"> {{ $t('labels.color') }} </label>
-                                <input type="color" class="form-control" id="addRoomFormColor" v-model="newRoom.color"
+                                <input style="min-height:27px" type="color" class="form-control" id="addRoomFormColor" v-model="newRoom.color"
                                     @change="this.newRoom.color = correctColorLuminance( this.newRoom.color)" />
                             </div>
                         </div>
@@ -125,7 +125,7 @@ export default {
             size: "",
             description: "",
             img: undefined,
-            color: this.generateRandomColorHex(),
+            color: this.correctColorLuminance(this.generateRandomColorHex()),
           }
         }
       } catch (error) {
@@ -135,7 +135,6 @@ export default {
             console.log(error);
           }
       }
-      this.correctColorLuminance(this.generateRandomColorHex());
     },
 
     changeFile(event) {
@@ -145,8 +144,8 @@ export default {
         event.target.files[0].size < 1000000
       ) {
         reader.readAsDataURL(event.target.files[0]);
-        reader.onload = () => {
-          this.newRoom.img = reader.result;
+        reader.onload = async () => {
+          this.newRoom.img = await this.resizedataURL(reader.result, 50, 50);
         };
       } else {
         this.newRoom.img = undefined;
@@ -178,6 +177,36 @@ export default {
       return this.rgbToHex(rgb[0], rgb[1], rgb[2]);
     },
 
+    // From https://stackoverflow.com/a/52983833/13582326
+    resizedataURL(datas, wantedWidth, wantedHeight){
+      return new Promise((resolve) => {
+
+        // We create an image to receive the Data URI
+        var img = document.createElement('img');
+
+        // When the event "onload" is triggered we can resize the image.
+        img.onload = function()
+        {        
+          // We create a canvas and get its context.
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+
+          // We set the dimensions at the wanted size.
+          canvas.width = wantedWidth;
+          canvas.height = wantedHeight;
+
+          // We resize the image with the canvas method drawImage();
+          ctx.drawImage(this, 0, 0, wantedWidth, wantedHeight);
+
+          var dataURI = canvas.toDataURL();
+
+          // This is the return of the Promise
+          resolve(dataURI);
+        };
+      // We put the Data URI in the image's src attribute
+      img.src = datas;
+    })
+  },
     calcRelativeLumiance(rgb) {
       // CALC relative Lumiance https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
       const copy = rgb.map(function (v) {

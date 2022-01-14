@@ -4,7 +4,17 @@ const User = require('./models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
 
-function hasConflict(ical, startDate, endDate) {
+function icalEventToSimpleEvent(icalEvent) {
+    return {startDate: icalEvent.startDate.toJSDate(),
+        endDate: icalEvent.endDate.toJSDate(),
+        summary: icalEvent.summary,
+        organizer: icalEvent.organizer,
+        location: icalEvent.location
+    }
+}
+
+function getConflictingEvents(ical, startDate, endDate) {
+    const conflictingEvents = []
     const confStart = new Date(startDate)
     const confEnd = new Date(endDate)
     const comp = new ICAL.Component(ical)
@@ -16,16 +26,17 @@ function hasConflict(ical, startDate, endDate) {
             if (confEnd <= eventStart) {
                 continue
             } else {
-                return true
+                conflictingEvents.push(icalEventToSimpleEvent(event))
             }
         } else if (confStart < eventEnd) {
-            return true
+            conflictingEvents.push(icalEventToSimpleEvent(event))
         } else {
             continue
         }
     }
-    return false
+    return conflictingEvents
 }
+
 
 router.get('/user', async (req, res) => {
     res.send({
@@ -78,7 +89,7 @@ router.post('/booking', async (req, res) => {
                 const event = new ICAL.Event(vevent)
                 event.summary = req.body.summary
                 event.location = room.name
-                event.oranizer = req.user.displayName
+                event.organizer = req.user.displayName
                 event.description = "📝 " + req.user.displayName
                 event.uid = uid.uid()
                 event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
@@ -111,13 +122,14 @@ router.get('/room/search', async (req, res) => {
         const available = [];
         const unavailable = [];
         const rooms = await Room.find()
-        rooms.forEach(room => {
-            if (hasConflict(room.ical, req.query.startDate, req.query.endDate)) {
-                unavailable.push(room)
-            } else {
+        for(const room of rooms){
+            const conflictingEvents = getConflictingEvents(room.ical, req.query.startDate, req.query.endDate)
+            if(conflictingEvents.length == 0){
                 available.push(room)
+            } else {
+                unavailable.push({room: room, conflictingEvents: conflictingEvents})
             }
-        })
+        }
         res.send({ available: available, unavailable: unavailable })
     } else {
         res.status(400).send({ message: "Start or End Missing" })
