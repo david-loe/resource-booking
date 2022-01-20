@@ -9,7 +9,8 @@ function icalEventToSimpleEvent(icalEvent) {
         endDate: icalEvent.endDate.toJSDate(),
         summary: icalEvent.summary,
         organizer: icalEvent.organizer,
-        location: icalEvent.location
+        location: icalEvent.location,
+        color: icalEvent.color
     }
 }
 
@@ -92,11 +93,9 @@ router.post('/booking', async (req, res) => {
                 event.organizer = req.user.displayName
                 event.description = "📝 " + req.user.displayName
                 event.uid = uid.uid()
+                event.color = room.color
                 event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
                 event.endDate = ICAL.Time.fromJSDate(new Date(req.body.endDate))
-                if(room.color){
-                    vevent.addPropertyWithValue('color', room.color)
-                }
                 if(req.body.roomService != undefined){
                     vevent.addPropertyWithValue('x-room-service', req.body.roomService.toString().toUpperCase())
                 }
