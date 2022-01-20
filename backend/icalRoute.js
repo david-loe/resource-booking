@@ -21,13 +21,13 @@ router.get('/ical/:name', async (req, res) => {
                         }
                     }
                 }
-                res.set({ "Content-Disposition": "attachment; filename=\"" + "calendar" + ".ical\"" })
+                res.set({ "Content-Disposition": "attachment; filename=\"" + "calendar" + ".ics\"" })
                 res.send(roomServiceIcal.toString())
 
             } else {
                 const room = await Room.findOne({ name: req.params.name })
                 if (room) {
-                    res.set({ "Content-Disposition": "attachment; filename=\"" + "calendar" + ".ical\"" })
+                    res.set({ "Content-Disposition": "attachment; filename=\"" + "calendar" + ".ics\"" })
                     res.send(ICAL.stringify(room.ical))
                 } else {
                     res.status(400).send({ message: "Room with name: '" + req.params.name + "' not found." })

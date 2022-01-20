@@ -9,18 +9,46 @@
       width="100%"
     ></iframe>
   </div>
+  <FullCalendar :options="calendarOptions" />
 </template>
 
 <script>
+import '@fullcalendar/core/vdom' // solves problem with Vite
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import iCalendarPlugin from '@fullcalendar/icalendar'
 export default {
   name: "Calendar",
   props: ["roomNames", "tab"],
+  components: {
+    FullCalendar // make the <FullCalendar> tag available
+  },
   data() {
     return {
       calendarUrl: "",
+      eventSources: {},
+      calendarOptions: {
+        plugins: [ dayGridPlugin, interactionPlugin, iCalendarPlugin],
+        initialView: 'dayGridMonth',
+        locate: process.env.VUE_APP_I18N_LOCALE,
+        // dateClick: this.handleDateClick,
+        events: [{url: 'http://desktop-oogglo0.fmc.local:8000/ical/Dachboden?token=(hgMpA7%a4P:?$Cq', format: 'ics'},
+        {url: 'http://desktop-oogglo0.fmc.local:8000/ical/Kellerwohnung?token=(hgMpA7%a4P:?$Cq', format: 'ics'}]
+      }
     };
   },
   methods: {
+    genEventSources(roomNames){
+      const urlParts = [process.env.VUE_APP_URL + ":" + process.env.VUE_APP_BACKEND_PORT + "/ical/", "?token=", process.env.VUE_APP_ICAL_TOKEN]
+      const sources = []
+      for (const name of roomNames){
+        var tempParts = [...urlParts]
+        tempParts.splice(1,0, name)
+        sources.push({ url: tempParts.join(''), format: 'ics'})
+      }
+      return sources[0]
+    },
     genCalendarUrl(roomNames) {
       if(roomNames.length > 0){
         const calendarUrlParts = [
@@ -54,11 +82,14 @@ export default {
   },
   beforeMount() {
     this.calendarUrl = this.genCalendarUrl(this.roomNames);
+    //this.calendarOptions.events = this.genEventSources(this.roomNames)
     
   },
   watch: {
     roomNames: function(){
       this.calendarUrl = this.genCalendarUrl(this.roomNames);
+      this.calendarOptions.events = this.genEventSources(this.roomNames)
+      console.log(this.genEventSources(this.roomNames))
     }
   }
 };

@@ -9,6 +9,11 @@
     "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
   },
   "dependencies": {
+    "@fullcalendar/core": "^5.10.1",
+    "@fullcalendar/daygrid": "^5.10.1",
+    "@fullcalendar/icalendar": "^5.10.1",
+    "@fullcalendar/interaction": "^5.10.1",
+    "@fullcalendar/vue3": "^5.10.1",
     "@popperjs/core": "^2.11.2",
     "axios": "^0.24.0",
     "bootstrap": "^5.1.3",
