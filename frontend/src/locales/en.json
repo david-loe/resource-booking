@@ -1,5 +1,6 @@
 {
   "headlines": {
+    "roombooking": "Room Booking",
     "overview": "Overview",
     "booking": "Booking",
     "settings": "Settings",
@@ -20,7 +21,11 @@
     "search": "Search",
     "book": "Book",
     "addRoom": "Add Room",
-    "roomService": "Room Service"
+    "roomService": "Room Service",
+    "organizer": "Organizer",
+    "room": "Room",
+    "edit":"Edit",
+    "delete": "Delete"
   },
   "alerts": {
     "noRoom": {
@@ -32,6 +37,8 @@
   "comp": {
     "login": {
       "signIn": "Please sign in"
+    },
+    "calendar": {
     },
     "overview": {},
     "booking": {

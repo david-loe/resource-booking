@@ -63,7 +63,7 @@ export default {
         )
         if (res.status === 200) {
           this.$root.authAndGetRoom();
-          this.$router.push("booking");
+          this.$router.push("home");
         }
       } catch (error) {
         this.password = "";

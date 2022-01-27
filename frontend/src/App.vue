@@ -1,36 +1,28 @@
 <template>
   <div>
-    <header class="p-3 mb-3 border-bottom">
+    <header class="mb-3 border-bottom bg-white bg-opacity-25">
         <div class="container">
-            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none">
-                    <img class="px-2" src="./assets/home-solid.svg" alt="" width="40" height="32" />
-                </a>
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li>
-                        <router-link to="/overview" class="nav-link px-2 link-dark">{{
-                            $t("headlines.overview")
-                            }}</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/booking" class="nav-link px-2 link-dark">{{
-                            $t("headlines.booking")
-                            }}</router-link>
-                    </li>
-                    <li>
-                        <router-link to="/settings" class="nav-link px-2 link-dark">{{
-                            $t("headlines.settings")
-                            }}</router-link>
-                    </li>
-                </ul>
-                <div class="dropdown text-end">
-                    <div v-if="auth">
-                        <img src="./assets/user-circle-regular.svg" alt="user" width="32" height="32"
-                            class="rounded-circle" />
-                        <span class="px-2 align-middle">{{ name }}</span>
+            <div class="d-flex flex-row align-items-center">
+                <div class="me-auto">
+                    <a href="/" class="nav-link link-dark d-flex align-items-center">
+                      <i class="fs-1 bi bi-house"></i>
+                      <span class="fs-4 ms-2">{{ $t("headlines.roombooking")}}</span> 
+                    </a>
+                </div>
+                <div class="ps-2">
+                    <router-link to="/settings" class="nav-link link-dark d-flex align-items-center">
+                      <i class="fs-4 bi bi-gear"></i>
+                      <span class="ms-1 d-none d-md-block">{{ $t("headlines.settings")}}</span>
+                    </router-link>
+                </div>
+                <div class="ps-2">
+                    <div v-if="auth" class="d-flex align-items-center">
+                        <i class="fs-4 bi bi-person-circle"></i>
+                        <span class="ms-1 d-none d-md-block">{{ name }}</span>
                     </div>
-
-                    <router-link v-if="!auth" to="/login" class="nav-link px-2 link-dark">{{ $t("headlines.login") }}
+                    <router-link v-else to="/login" class="nav-link link-dark d-flex align-items-center">
+                    <i class="fs-4 bi bi-box-arrow-in-right"></i>
+                    <span class="ms-1 d-none d-md-block">{{ $t("headlines.login") }}</span>
                     </router-link>
                 </div>
             </div>
@@ -40,11 +32,11 @@
 
     <footer class="py-3 border-top">
         <div class="container">
-            <div class="col-md-4 d-flex">
-                <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
-                    <img class="bi" src="./assets/home-solid.svg" alt="" width="30" height="24" />
+            <div class="col-md-4 d-flex align-items-center">
+                <a href="/" class="mb-3 me-2 mb-md-0 text-decoration-none link-dark lh-1">
+                    <i class="fs-3 bi bi-house"></i>
                 </a>
-                <span class="text-muted align-middle">© {{ new Date().getFullYear() }} Room Booking</span>
+                <span class="text-muted">© {{ new Date().getFullYear() }} Room Booking</span>
             </div>
         </div>
     </footer>
@@ -98,7 +90,7 @@ export default {
         if (error.response.status === 401) {
             this.$router.push("login");
           } else {
-            console.log(error);
+            console.log(error.response.data);
           }
       }
     }
@@ -129,5 +121,8 @@ footer {
   width: 100%;
   height: 60px; /* Set the fixed height of the footer here */
   z-index: -999;
+}
+header{
+  height: 77px;
 }
 </style>

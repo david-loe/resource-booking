@@ -1,12 +1,12 @@
 <template>
-<div>
+<div id="booking">
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="bookingInfoModal" tabindex="-1" aria-labelledby="bookingInfoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 v-if="booked.startDate" class="modal-title" id="exampleModalLabel">{{ $t('comp.booking.bookingSuccess.heading') }}</h5>
-        <h5 v-else class="modal-title" id="exampleModalLabel">{{ $t('comp.booking.bookingFailure.heading') }}</h5>
+        <h5 v-if="booked.startDate" class="modal-title" id="bookingInfoModalLabel">{{ $t('comp.booking.bookingSuccess.heading') }}</h5>
+        <h5 v-else class="modal-title" id="bookingInfoModalLabel">{{ $t('comp.booking.bookingFailure.heading') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div v-if="booked.startDate" class="modal-body">
@@ -18,14 +18,15 @@
     </div>
   </div>
 </div>
-  <div class="container">
-    <h1>{{ $t('headlines.booking') }}</h1>
+<div class="container">
+<div class="mx-auto px-3 py-2 bg-light bg-opacity-75 rounded-3" style="max-width: 80%">
+    <h2>{{ $t('headlines.booking') }}</h2>
     <div v-if="rooms.length > 0">
       <div class="container mb-3">
       <form @submit.prevent="search()">
         <div class="row justify-content-center">
           <div class="col-auto">
-            <div class="row bg-light" style="max-width: 600px">
+            <div class="row bg-dark text-white rounded-3" style="max-width: 600px">
               <div class="col-auto p-2">
                 <label for="startDateInput" class="form-label">{{ $t('labels.from') }}</label>
                 <input id="startDateInput" class="form-control" type="datetime-local" v-model="bookingData.startDate" required />
@@ -97,6 +98,8 @@
   </div>
 </div>
   
+</div>
+  
 </template>
 
 <script>
@@ -146,7 +149,7 @@ export default {
         if (error.response.status === 401) {
           this.$router.push("login");
         } else {
-          console.log(error);
+          console.log(error.response.data);
         }
       }
     },
@@ -167,12 +170,13 @@ export default {
             this.booked.startDate = res.data.startDate
             this.booked.endDate = res.data.endDate
             this.booked.roomNames = jp.query(res.data.rooms, '$..name')
+            this.$emit('changed')
           }
       } catch (error) {
         if (error.response.status === 401) {
             this.$router.push("login");
           } else {
-            console.log(error);
+            console.log(error.response.data);
           }
         this.booked= { startDate: undefined, endDate: undefined, roomNames: [] }
       }
@@ -180,12 +184,13 @@ export default {
     },
   },
   mounted() {
-    this.modal = new Modal(document.getElementById("exampleModal"), {})
+    this.modal = new Modal(document.getElementById("bookingInfoModal"), {})
   }
 };
 </script>
 
 <style scoped>
+
 .form-check-input:checked + .form-checked-content {
   opacity: 0.5;
 }

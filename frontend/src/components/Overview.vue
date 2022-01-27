@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>{{ $t('headlines.overview') }}</h1>
+    <h2>{{ $t('headlines.overview') }}</h2>
     <div v-if="rooms.length > 0" >
       <div class="container my-3">
       <div class="row justify-content-center">
