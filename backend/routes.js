@@ -4,14 +4,16 @@ const User = require('./models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
 
-function icalEventToSimpleEvent(icalEvent) {
+function icalEventToSimpleEvent(vevent) {
+    const icalEvent = new ICAL.Event(vevent);
     return {
         startDate: icalEvent.startDate.toJSDate(),
         endDate: icalEvent.endDate.toJSDate(),
         summary: icalEvent.summary,
         organizer: icalEvent.organizer,
         location: icalEvent.location,
-        color: icalEvent.color
+        color: icalEvent.color,
+        roomService: vevent.getFirstPropertyValue('x-room-service')
     }
 }
 
@@ -28,10 +30,10 @@ function getConflictingEvents(ical, startDate, endDate) {
             if (confEnd <= eventStart) {
                 continue
             } else {
-                conflictingEvents.push(icalEventToSimpleEvent(event))
+                conflictingEvents.push(icalEventToSimpleEvent(vevent))
             }
         } else if (confStart < eventEnd) {
-            conflictingEvents.push(icalEventToSimpleEvent(event))
+            conflictingEvents.push(icalEventToSimpleEvent(vevent))
         } else {
             continue
         }
@@ -39,13 +41,25 @@ function getConflictingEvents(ical, startDate, endDate) {
     return conflictingEvents
 }
 
-function deleteEventByUid(ical, uid) {
+function getEventByUid(ical, uid) {
     const comp = new ICAL.Component(ical)
     for (const vevent of comp.getAllSubcomponents('vevent')) {
         const event = new ICAL.Event(vevent);
         if (event.uid === uid) {
-            comp.removeSubcomponent(vevent)
-            return vevent
+            return icalEventToSimpleEvent(vevent)
+        }
+    }
+    return false
+}
+
+function deleteVeventByUid(ical, uid) {
+    const comp = new ICAL.Component(ical)
+    for (const vevent of comp.getAllSubcomponents('vevent')) {
+        const event = new ICAL.Event(vevent);
+        if (event.uid === uid) {
+            if (comp.removeSubcomponent(vevent)) {
+                return vevent
+            }
         }
     }
     return false
@@ -68,10 +82,30 @@ router.post('/room', async (req, res) => {
         color: req.body.color
     })
     try {
-        const result = await room.save()
-        res.send(result)
+        res.send(await room.save())
     } catch (error) {
         res.status(400).send({ message: "Unable to save room", error: error })
+    }
+})
+
+router.post('/room/change', async (req, res) => {
+    if(req.body.name){
+        const room = await Room.findOne({ name: req.body.name })
+        if(room){
+            room.size = req.body.size,
+            room.description = req.body.description,
+            room.img = req.body.img,
+            room.color = req.body.color
+            try {
+                res.send(await room.save())
+            } catch (error) {
+                res.status(400).send({ message: "Unable to save room", error: error })
+            }
+        }else{
+            res.status(400).send({message: "No room found named: " + req.body.name})
+        }
+    }else{
+        res.status(400).send({message: "Name Missing"})
     }
 })
 
@@ -115,9 +149,11 @@ router.get('/room/search', async (req, res) => {
 router.post('/booking', async (req, res) => {
     const bookedRooms = []
     if (new Date(req.body.startDate) < new Date(req.body.endDate)) {
+        const conflictingEvents = []
         await Promise.all(req.body.rooms.map(async roomName => {
             const room = await Room.findOne({ name: roomName })
             if (room) {
+                conflictingEvents.push(...getConflictingEvents(room.ical, req.body.startDate, req.body.endDate))
                 const vevent = new ICAL.Component('vevent')
                 const event = new ICAL.Event(vevent)
                 event.summary = req.body.summary
@@ -128,7 +164,7 @@ router.post('/booking', async (req, res) => {
                 event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
                 event.endDate = ICAL.Time.fromJSDate(new Date(req.body.endDate))
                 if (req.body.roomService != undefined) {
-                    vevent.addPropertyWithValue('x-room-service', req.body.roomService.toString().toUpperCase())
+                    vevent.addPropertyWithValue('x-room-service', req.body.roomService)
                 }
                 const comp = new ICAL.Component(room.ical)
                 comp.addSubcomponent(vevent)
@@ -138,7 +174,11 @@ router.post('/booking', async (req, res) => {
             }
         }))
         if (bookedRooms.length > 0) {
-            res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
+            if(conflictingEvents.length === 0){
+                res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
+            }else{
+                res.status(400).send({message: "Conflict while booking", conflictingEvents: conflictingEvents})
+            }
         } else {
             res.status(400).send({ message: "No Room Booked" })
         }
@@ -147,40 +187,11 @@ router.post('/booking', async (req, res) => {
     }
 })
 
-router.post('/booking/change', async (req, res) => {
-    if (req.body.roomName && req.body.uid && req.body.startDate && req.body.endDate) {
-        const room = await Room.findOne({ name: req.body.roomName })
+router.delete('/booking', async (req, res) => {
+    if (req.query.location && req.query.uid) {
+        const room = await Room.findOne({ name: req.query.location })
         if (room) {
-            const eventComp = deleteEventByUid(room.ical, req.body.uid)
-            if (eventComp) {
-                const conflictingEvents = getConflictingEvents(room.ical, req.body.startDate, req.body.endDate)
-                if (conflictingEvents.length == 0) {
-                    newEvent = new ICAL.Event(eventComp)
-                    newEvent.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
-                    newEvent.endDate = ICAL.Time.fromJSDate(new Date(req.body.endDate))
-                    const comp = new ICAL.Component(room.ical)
-                    comp.addSubcomponent(eventComp)
-                    room.markModified('ical');
-                    res.send(await room.save())
-                } else {
-                    res.status(400).send({message: "New Date generates conflicts.", conflictingEvents: conflictingEvents})
-                }
-            } else {
-                res.status(400).send({ message: "No Event with uid: " + req.body.uid })
-            }
-        } else {
-            res.status(400).send({ message: "No room found named: " + req.body.roomName })
-        }
-    }else{
-        res.status(400).send({message: "Please provide roomName, uid, startDate and endDate."})
-    }
-})
-
-router.delete('/booking/change', async (req, res) => {
-    if (req.query.roomName && req.query.uid) {
-        const room = await Room.findOne({ name: req.query.roomName })
-        if (room) {
-            const eventComp = deleteEventByUid(room.ical, req.query.uid)
+            const eventComp = deleteVeventByUid(room.ical, req.query.uid)
             if (eventComp) {
                 room.markModified('ical');
                 res.send(await room.save())
@@ -188,10 +199,75 @@ router.delete('/booking/change', async (req, res) => {
                 res.status(400).send({ message: "No Event with uid: " + req.query.uid })
             }
         } else {
-            res.status(400).send({ message: "No room found named: " + req.query.roomName })
+            res.status(400).send({ message: "No room found named: " + req.query.location })
         }
-    }else{
-        res.status(400).send({message: "Please provide roomName and uid."})
+    } else {
+        res.status(400).send({ message: "Please provide location and uid." })
+    }
+})
+
+router.get('/booking', async (req, res) => {
+    if (req.query.location && req.query.uid) {
+        const room = await Room.findOne({ name: req.query.location })
+        if (room) {
+            const event = getEventByUid(room.ical, req.query.uid)
+            if(event){
+                res.send(event)
+            }else {
+                res.status(400).send({ message: "No Event with uid: " + req.query.uid })
+            }
+
+        } else {
+            res.status(400).send({ message: "No room found named: " + req.query.location })
+        }
+    } else {
+        res.status(400).send({ message: "Please provide location and uid." })
+    }
+})
+
+router.post('/booking/change', async (req, res) => {
+    if (req.body.old.location && req.body.old.uid && req.body.new.startDate && req.body.new.endDate && req.body.new.location) {
+        const oldRoom = await Room.findOne({ name: req.body.old.location })
+        var newRoom = oldRoom;
+        if(req.body.old.location !== req.body.new.location){
+            newRoom = await Room.findOne({ name: req.body.new.location })
+        }
+        if (oldRoom && newRoom) {
+            const eventComp = deleteVeventByUid(oldRoom.ical, req.body.old.uid)
+            if (eventComp) {
+                const conflictingEvents = getConflictingEvents(newRoom.ical, req.body.new.startDate, req.body.new.endDate)
+                if (conflictingEvents.length == 0) {
+                    if(req.body.new.roomService != undefined){
+                        eventComp.updatePropertyWithValue('x-room-service', req.body.new.roomService)
+                    }
+                    eventComp.updatePropertyWithValue
+                    newEvent = new ICAL.Event(eventComp)
+                    newEvent.startDate = ICAL.Time.fromJSDate(new Date(req.body.new.startDate))
+                    newEvent.endDate = ICAL.Time.fromJSDate(new Date(req.body.new.endDate))
+                    newEvent.location = req.body.new.location
+                    newEvent.color = newRoom.color
+                    if(req.body.new.summary){
+                        newEvent.summary = req.body.new.summary
+                    }
+                    const comp = new ICAL.Component(newRoom.ical)
+                    comp.addSubcomponent(eventComp)
+                    newRoom.markModified('ical');
+                    res.send(await newRoom.save())
+                    if(oldRoom.name !== newRoom.name){
+                        oldRoom.markModified('ical')
+                        oldRoom.save()
+                    } 
+                } else {
+                    res.status(400).send({ message: "New Date generates conflicts.", conflictingEvents: conflictingEvents })
+                }
+            } else {
+                res.status(400).send({ message: "No Event with uid: " + req.body.old.uid })
+            }
+        } else {
+            res.status(400).send({ message: "No room found named: " + req.body.old.location })
+        }
+    } else {
+        res.status(400).send({ message: "Please provide location, uid, startDate and endDate." })
     }
 })
 

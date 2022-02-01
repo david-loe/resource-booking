@@ -5,26 +5,22 @@
       <h2>{{ $t('headlines.rooms') }}</h2>
       <Roomlist :rooms="this.rooms"></Roomlist>
     </div>
-    
   </div>
 </template>
 
 <script>
-import Roomlist from "./Settings/Roomlist.vue"
+import Roomlist from './Settings/Roomlist.vue'
 export default {
-  name: "Settings",
+  name: 'Settings',
   components: {
-    Roomlist
+    Roomlist,
   },
   props: ['rooms'],
   data() {
-    return {
-    };
+    return {}
   },
-  methods: {
-
-  },
-};
+  methods: {},
+}
 </script>
 
 <style>

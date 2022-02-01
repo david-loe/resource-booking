@@ -16,7 +16,7 @@ router.get('/ical', async (req, res) => {
                     const comp = new ICAL.Component(ical)
                     const subcomps = comp.getAllSubcomponents()
                     for(const subcomp of subcomps){
-                        if(subcomp.getFirstPropertyValue('x-room-service').toLowerCase() === 'true'){
+                        if(subcomp.getFirstPropertyValue('x-room-service')){
                             roomServiceIcal.addSubcomponent(subcomp)
                         }
                     }

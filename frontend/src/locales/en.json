@@ -5,7 +5,8 @@
     "booking": "Booking",
     "settings": "Settings",
     "login": "Login",
-    "rooms": "Rooms"
+    "rooms": "Rooms",
+    "roomservice": "Room Service"
   },
   "labels": {
     "email": "Email address",
@@ -24,22 +25,22 @@
     "roomService": "Room Service",
     "organizer": "Organizer",
     "room": "Room",
-    "edit":"Edit",
+    "edit": "Edit",
     "delete": "Delete"
   },
   "alerts": {
     "noRoom": {
       "heading": "No Room",
-      "text" : "There is no Room to view. Please setup a room under Settings."
+      "text": "There is no Room to view. Please setup a room under Settings."
     },
-    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'roomservice'."
+    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'roomservice'.",
+    "bookingconflict": "The chosen details cause a conflict with an already exsiting Booking."
   },
   "comp": {
     "login": {
       "signIn": "Please sign in"
     },
-    "calendar": {
-    },
+    "calendar": {},
     "overview": {},
     "booking": {
       "exampleSummary": "e.g. John Doe for an interview",
@@ -56,7 +57,7 @@
     },
     "settings": {},
     "room": {
-      "exampleName" : "e.g. Room 2"
+      "exampleName": "e.g. Room 2"
     }
   }
 }

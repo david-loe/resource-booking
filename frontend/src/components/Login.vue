@@ -1,24 +1,11 @@
 <template>
   <div class="text-center" id="loginPage">
     <form class="form-signin" @submit.prevent="login()">
-      <img
-        class="mb-4"
-        src="../assets/home-solid.svg"
-        alt=""
-        width="72"
-        height="57"
-      />
+      <img class="mb-4" src="../assets/home-solid.svg" alt="" width="72" height="57" />
       <h1 class="h3 mb-3 fw-normal">{{ $t('comp.login.signIn') }}</h1>
 
       <div class="form-floating">
-        <input
-          type="username"
-          class="form-control"
-          id="floatingInput"
-          placeholder="name@example.com"
-          v-model="email"
-          required
-        />
+        <input type="username" class="form-control" id="floatingInput" placeholder="name@example.com" v-model="email" required />
         <label for="floatingInput">{{ $t('labels.email') }}</label>
       </div>
       <div class="form-floating">
@@ -33,46 +20,44 @@
         <label for="floatingPassword">{{ $t('labels.password') }}</label>
       </div>
 
-      <button class="w-100 btn btn-lg btn-primary" type="submit">
-        Sign in
-      </button>
+      <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
     </form>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios'
 
 export default {
-  name: "Login",
+  name: 'Login',
   data() {
     return {
-      password: "",
-      email: "",
-    };
+      password: '',
+      email: '',
+    }
   },
   methods: {
     async login() {
       try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + "/login",
+        const res = await axios.post(
+          process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/login',
           {
             username: this.email,
             password: this.password,
           },
-          { withCredentials: true }
+          { withCredentials: true },
         )
         if (res.status === 200) {
-          this.$root.authAndGetRoom();
-          this.$router.push("home");
+          this.$root.authAndGetRoom()
+          this.$router.push('/')
         }
       } catch (error) {
-        this.password = "";
-        alert("Failed to Login!");
+        this.password = ''
+        alert('Failed to Login!')
       }
-      
     },
   },
-};
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -101,13 +86,13 @@ export default {
   z-index: 2;
 }
 
-.form-signin input[type="email"] {
+.form-signin input[type='email'] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
 
-.form-signin input[type="password"] {
+.form-signin input[type='password'] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
