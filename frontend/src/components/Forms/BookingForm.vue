@@ -47,7 +47,7 @@
         {{ $t('labels.book') }}
       </button>
       <button type="submit" class="btn btn-primary me-2" v-if="this.mode === 'edit'">
-        {{ $t('labels.edit') }}
+        {{ $t('labels.save') }}
       </button>
       <button type="button" class="btn btn-light" v-on:click="this.$emit('cancel')">
         {{ $t('labels.cancel') }}

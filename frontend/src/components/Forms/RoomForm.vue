@@ -1,15 +1,15 @@
 <template>
   <form class="container" @submit.prevent="this.mode === 'add' ? this.$emit('add', this.formRoom) : this.$emit('edit', this.formRoom)">
-    <div class="mb-3">
+    <div class="mb-2">
       <div class="row">
         <div class="col-sm">
-          <label for="addRoomFormName" class="form-label">
+          <label for="roomFormName" class="form-label">
             {{ $t('labels.name') }}
           </label>
           <input
             type="text"
             class="form-control"
-            id="addRoomFormName"
+            id="roomFormName"
             :placeholder="$t('comp.room.exampleName')"
             v-model="formRoom.name"
             required
@@ -21,20 +21,20 @@
         <div class="col-sm">
           <div class="row">
             <div class="col">
-              <label for="addRoomFormSize" class="form-label">
+              <label for="roomFormSize" class="form-label">
                 {{ $t('labels.size') }}
               </label>
-              <input type="text" class="form-control" id="addRoomFormSize" v-model="formRoom.size" />
+              <input type="text" class="form-control" id="roomFormSize" v-model="formRoom.size" />
             </div>
             <div class="col-auto">
-              <label for="addRoomFormColor" class="form-label">
+              <label for="roomFormColor" class="form-label">
                 {{ $t('labels.color') }}
               </label>
               <input
                 style="min-height: 27px"
                 type="color"
                 class="form-control"
-                id="addRoomFormColor"
+                id="roomFormColor"
                 v-model="formRoom.color"
                 @change="formRoom.color = correctColorLuminance(formRoom.color)"
               />
@@ -43,26 +43,26 @@
         </div>
       </div>
     </div>
-    <div class="mb-3">
+    <div class="mb-2">
       <div class="row">
         <div class="col-sm">
-          <label for="addRoomFormDes" class="form-label">
+          <label for="roomFormDes" class="form-label">
             {{ $t('labels.description') }}
           </label>
-          <textarea class="form-control" id="addRoomFormDes" rows="3" v-model="formRoom.description"></textarea>
+          <textarea class="form-control" id="roomFormDes" rows="3" v-model="formRoom.description"></textarea>
         </div>
         <div class="col-sm">
-          <label for="addRoomFormImg" class="form-label"> Image (max 1MB)</label>
-          <input class="form-control" type="file" id="addRoomFormImg" @change="changeFile" accept="image/*" />
+          <label for="roomFormImg" class="form-label"> Image (max 1MB)</label>
+          <input class="form-control" type="file" id="roomFormImg" @change="changeFile" accept="image/*" />
         </div>
       </div>
     </div>
-    <div class="mb-3">
+    <div class="mb-2">
       <button type="submit" class="btn btn-primary me-2" v-if="this.mode === 'add'">
         {{ $t('labels.addRoom') }}
       </button>
       <button type="submit" class="btn btn-primary me-2" v-if="this.mode === 'edit'">
-        {{ $t('labels.edit') }}
+        {{ $t('labels.save') }}
       </button>
       <button type="button" class="btn btn-light" v-on:click="this.$emit('cancel')">
         {{ $t('labels.cancel') }}

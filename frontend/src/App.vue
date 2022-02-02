@@ -10,13 +10,13 @@
             </a>
           </div>
           <div>
-            <router-link to="/room-service" class="nav-link link-dark d-flex align-items-center">
+            <router-link v-if="isAdmin || isRoomService" to="/room-service" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-4 bi bi-bucket"></i>
               <span class="ms-1 d-none d-md-block">{{ $t('headlines.roomservice') }}</span>
             </router-link>
           </div>
           <div>
-            <router-link to="/settings" class="nav-link link-dark d-flex align-items-center">
+            <router-link v-if="isAdmin" to="/settings" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-4 bi bi-gear"></i>
               <span class="ms-1 d-none d-md-block">{{ $t('headlines.settings') }}</span>
             </router-link>
@@ -58,6 +58,7 @@ export default {
     return {
       auth: false,
       name: '',
+      isAdmin: false,
       rooms: [],
     }
   },
@@ -69,6 +70,8 @@ export default {
         })
         this.name = res.data.name
         this.auth = res.status === 200
+        this.isAdmin = res.data.isAdmin
+        this.isRoomService = res.data.isRoomService
         this.getRooms()
       } catch (error) {
         this.$router.push('login')

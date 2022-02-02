@@ -6,7 +6,8 @@
     "settings": "Settings",
     "login": "Login",
     "rooms": "Rooms",
-    "roomservice": "Room Service"
+    "roomservice": "Room Service",
+    "user": "User"
   },
   "labels": {
     "email": "Email address",
@@ -22,11 +23,15 @@
     "search": "Search",
     "book": "Book",
     "addRoom": "Add Room",
+    "addUser": "Add User",
     "roomService": "Room Service",
     "organizer": "Organizer",
     "room": "Room",
     "edit": "Edit",
-    "delete": "Delete"
+    "save": "Save",
+    "delete": "Delete",
+    "uid": "UID",
+    "admin": "Admin"
   },
   "alerts": {
     "noRoom": {

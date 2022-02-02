@@ -24,3 +24,5 @@ docker-compose up -d
 backend: `localhost:8000`
 
 frontend: `localhost:5000`
+
+First user to sign in gets admin rights (maybe refresh necessary).

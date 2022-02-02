@@ -67,7 +67,7 @@ export default {
   data() {
     return {
       roomFormMode: "",
-      roomToEdit: {}
+      roomToEdit: undefined
     }
   },
   methods: {
@@ -77,12 +77,12 @@ export default {
     },
     async editRoom(room){
       try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/room/change', room, {
+        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/room/change', room, {
           withCredentials: true,
         })
         if (res.status === 200) {
           this.$root.getRooms()
-          this.roomFormMode = ""
+          this.roomFormMode = ''
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -94,7 +94,7 @@ export default {
     },
     async deleteRoom(name) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/room', {
+        const res = await axios.delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/room', {
           params: { name: name },
           withCredentials: true,
         })
@@ -112,7 +112,7 @@ export default {
 
     async addRoom(room) {
       try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/room', room, {
+        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/room', room, {
           withCredentials: true,
         })
         if (res.status === 200) {

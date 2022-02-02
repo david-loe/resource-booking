@@ -5,6 +5,7 @@ const cookierParser = require('cookie-parser')
 const passport = require('passport')
 const LdapStrategy = require('passport-ldapauth')
 const session = require("express-session")
+const User = require('./models/user')
 
 const port = process.env.VUE_APP_BACKEND_PORT
 const url = process.env.VUE_APP_URL
@@ -57,23 +58,39 @@ passport.deserializeUser(function (user, done) {
 app.use(passport.initialize())
 app.use(passport.session());
 
-app.post('/login', passport.authenticate('ldapauth', { session: true }), function (req, res) {
+app.post('/login', passport.authenticate('ldapauth', { session: true }), async (req, res) => {
   res.send({ status: 'ok' })
 });
 
-app.use('/api', (req, res, next) => {
+app.use('/api', async (req, res, next) => {
   if (req.isAuthenticated()){
     next();
+    // Add user as admin if no admin exists
+    if((await User.find({isAdmin: true})).length === 0){
+      const firstUser = new User({uid: req.user.uid, isAdmin: true})
+      firstUser.save()
+    }
   }
   else{
     return res.status(401).send({ message: "unauthorized" })
   } 
 })
-
-const routes = require('./routes')
+const routes = require('./routes/routes')
 app.use('/api', routes)
 
-const icalRoute = require('./icalRoute')
+app.use('/api/admin', async (req, res, next) => {
+  const user = await User.findOne({uid : req.user.uid})
+  if (user && user.isAdmin){
+      next();
+  }
+  else{
+    return res.status(401).send({ message: "unauthorized" })
+  } 
+})
+const adminRoutes = require('./routes/adminRoutes')
+app.use('/api/admin', adminRoutes)
+
+const icalRoute = require('./routes/icalRoute')
 app.use(icalRoute)
 
 app.listen(port, () => {

@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const Room = require('./models/room')
+const Room = require('../models/room')
 const ICAL = require('ical.js')
 
 router.get('/ical', async (req, res) => {
