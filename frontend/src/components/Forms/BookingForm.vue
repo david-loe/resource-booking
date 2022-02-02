@@ -94,8 +94,8 @@ export default {
   methods: {
     setEvent(event) {
       const formEvent = event
-      formEvent.startDate = new Date(event.startDate).toISOString().slice(0, -8)
-      formEvent.endDate = new Date(event.endDate).toISOString().slice(0, -8)
+      formEvent.startDate = new Date(new Date(event.startDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(0, -8)
+      formEvent.endDate = new Date(new Date(event.endDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(0, -8)
       return formEvent
     },
     send() {
