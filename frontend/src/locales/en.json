@@ -1,12 +1,12 @@
 {
   "headlines": {
-    "roombooking": "Room Booking",
+    "roomBooking": "Room Booking",
     "overview": "Overview",
     "booking": "Booking",
     "settings": "Settings",
     "login": "Login",
     "rooms": "Rooms",
-    "roomservice": "Room Service",
+    "roomService": "Room Service",
     "user": "User"
   },
   "labels": {

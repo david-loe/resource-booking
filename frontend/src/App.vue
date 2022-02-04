@@ -6,13 +6,13 @@
           <div class="me-auto">
             <a href="/" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-1 bi bi-house"></i>
-              <span class="fs-4 ms-2 d-none d-md-block">{{ $t('headlines.roombooking') }}</span>
+              <span class="fs-4 ms-2 d-none d-md-block">{{ $t('headlines.roomBooking') }}</span>
             </a>
           </div>
           <div>
             <router-link v-if="isAdmin || isRoomService" to="/room-service" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-4 bi bi-bucket"></i>
-              <span class="ms-1 d-none d-md-block">{{ $t('headlines.roomservice') }}</span>
+              <span class="ms-1 d-none d-md-block">{{ $t('headlines.roomService') }}</span>
             </router-link>
           </div>
           <div>
@@ -59,6 +59,7 @@ export default {
       auth: false,
       name: '',
       isAdmin: false,
+      isRoomService: false,
       rooms: [],
     }
   },

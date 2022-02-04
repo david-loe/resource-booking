@@ -1,4 +1,4 @@
-# room-booking
+# Room Booking 🏠
 A Vue.js Project to easily manage room availablility.
 
 
@@ -8,21 +8,13 @@ Using [OpenLDAP Docker Image](https://github.com/rroemhild/docker-test-openldap)
 
 Using [ical.js](https://github.com/mozilla-comm/ical.js/) to generate and handle iCalendar.
 
-## Install
+## Install & Run
 ```
 git clone https://github.com/david-loe/room-booking.git
 cd room-booking
-git submodule init
-git submodule update
-```
-
-## Run
-```
 docker-compose up -d
 ```
-
-backend: `localhost:8000`
-
-frontend: `localhost:5000`
-
+frontend running on `localhost:5000` login with `professor:professor` (or any other user from [OpenLDAP Docker Image](https://github.com/rroemhild/docker-test-openldap))
 First user to sign in gets admin rights (maybe refresh necessary).
+
+change `.env` to individualize the apps settings

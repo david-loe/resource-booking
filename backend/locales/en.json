@@ -1,0 +1,30 @@
+{
+    "headlines": {
+        "roomBooking": "Room Booking"
+    },
+    "labels":{
+        "from":"From",
+        "to":"To",
+        "details":"Details",
+        "room": "Room",
+        "roomService": "Room Service",
+        "summary": "Summary"
+    },
+    "mail": {
+        "confirmation": {
+            "heading":"Booking Conformation",
+            "salutation": "Dear {{recipient}}",
+            "content_one": "Your Booking of {{room}} was successful.",
+            "content_other": "Your Booking was successful.",
+            "footer": "View your Booking on"
+        }
+    },
+    "alerts":{
+        "request":{
+            "unauthorized": "Not authorized!"
+        },
+        "db":{
+            "success": "Successfully connected to the Database."
+        }
+    }
+}

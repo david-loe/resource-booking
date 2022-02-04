@@ -1,26 +1,14 @@
 const router = require('express').Router()
 const Room = require('../models/room')
 const ICAL = require('ical.js')
+const helper = require('../helper')
+const i18n = require('../i18n')
 
 router.get('/ical', async (req, res) => {
     if (req.query.token === process.env.VUE_APP_ICAL_TOKEN) {
         if (req.query.name) {
             if (req.query.name === "roomservice") {
-                const rooms = await Room.find({})
-                var icals = []
-                for(var room of rooms){
-                    icals.push(room.ical)
-                }
-                const roomServiceIcal = new ICAL.Component(['vcalendar', [], []])
-                for(const ical of icals){
-                    const comp = new ICAL.Component(ical)
-                    const subcomps = comp.getAllSubcomponents()
-                    for(const subcomp of subcomps){
-                        if(subcomp.getFirstPropertyValue('x-room-service')){
-                            roomServiceIcal.addSubcomponent(subcomp)
-                        }
-                    }
-                }
+                const roomServiceIcal = await helper.getRoomServiceIcal()
                 res.set({ "Content-Disposition": "attachment; filename=\"" + "calendar" + ".ics\"" })
                 res.send(roomServiceIcal.toString())
 
@@ -49,7 +37,7 @@ router.get('/ical', async (req, res) => {
             res.status(400).send({ message: "Name Missing" })
         }
     } else {
-        res.status(401).send({ message: "unauthorized" })
+        res.status(401).send({ message: i18n.t("alerts.request.unauthorized") })
     }
 })
 

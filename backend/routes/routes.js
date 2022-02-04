@@ -3,6 +3,8 @@ const Room = require('../models/room')
 const User = require('../models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
+const i18n = require('../i18n')
+const sendConformationMail = require('../mail/confirmation')
 
 function icalEventToSimpleEvent(vevent) {
     const icalEvent = new ICAL.Event(vevent);
@@ -65,12 +67,11 @@ function deleteVeventByUid(ical, uid) {
     return false
 }
 
-
 router.get('/user', async (req, res) => {
     var isAdmin = false;
     var isRoomService = false;
-    const user = await User.findOne({uid : req.user.uid})
-    if(user){
+    const user = await User.findOne({ uid: req.user.uid })
+    if (user) {
         isAdmin = user.isAdmin
         isRoomService = user.isRoomService
     }
@@ -110,11 +111,13 @@ router.get('/room/search', async (req, res) => {
 
 router.post('/booking', async (req, res) => {
     const bookedRooms = []
+    const roomNames = []
     if (new Date(req.body.startDate) < new Date(req.body.endDate)) {
         const conflictingEvents = []
         await Promise.all(req.body.rooms.map(async roomName => {
             const room = await Room.findOne({ name: roomName })
             if (room) {
+                roomNames.push(room.name)
                 conflictingEvents.push(...getConflictingEvents(room.ical, req.body.startDate, req.body.endDate))
                 const vevent = new ICAL.Component('vevent')
                 const event = new ICAL.Event(vevent)
@@ -138,6 +141,7 @@ router.post('/booking', async (req, res) => {
         if (bookedRooms.length > 0) {
             if (conflictingEvents.length === 0) {
                 res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
+                sendConformationMail(req.body.startDate, req.body.endDate, roomNames, req.body.summary, req.body.roomService, req.user.displayName, req.user.uid)
             } else {
                 res.status(400).send({ message: "Conflict while booking", conflictingEvents: conflictingEvents })
             }
