@@ -1,5 +1,5 @@
 <template>
-<calendar :roomNames="['roomservice']"></calendar>
+<calendar :roomNames="['roomservice']" :editable="false"></calendar>
 </template>
 
 <script>

@@ -11,39 +11,43 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <table v-if="selectedEvent.start" class="table">
-              <tbody>
-                <tr>
-                  <th>{{ $t('labels.from') }}</th>
-                  <td>{{ selectedEvent.start.toLocaleDateString(undefined, dateStringOptions) }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $t('labels.to') }}</th>
-                  <td>{{ selectedEvent.end.toLocaleDateString(undefined, dateStringOptions) }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $t('labels.room') }}</th>
-                  <td>{{ selectedEvent.extendedProps.location }}</td>
-                </tr>
-                <tr>
-                  <th>{{ $t('labels.organizer') }}</th>
-                  <td>{{ selectedEvent.extendedProps.organizer }}</td>
-                </tr>
-              </tbody>
-            </table>
-            <button
-              type="button"
-              class="btn btn-secondary me-2"
-              v-on:click="
-                infoModal.hide();
-                editModal.show()
-              "
-            >
-              {{ $t('labels.edit') }}
-            </button>
-            <button type="button" class="btn btn-danger" v-on:click="deleteBooking(selectedEvent)">
-              {{ $t('labels.delete') }}
-            </button>
+            <template v-if="selectedEvent.start">
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th>{{ $t('labels.from') }}</th>
+                    <td>{{ selectedEvent.start.toLocaleDateString(undefined, dateStringOptions) }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $t('labels.to') }}</th>
+                    <td>{{ selectedEvent.end.toLocaleDateString(undefined, dateStringOptions) }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $t('labels.room') }}</th>
+                    <td>{{ selectedEvent.extendedProps.location }}</td>
+                  </tr>
+                  <tr>
+                    <th>{{ $t('labels.organizer') }}</th>
+                    <td>{{ selectedEvent.extendedProps.organizer }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <template v-if="(selectedEvent.extendedProps.organizer === this.$root.name) || this.$root.isAdmin">
+                <button
+                  type="button"
+                  class="btn btn-secondary me-2"
+                  v-on:click="
+                    infoModal.hide();
+                    editModal.show()
+                  "
+                >
+                  {{ $t('labels.edit') }}
+                </button>
+                <button type="button" class="btn btn-danger" v-on:click="deleteBooking(selectedEvent)">
+                  {{ $t('labels.delete') }}
+                </button>
+              </template>
+            </template>
           </div>
         </div>
       </div>
@@ -95,6 +99,10 @@ export default {
       type: String,
       default: 'month',
     },
+    editable: {
+      type: Boolean,
+      default: true,
+    },
   },
   components: {
     FullCalendar,
@@ -104,10 +112,8 @@ export default {
     return {
       calendarOptions: {
         plugins: [dayGridPlugin, listPlugin, interactionPlugin, iCalendarPlugin],
-        editable: true,
-        eventResizableFromStart: true,
+        editable: this.editable,
         selectable: true,
-        selectMirror: true,
         selectConstraint: { start: new Date().setHours(0, 0, 0, 0) },
         selectMinDistance: 5,
         initialView: 'dayGridMonth',
@@ -123,7 +129,6 @@ export default {
         height: 'auto',
         aspectRatio: 2.1,
         eventDrop: this.eventCheck,
-        eventResize: this.eventCheck,
         eventClick: this.eventClick,
       },
       dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' },
@@ -183,7 +188,6 @@ export default {
           },
           withCredentials: true,
         })
-        console.log(res)
         return res.data
       } catch (error) {
         if (error.response.status === 401) {
@@ -232,16 +236,15 @@ export default {
             },
             new: {
               location: eventDropInfo.event.extendedProps.location,
-              startDate: eventDropInfo.event.start.setHours(16, 0, 0, 0),
-              endDate: eventDropInfo.event.end.setHours(12, 0, 0, 0),
+              startDate: eventDropInfo.event.start,
+              endDate: eventDropInfo.event.end,
             },
           },
           { withCredentials: true },
         )
-        if(res.status === 200){
+        if (res.status === 200) {
           this.changedEvents()
         }
-          
       } catch (error) {
         if (error.response.status === 401) {
           this.$router.push('login')

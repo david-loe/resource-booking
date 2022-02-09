@@ -159,6 +159,14 @@ router.delete('/booking', async (req, res) => {
         if (room) {
             const eventComp = deleteVeventByUid(room.ical, req.query.uid)
             if (eventComp) {
+                const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
+                var isAdmin = false;
+                if(user){
+                    isAdmin = user.isAdmin
+                }
+                if(eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin){
+                    return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
+                }
                 room.markModified('ical');
                 res.send(await room.save())
             } else {
@@ -192,8 +200,6 @@ router.get('/booking', async (req, res) => {
 })
 
 router.post('/booking/change', async (req, res) => {
-    console.log(new Date(req.body.new.endDate).toString())
-    console.log(new Date().getTimezoneOffset())
     if (req.body.old.location && req.body.old.uid && req.body.new.startDate && req.body.new.endDate && req.body.new.location) {
         const oldRoom = await Room.findOne({ name: req.body.old.location })
         var newRoom = oldRoom;
@@ -203,6 +209,14 @@ router.post('/booking/change', async (req, res) => {
         if (oldRoom && newRoom) {
             const eventComp = deleteVeventByUid(oldRoom.ical, req.body.old.uid)
             if (eventComp) {
+                const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
+                var isAdmin = false;
+                if(user){
+                    isAdmin = user.isAdmin
+                }
+                if(eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin){
+                    return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
+                }
                 const conflictingEvents = getConflictingEvents(newRoom.ical, req.body.new.startDate, req.body.new.endDate)
                 if (conflictingEvents.length == 0) {
                     if (req.body.new.roomService != undefined) {
