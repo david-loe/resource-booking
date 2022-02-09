@@ -69,7 +69,7 @@ app.use('/api', async (req, res, next) => {
     next();
     // Add user as admin if no admin exists
     if ((await User.find({ isAdmin: true })).length === 0) {
-      const firstUser = new User({ uid: req.user.uid, isAdmin: true })
+      const firstUser = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], isAdmin: true })
       firstUser.save()
     }
   }
@@ -81,7 +81,7 @@ const routes = require('./routes/routes')
 app.use('/api', routes)
 
 app.use('/api/admin', async (req, res, next) => {
-  const user = await User.findOne({ uid: req.user.uid })
+  const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
   if (user && user.isAdmin) {
     next();
   }

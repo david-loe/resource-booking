@@ -70,14 +70,14 @@ function deleteVeventByUid(ical, uid) {
 router.get('/user', async (req, res) => {
     var isAdmin = false;
     var isRoomService = false;
-    const user = await User.findOne({ uid: req.user.uid })
+    const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
     if (user) {
         isAdmin = user.isAdmin
         isRoomService = user.isRoomService
     }
     res.send({
-        email: req.user.uid,
-        name: req.user.displayName,
+        email: req.user[process.env.LDAP_MAIL_ATTRIBUTE],
+        name: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE],
         isAdmin: isAdmin,
         isRoomService: isRoomService,
     })
@@ -123,7 +123,7 @@ router.post('/booking', async (req, res) => {
                 const event = new ICAL.Event(vevent)
                 event.summary = req.body.summary
                 event.location = room.name
-                event.organizer = req.user.displayName
+                event.organizer = req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE]
                 event.uid = uid.uid()
                 event.color = room.color
                 event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
@@ -141,7 +141,7 @@ router.post('/booking', async (req, res) => {
         if (bookedRooms.length > 0) {
             if (conflictingEvents.length === 0) {
                 res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
-                sendConformationMail(req.body.startDate, req.body.endDate, roomNames, req.body.summary, req.body.roomService, req.user.displayName, req.user.uid)
+                sendConformationMail(req.body.startDate, req.body.endDate, roomNames, req.body.summary, req.body.roomService, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
             } else {
                 res.status(400).send({ message: "Conflict while booking", conflictingEvents: conflictingEvents })
             }

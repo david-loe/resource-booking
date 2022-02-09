@@ -57,7 +57,6 @@ router.get('/user', async (req, res) => {
 })
 
 router.post('/user', async (req, res) => {
-    console.log(req.body)
     const user = new User({
         uid: req.body.uid,
         isAdmin: req.body.isAdmin,
