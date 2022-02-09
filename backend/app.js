@@ -42,7 +42,7 @@ app.use(cors({
 app.use(cookierParser())
 
 app.use(session({
-  secret: Date(Math.random * 100000).toUpperCase(),
+  secret: new Date(Math.random * 100000).toString().toUpperCase(),
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     secure: false
@@ -69,8 +69,15 @@ app.use('/api', async (req, res, next) => {
     next();
     // Add user as admin if no admin exists
     if ((await User.find({ isAdmin: true })).length === 0) {
-      const firstUser = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], isAdmin: true })
-      firstUser.save()
+      const currentUser = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
+      if(currentUser){
+        currentUser.isAdmin = true
+        currentUser.save()
+      }else{
+        const firstUser = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], isAdmin: true, mail: req.user[process.env.LDAP_MAIL_ATTRIBUTE] })
+        firstUser.save()
+      }
+      
     }
   }
   else {
@@ -95,8 +102,8 @@ app.use('/api/admin', adminRoutes)
 const icalRoute = require('./routes/icalRoute')
 app.use(icalRoute)
 
-// Cron Job on 5:00 AM every day
-cron.schedule('0 5 * * *', () => {
+// Cron Job every hour on the first minute
+cron.schedule('1 * * * *', () => {
   const sendRoomServiceReminder = require('./mail/reminder')
   sendRoomServiceReminder()
 })

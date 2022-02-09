@@ -4,20 +4,9 @@ const User = require('../models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
 const i18n = require('../i18n')
+const helper = require('../helper')
 const sendConformationMail = require('../mail/confirmation')
 
-function icalEventToSimpleEvent(vevent) {
-    const icalEvent = new ICAL.Event(vevent);
-    return {
-        startDate: icalEvent.startDate.toJSDate(),
-        endDate: icalEvent.endDate.toJSDate(),
-        summary: icalEvent.summary,
-        organizer: icalEvent.organizer,
-        location: icalEvent.location,
-        color: icalEvent.color,
-        roomService: vevent.getFirstPropertyValue('x-room-service')
-    }
-}
 
 function getConflictingEvents(ical, startDate, endDate) {
     const conflictingEvents = []
@@ -32,10 +21,10 @@ function getConflictingEvents(ical, startDate, endDate) {
             if (confEnd <= eventStart) {
                 continue
             } else {
-                conflictingEvents.push(icalEventToSimpleEvent(vevent))
+                conflictingEvents.push(helper.icalEventToSimpleEvent(vevent))
             }
         } else if (confStart < eventEnd) {
-            conflictingEvents.push(icalEventToSimpleEvent(vevent))
+            conflictingEvents.push(helper.icalEventToSimpleEvent(vevent))
         } else {
             continue
         }
@@ -48,7 +37,7 @@ function getEventByUid(ical, uid) {
     for (const vevent of comp.getAllSubcomponents('vevent')) {
         const event = new ICAL.Event(vevent);
         if (event.uid === uid) {
-            return icalEventToSimpleEvent(vevent)
+            return helper.icalEventToSimpleEvent(vevent)
         }
     }
     return false
@@ -74,9 +63,16 @@ router.get('/user', async (req, res) => {
     if (user) {
         isAdmin = user.isAdmin
         isRoomService = user.isRoomService
+    }else{
+        const newUser = new User({uid: req.user[process.env.LDAP_UID_ATTRIBUTE],
+            mail: req.user[process.env.LDAP_MAIL_ATTRIBUTE]})
+        try {
+            await newUser.save()
+        } catch (error) {
+            res.status(400).send({ message: "Error while creating User" })
+        }
     }
     res.send({
-        email: req.user[process.env.LDAP_MAIL_ATTRIBUTE],
         name: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE],
         isAdmin: isAdmin,
         isRoomService: isRoomService,

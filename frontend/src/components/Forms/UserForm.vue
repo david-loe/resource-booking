@@ -1,10 +1,18 @@
 <template>
   <form class="container" @submit.prevent="this.mode === 'add' ? this.$emit('add', this.formUser) : this.$emit('edit', this.formUser)">
-    <div class="mb-2">
-      <label for="userFormUid" class="form-label">
-        {{ $t('labels.uid') }}
-      </label>
-      <input type="text" class="form-control" id="userFormUid" v-model="formUser.uid" required :disabled="this.mode === 'edit'" />
+    <div class="row mb-2">
+      <div class="col">
+        <label for="userFormUid" class="form-label">
+          {{ $t('labels.uid') }}
+        </label>
+        <input type="text" class="form-control" id="userFormUid" v-model="formUser.uid" required :disabled="this.mode === 'edit'" />
+      </div>
+      <div class="col">
+        <label for="userFormMail" class="form-label">
+          {{ $t('labels.email') }}
+        </label>
+        <input type="text" class="form-control" id="userFormMail" v-model="formUser.mail" required :disabled="this.mode === 'edit'" />
+      </div>
     </div>
 
     <div class="row mb-2">
@@ -48,6 +56,7 @@ export default {
           uid: '',
           isAdmin: false,
           isRoomService: false,
+          mail: '',
         }
       },
     },
@@ -67,11 +76,10 @@ export default {
   methods: {
     clear() {
       this.formUser = {
-        name: '',
-        size: '',
-        description: '',
-        img: undefined,
-        color: this.correctColorLuminance(this.generateRandomColorHex()),
+        uid: '',
+        isAdmin: false,
+        isRoomService: false,
+        mail: '',
       }
     },
   },

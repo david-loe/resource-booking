@@ -131,7 +131,7 @@ export default {
         eventDrop: this.eventCheck,
         eventClick: this.eventClick,
       },
-      dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' },
+      dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' },
       infoModal: undefined,
       editModal: undefined,
       modalIsInfo: true,

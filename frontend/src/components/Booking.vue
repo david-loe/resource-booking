@@ -170,7 +170,6 @@ export default {
           this.searchresult.available = res.data.available
           this.searchresult.unavailable = res.data.unavailable
           this.selectedRooms = []
-          console.log(res)
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -193,7 +192,6 @@ export default {
           withCredentials: true,
         })
         if (res.status === 200) {
-          console.log(res)
           this.clear()
           this.booked.startDate = res.data.startDate
           this.booked.endDate = res.data.endDate

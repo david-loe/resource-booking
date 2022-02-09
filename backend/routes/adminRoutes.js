@@ -60,7 +60,8 @@ router.post('/user', async (req, res) => {
     const user = new User({
         uid: req.body.uid,
         isAdmin: req.body.isAdmin,
-        isRoomService: req.body.isRoomService
+        isRoomService: req.body.isRoomService,
+        mail: req.body.mail
     })
     try {
         res.send(await user.save())

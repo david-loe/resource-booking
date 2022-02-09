@@ -1,6 +1,7 @@
 {
     "headlines": {
-        "roomBooking": "Room Booking"
+        "roomBooking": "Room Booking",
+        "roomService": "Room Service"
     },
     "labels":{
         "from":"From",
@@ -11,12 +12,16 @@
         "summary": "Summary"
     },
     "mail": {
+        "salutation": "Dear {{recipient}}",
+        "footer": "View your Booking on",
         "confirmation": {
             "heading":"Booking Conformation",
-            "salutation": "Dear {{recipient}}",
             "content_one": "Your Booking of {{room}} was successful.",
-            "content_other": "Your Booking was successful.",
-            "footer": "View your Booking on"
+            "content_other": "Your Booking was successful."
+        },
+        "reminder": {
+            "heading": "Reminder",
+            "content": "The following rooms are coming up soon:"
         }
     },
     "alerts":{

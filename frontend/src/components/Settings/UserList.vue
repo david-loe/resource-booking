@@ -71,7 +71,6 @@ export default {
           withCredentials: true,
         })
         if (res.status === 200) {
-          console.log(res.data)
           this.users = res.data.users
         }
       } catch (error) {
@@ -83,7 +82,6 @@ export default {
       }
     },
     async addUser(user) {
-      console.log(user)
        try {
         const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/user',
         user,
@@ -92,6 +90,7 @@ export default {
         })
         if (res.status === 200) {
           this.getUsers()
+          this.$refs.userform.clear()
         }
       } catch (error) {
         if (error.response.status === 401) {
