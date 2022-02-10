@@ -77,7 +77,7 @@ export default {
     },
     async editRoom(room){
       try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/room/change', room, {
+        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/room/change', room, {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -94,7 +94,7 @@ export default {
     },
     async deleteRoom(name) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/room', {
+        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/room', {
           params: { name: name },
           withCredentials: true,
         })
@@ -112,7 +112,7 @@ export default {
 
     async addRoom(room) {
       try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/room', room, {
+        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/room', room, {
           withCredentials: true,
         })
         if (res.status === 200) {

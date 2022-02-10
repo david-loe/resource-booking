@@ -38,7 +38,7 @@ async function sendRoomServiceReminder() {
             <h1>` + i18n.t("mail.reminder.heading") + `</h1>
             <p>` + i18n.t("mail.reminder.content") + `</p>
             ` + eventList + `<br/>
-            <p>` + i18n.t("mail.footer") + `<a href="`+ process.env.VUE_APP_URL + ':' + process.env.VUE_APP_FRONTEND_PORT +`"> ` + i18n.t("headlines.roomBooking") + ` 🏠</p>`
+            <p>` + i18n.t("mail.footer") + `<a href="`+ process.env.VUE_APP_FRONTEND_URL +`"> ` + i18n.t("headlines.roomBooking") + ` 🏠</p>`
         mailClient.sendMail({
             from: '"' + i18n.t("headlines.roomBooking") + ' 🏠" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
             to: recipients, // list of receivers

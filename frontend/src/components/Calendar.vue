@@ -147,7 +147,7 @@ export default {
     async editBooking(newBooking) {
       try {
         const res = await axios.post(
-          process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/booking/change',
+          process.env.VUE_APP_BACKEND_URL + '/api/booking/change',
           {
             old: {
               uid: this.selectedEvent.id,
@@ -181,7 +181,7 @@ export default {
         return {}
       }
       try {
-        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/booking', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
           params: {
             uid: event.id,
             location: event.extendedProps.location,
@@ -205,7 +205,7 @@ export default {
     async deleteBooking(event) {
       if (confirm('Do you realy wont to delete this booking?')) {
         try {
-          const res = await axios.delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/booking', {
+          const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
             params: {
               uid: event.id,
               location: event.extendedProps.location,
@@ -228,7 +228,7 @@ export default {
     async eventCheck(eventDropInfo) {
       try {
         const res = await axios.post(
-          process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/booking/change',
+          process.env.VUE_APP_BACKEND_URL + '/api/booking/change',
           {
             old: {
               uid: eventDropInfo.event.id,
@@ -259,7 +259,7 @@ export default {
         return ''
       }
       const urlParts = [
-        process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/ical',
+        process.env.VUE_APP_BACKEND_URL + '/ical',
         '?token=',
         process.env.VUE_APP_ICAL_TOKEN,
       ]

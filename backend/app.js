@@ -5,12 +5,13 @@ const cookierParser = require('cookie-parser')
 const passport = require('passport')
 const LdapStrategy = require('passport-ldapauth')
 const session = require("express-session")
+const MongoStore = require('connect-mongo');
 const i18n = require('./i18n')
 const cron = require('node-cron');
 const User = require('./models/user')
 
-const port = process.env.VUE_APP_BACKEND_PORT
-const url = process.env.VUE_APP_URL
+const port = process.env.BACKEND_PORT
+const url = process.env.VUE_APP_BACKEND_URL
 
 mongoose.connect(process.env.MONGO_URL, {}, () => {
   console.log(i18n.t("alerts.db.success"))
@@ -34,19 +35,22 @@ passport.use(new LdapStrategy({
 const app = express()
 
 app.use(express.json({ limit: '2mb' }))
-app.use(express.urlencoded({ limit: '2mb' }));
+app.use(express.urlencoded({ limit: '2mb', extended: true }));
 app.use(cors({
   credentials: true,
-  origin: url + ':' + process.env.VUE_APP_FRONTEND_PORT
+  origin: process.env.VUE_APP_FRONTEND_URL
 }))
 app.use(cookierParser())
 
 app.use(session({
+  store: MongoStore.create(mongoose.connection),
   secret: new Date(Math.random * 100000).toString().toUpperCase(),
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     secure: false
-  }
+  },
+  resave: false,
+  saveUninitialized: true
 }))
 
 passport.serializeUser(function (user, done) {
@@ -109,5 +113,5 @@ cron.schedule('1 * * * *', () => {
 })
 
 app.listen(port, () => {
-  console.log(`Backend listening at ${url}:${port}`)
+  console.log(`Backend listening at ${url}`)
 })

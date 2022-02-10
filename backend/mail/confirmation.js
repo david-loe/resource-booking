@@ -34,7 +34,7 @@ function sendConformationMail(startDate, endDate, roomNames, summary, roomServic
         </td> </tr> <tr> <th> ` + i18n.t("labels.roomService") + `
         </th> <td> ` + roomServiceStr + `
         </td> </tr> </table> </td> </tr> <tr> <td id="footer"> ` + i18n.t("mail.footer") + `
-        <br /> <a href="`+ process.env.VUE_APP_URL + ':' + process.env.VUE_APP_FRONTEND_PORT +`"> ` + i18n.t("headlines.roomBooking") + ` 🏠
+        <br /> <a href="`+ process.env.VUE_APP_FRONTEND_URL +`"> ` + i18n.t("headlines.roomBooking") + ` 🏠
         </a> </td> </tr> </table> </td> </tr> </table> </body> </html>`
     const plainText = i18n.t("mail.confirmation.heading") + '\n\n' +
         i18n.t("mail.salutation", { recipient: recipientName }) + '\n' +

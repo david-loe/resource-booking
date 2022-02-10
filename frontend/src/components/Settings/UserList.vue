@@ -67,7 +67,7 @@ export default {
     },
     async getUsers() {
       try {
-        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/user', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/admin/user', {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -83,7 +83,7 @@ export default {
     },
     async addUser(user) {
        try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/user',
+        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/user',
         user,
         {
           withCredentials: true,
@@ -102,7 +102,7 @@ export default {
     },
     async deleteUser(user) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/user',
+        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/user',
         {
           params: { uid: user.uid },
           withCredentials: true,
@@ -120,7 +120,7 @@ export default {
     },
     async editUser(user) {
       try {
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/admin/user/change',
+        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/user/change',
         user,
         {withCredentials: true,}
         )

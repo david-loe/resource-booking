@@ -66,7 +66,7 @@ export default {
   methods: {
     async authAndGetRoom() {
       try {
-        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/user', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/user', {
           withCredentials: true,
         })
         this.name = res.data.name
@@ -80,7 +80,7 @@ export default {
     },
     async getRooms() {
       try {
-        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/room', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/room', {
           withCredentials: true,
         })
         if (res.status === 200) {

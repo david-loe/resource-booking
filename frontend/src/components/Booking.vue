@@ -159,7 +159,7 @@ export default {
     },
     async search() {
       try {
-        const res = await axios.get(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/room/search', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/room/search', {
           params: {
             startDate: new Date(this.bookingData.startDate),
             endDate: new Date(this.bookingData.endDate),
@@ -188,7 +188,7 @@ export default {
           endDate: new Date(this.bookingData.endDate),
           roomService: this.bookingData.roomService,
         }
-        const res = await axios.post(process.env.VUE_APP_URL + ':' + process.env.VUE_APP_BACKEND_PORT + '/api/booking', data, {
+        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/booking', data, {
           withCredentials: true,
         })
         if (res.status === 200) {
