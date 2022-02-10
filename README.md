@@ -18,3 +18,9 @@ frontend running on `localhost:5000` login with `professor:professor` (or any ot
 First user to sign in gets admin rights (maybe refresh necessary).
 
 change `.env` to individualize the apps settings
+
+## Production
+change `NODE_ENV` in `.env` to `production` and run:
+```
+docker-compose up --build -d
+```
