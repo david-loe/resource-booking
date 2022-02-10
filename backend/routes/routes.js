@@ -64,12 +64,19 @@ router.get('/user', async (req, res) => {
         isAdmin = user.isAdmin
         isRoomService = user.isRoomService
     }else{
-        const newUser = new User({uid: req.user[process.env.LDAP_UID_ATTRIBUTE],
-            mail: req.user[process.env.LDAP_MAIL_ATTRIBUTE]})
+        var mail = req.user[process.env.LDAP_MAIL_ATTRIBUTE]
+        if(Array.isArray(mail)){
+            if(mail.length > 0){
+                mail = mail[0]
+            }else{
+                mail = ""
+            }
+        }
+        const newUser = new User({uid: req.user[process.env.LDAP_UID_ATTRIBUTE], mail: mail})
         try {
             await newUser.save()
         } catch (error) {
-            res.status(400).send({ message: "Error while creating User" })
+            return res.status(400).send({ message: "Error while creating User" })
         }
     }
     res.send({
