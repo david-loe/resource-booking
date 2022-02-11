@@ -13,7 +13,7 @@
     },
     "mail": {
         "salutation": "Dear {{recipient}}",
-        "footer": "View your Booking on",
+        "footer": "View your Booking at",
         "confirmation": {
             "heading": "Booking Conformation",
             "content_one": "Your Booking of {{room}} was successful.",

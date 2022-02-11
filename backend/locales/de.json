@@ -1,0 +1,36 @@
+{
+    "headlines": {
+        "roomBooking": "Zimmerverwaltung",
+        "roomService": "Zimmerreinigung"
+    },
+    "labels": {
+        "from": "Von",
+        "to": "Bis",
+        "details": "Details",
+        "room": "Zimmer",
+        "roomService": "Zimmerreinigung",
+        "summary": "Beschreibung"
+    },
+    "mail": {
+        "salutation": "Hallo {{recipient}}",
+        "footer": "Sehen Sie ihr Buchung unter",
+        "confirmation": {
+            "heading": "Buchungs Bestätigung",
+            "content_one": "Du hast erfolgreich {{room}} gebucht.",
+            "content_other": "Deine Buchung war erfolgreich."
+        },
+        "reminder": {
+            "heading": "Erinnerung",
+            "content": "Die folgenden Räume sind demnächst dran:",
+            "bookedFrom": "Gebucht von {{organizer}}"
+        }
+    },
+    "alerts": {
+        "request": {
+            "unauthorized": "Nicht autorisiert!"
+        },
+        "db": {
+            "success": "Erfolgreich mit der Datenbank verbunden."
+        }
+    }
+}

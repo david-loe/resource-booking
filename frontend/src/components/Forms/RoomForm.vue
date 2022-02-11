@@ -52,7 +52,7 @@
           <textarea class="form-control" id="roomFormDes" rows="3" v-model="formRoom.description"></textarea>
         </div>
         <div class="col-sm">
-          <label for="roomFormImg" class="form-label"> Image (max 1MB)</label>
+          <label for="roomFormImg" class="form-label"> {{ $t('labels.image') }} (max 1MB)</label>
           <input class="form-control" type="file" id="roomFormImg" @change="changeFile" accept="image/*" />
         </div>
       </div>

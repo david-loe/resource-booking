@@ -16,7 +16,7 @@
           <div v-if="booked.startDate" class="modal-body">
             {{
               $t('comp.booking.bookingSuccess.text', {
-                rooms: booked.roomNames,
+                rooms: booked.roomNames.join(", "),
                 startDate: new Date(booked.startDate).toLocaleString(),
                 endDate: new Date(booked.endDate).toLocaleString(),
               })
@@ -36,7 +36,7 @@
             <form @submit.prevent="search()">
               <div class="row justify-content-center">
                 <div class="col-auto">
-                  <div class="row bg-dark text-white rounded-2" style="max-width: 600px">
+                  <div class="row bg-dark text-white rounded-2">
                     <div class="col-auto p-2">
                       <label for="startDateInput" class="form-label">{{ $t('labels.from') }}</label>
                       <input id="startDateInput" class="form-control" type="datetime-local" v-model="bookingData.startDate" required />

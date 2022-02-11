@@ -97,6 +97,7 @@ export default {
   },
   beforeMount() {
     this.authAndGetRoom()
+    document.title = this.$t('headlines.roomBooking') +' 🏠'
   },
 }
 </script>

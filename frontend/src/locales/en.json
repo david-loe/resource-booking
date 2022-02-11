@@ -31,7 +31,8 @@
     "save": "Save",
     "delete": "Delete",
     "uid": "UID",
-    "admin": "Admin"
+    "admin": "Admin",
+    "image": "Image"
   },
   "alerts": {
     "loginFailed": "Failed to Login!",

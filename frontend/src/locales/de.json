@@ -1,0 +1,70 @@
+{
+  "headlines": {
+    "roomBooking": "Zimmerverwaltung",
+    "overview": "Überblick",
+    "booking": "Buchen",
+    "settings": "Einstellungen",
+    "login": "Login",
+    "rooms": "Räume",
+    "roomService": "Zimmerreinigung",
+    "user": "Benutzer"
+  },
+  "labels": {
+    "email": "Email Addresse",
+    "password": "Passwort",
+    "name": "Name",
+    "size": "Größe",
+    "color": "Farbe",
+    "description": "Beschreibung",
+    "summary": "Beschreibung",
+    "from": "Von",
+    "to": "Bis",
+    "cancel": "Abbrechen",
+    "search": "Suchen",
+    "book": "Buchen",
+    "addRoom": "Raum hinzufügen",
+    "addUser": "Benutzer hinzufügen",
+    "roomService": "Zimmerreinigung",
+    "organizer": "Organisator",
+    "room": "Raum",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "uid": "UID",
+    "admin": "Administrator",
+    "image": "Bild"
+  },
+  "alerts": {
+    "loginFailed": "Anmeldung fehlgeschlagen!",
+    "nameValidation": "Name darf dies nicht enthalten: ^<>/\\\":?  oder 'roomservice' sein.",
+    "bookingconflict": "Die gewählten Details verursachen einen Konflikt mit einer bereits bestehenden Buchung.",
+    "noRoom": {
+      "heading": "Keine Räume",
+      "text": "Es ist kein Raum zu sehen. Bitte fügen Sie unter Einstellungen einen Raum hinzu."
+    }
+  },
+  "comp": {
+    "login": {
+      "signIn": "Bitte Anmelden"
+    },
+    "calendar": {},
+    "overview": {},
+    "booking": {
+      "exampleSummary": "z.B. Max Mustermann für ein Gespräch",
+      "roomsBooked": "Ein Zimmer ist bereits belegt. | {count} Zimmer sind bereits belegt.",
+      "allRoomsBooked": "In diesem Zeitraum sind alle Zimmer belegt.",
+      "bookingSuccess": {
+        "heading": "Die Buchung war erfolgreich!",
+        "text": "Du hast {rooms} vom {startDate} bis zum {endDate} gebucht."
+      },
+      "bookingFailure": {
+        "heading": "Etwas ist schief gelaufen..",
+        "text": "Deine Buchung war nicht erfolgreich, probier es nochmal."
+      }
+    },
+    "settings": {},
+    "room": {
+      "exampleName": "z.B. Zimmer 103"
+    }
+  }
+}
