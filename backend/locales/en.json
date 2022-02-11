@@ -3,10 +3,10 @@
         "roomBooking": "Room Booking",
         "roomService": "Room Service"
     },
-    "labels":{
-        "from":"From",
-        "to":"To",
-        "details":"Details",
+    "labels": {
+        "from": "From",
+        "to": "To",
+        "details": "Details",
         "room": "Room",
         "roomService": "Room Service",
         "summary": "Summary"
@@ -15,20 +15,21 @@
         "salutation": "Dear {{recipient}}",
         "footer": "View your Booking on",
         "confirmation": {
-            "heading":"Booking Conformation",
+            "heading": "Booking Conformation",
             "content_one": "Your Booking of {{room}} was successful.",
             "content_other": "Your Booking was successful."
         },
         "reminder": {
             "heading": "Reminder",
-            "content": "The following rooms are coming up soon:"
+            "content": "The following rooms are coming up soon:",
+            "bookedFrom": "Booked from {{organizer}}"
         }
     },
-    "alerts":{
-        "request":{
+    "alerts": {
+        "request": {
             "unauthorized": "Not authorized!"
         },
-        "db":{
+        "db": {
             "success": "Successfully connected to the Database."
         }
     }

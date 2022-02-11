@@ -3,6 +3,8 @@ const i18n = require('../i18n')
 const ICAL = require('ical.js')
 const helper = require('../helper')
 const User = require('../models/user')
+const ejs = require('ejs')
+const fs = require('fs')
 
 async function sendRoomServiceReminder() {
     if (mailClient == undefined) {
@@ -16,7 +18,10 @@ async function sendRoomServiceReminder() {
     for (const vevent of roomServiceIcal.getAllSubcomponents('vevent')) {
         const event = new ICAL.Event(vevent);
         if (event.startDate.toJSDate() > reminderMinThreshold && event.startDate.toJSDate() < reminderMaxThreshold) {
-            events.push(helper.icalEventToSimpleEvent(vevent))
+            const simpleEvent = helper.icalEventToSimpleEvent(vevent)
+            simpleEvent.startDate = simpleEvent.startDate.toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+            simpleEvent.endDate = simpleEvent.endDate.toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+            events.push(simpleEvent)
         }
     }
     recipients = []
@@ -26,25 +31,19 @@ async function sendRoomServiceReminder() {
             recipients.push(user.mail)
         }
     }
-    var eventList = "<ul>"
-    for (const event of events) {
-        eventList = eventList + "<li><h3>" + event.location + "</h3><p>" + event.summary + "</p><p>" + event.startDate.toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions) + "</p></li>"
-    }
-    eventList = eventList + "</ul>"
-    
-    const plainText = ``
+    const url = process.env.VUE_APP_FRONTEND_URL
+
     if (events.length > 0 && recipients.length > 0) {
-        const htmlText = `
-            <h1>` + i18n.t("mail.reminder.heading") + `</h1>
-            <p>` + i18n.t("mail.reminder.content") + `</p>
-            ` + eventList + `<br/>
-            <p>` + i18n.t("mail.footer") + `<a href="`+ process.env.VUE_APP_FRONTEND_URL +`"> ` + i18n.t("headlines.roomBooking") + ` 🏠</p>`
+        const template = fs.readFileSync('./mail/reminder_template.ejs', { encoding: 'utf-8' })
+        const renderedHTML = ejs.render(template, { i18n: i18n, events: events, url: url })
+        const plainText = events.toString()
+
         mailClient.sendMail({
             from: '"' + i18n.t("headlines.roomBooking") + ' 🏠" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
             to: recipients, // list of receivers
             subject: i18n.t("headlines.roomService") + ' ' + i18n.t("mail.reminder.heading"), // Subject line
             text: plainText, // plain text body
-            html: htmlText, // html body
+            html: renderedHTML, // html body
         })
     }
 }
