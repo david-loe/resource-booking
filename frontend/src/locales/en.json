@@ -34,12 +34,13 @@
     "admin": "Admin"
   },
   "alerts": {
+    "loginFailed": "Failed to Login!",
+    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'roomservice'.",
+    "bookingconflict": "The chosen details cause a conflict with an already exsiting Booking.",
     "noRoom": {
       "heading": "No Room",
       "text": "There is no Room to view. Please setup a room under Settings."
-    },
-    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'roomservice'.",
-    "bookingconflict": "The chosen details cause a conflict with an already exsiting Booking."
+    }
   },
   "comp": {
     "login": {

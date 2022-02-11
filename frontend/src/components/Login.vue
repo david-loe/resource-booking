@@ -53,7 +53,7 @@ export default {
         }
       } catch (error) {
         this.password = ''
-        alert('Failed to Login!')
+        alert(this.$t('alerts.loginFailed'))
       }
     },
   },
