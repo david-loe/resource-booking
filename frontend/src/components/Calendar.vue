@@ -6,44 +6,47 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="calendarInfoModalLabel">
-              {{ selectedEvent.title }}
+              {{ selectedBooking.summary }}
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <template v-if="selectedEvent.start">
+            <template v-if="selectedBooking.startDate">
               <table class="table">
                 <tbody>
                   <tr>
                     <th>{{ $t('labels.from') }}</th>
-                    <td>{{ selectedEvent.start.toLocaleDateString(undefined, dateStringOptions) }}</td>
+                    <td>{{ new Date(selectedBooking.startDate).toLocaleDateString(undefined, dateStringOptions) }}</td>
                   </tr>
                   <tr>
                     <th>{{ $t('labels.to') }}</th>
-                    <td>{{ selectedEvent.end.toLocaleDateString(undefined, dateStringOptions) }}</td>
+                    <td>{{ new Date(selectedBooking.endDate).toLocaleDateString(undefined, dateStringOptions) }}</td>
                   </tr>
                   <tr>
                     <th>{{ $t('labels.room') }}</th>
-                    <td>{{ selectedEvent.extendedProps.location }}</td>
+                    <td>{{ selectedBooking.location }}</td>
+                  </tr>
+                  <tr v-if="selectedBooking.subrooms !== null">
+                    <th>{{ $t('labels.subrooms') }}</th>
+                    <td>{{ selectedBooking.subrooms.join(', ') }}</td>
                   </tr>
                   <tr>
                     <th>{{ $t('labels.organizer') }}</th>
-                    <td>{{ selectedEvent.extendedProps.organizer }}</td>
+                    <td>{{ selectedBooking.organizer }}</td>
                   </tr>
                 </tbody>
               </table>
-              <template v-if="(selectedEvent.extendedProps.organizer === this.$root.name) || this.$root.isAdmin">
+              <template v-if="selectedBooking.organizer === this.$root.name || this.$root.isAdmin">
                 <button
                   type="button"
                   class="btn btn-secondary me-2"
                   v-on:click="
                     infoModal.hide();
                     editModal.show()
-                  "
-                >
+                  ">
                   {{ $t('labels.edit') }}
                 </button>
-                <button type="button" class="btn btn-danger" v-on:click="deleteBooking(selectedEvent)">
+                <button type="button" class="btn btn-danger" v-on:click="deleteBooking(selectedBooking)">
                   {{ $t('labels.delete') }}
                 </button>
               </template>
@@ -57,7 +60,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="eventEditModalLabel">
-              {{ selectedEvent.title }}
+              {{ selectedBooking.summary }}
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
@@ -135,7 +138,6 @@ export default {
       infoModal: undefined,
       editModal: undefined,
       modalIsInfo: true,
-      selectedEvent: {},
       selectedBooking: {},
     }
   },
@@ -150,8 +152,8 @@ export default {
           process.env.VUE_APP_BACKEND_URL + '/api/booking/change',
           {
             old: {
-              uid: this.selectedEvent.id,
-              location: this.selectedEvent.extendedProps.location,
+              uid: this.selectedBooking.uid,
+              location: this.selectedBooking.location,
             },
             new: {
               location: newBooking.location,
@@ -159,6 +161,7 @@ export default {
               endDate: newBooking.endDate,
               summary: newBooking.summary,
               roomService: newBooking.roomService,
+              subrooms: newBooking.subrooms,
             },
           },
           { withCredentials: true },
@@ -198,17 +201,16 @@ export default {
       }
     },
     async eventClick(eventClickInfo) {
-      this.selectedEvent = eventClickInfo.event
-      this.selectedBooking = await this.getBooking(this.selectedEvent)
+      this.selectedBooking = await this.getBooking(eventClickInfo.event)
       this.infoModal.show()
     },
-    async deleteBooking(event) {
+    async deleteBooking(booking) {
       if (confirm('Do you realy wont to delete this booking?')) {
         try {
           const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
             params: {
-              uid: event.id,
-              location: event.extendedProps.location,
+              uid: booking.uid,
+              location: booking.location,
             },
             withCredentials: true,
           })
@@ -258,11 +260,7 @@ export default {
       if (roomNames.length === 0) {
         return ''
       }
-      const urlParts = [
-        process.env.VUE_APP_BACKEND_URL + '/ical',
-        '?token=',
-        process.env.VUE_APP_ICAL_TOKEN,
-      ]
+      const urlParts = [process.env.VUE_APP_BACKEND_URL + '/ical', '?token=', process.env.VUE_APP_ICAL_TOKEN]
       for (const name of roomNames) {
         urlParts.push('&name=' + name)
       }

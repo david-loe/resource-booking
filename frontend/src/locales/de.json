@@ -32,7 +32,11 @@
     "delete": "Löschen",
     "uid": "UID",
     "admin": "Administrator",
-    "image": "Bild"
+    "image": "Bild",
+    "isDividable": "Unterteilbar",
+    "subrooms": "Unterräume",
+    "addSubroom": "Unterraum hinzufügen",
+    "selectSubrooms": "Unterräume wählen"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",

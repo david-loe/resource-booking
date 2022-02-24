@@ -35,6 +35,24 @@
         <option v-for="name in this.roomNames" :value="name" :key="name">{{ name }}</option>
       </select>
     </div>
+
+    <div class="mb-3" v-if="this.$root.getRoomByName(formEvent.location) && this.$root.getRoomByName(formEvent.location).isDividable">
+      <label for="subrooms" class="form-label"> {{ $t('labels.subrooms') }} </label>
+      <ul id="subrooms">
+        <li class="ms-2 form-check" v-for="subroom of this.$root.getRoomByName(formEvent.location).subrooms" :key="subroom">
+          <label :for="'bookingFormSubroom' + subroom" class="form-check-label text-nowrap" style="width: 100%"> {{ subroom }}</label>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            :id="'bookingFormSubroom' + subroom"
+            role="switch"
+            :value="subroom"
+            v-model="formEvent.subrooms"
+          />
+        </li>
+      </ul>
+    </div>
+
     <div class="mb-3">
       <div class="form-check">
         <label for="roomService" class="form-check-label text-nowrap"> {{ $t('labels.roomService') }}</label>
@@ -71,6 +89,7 @@ export default {
           roomService: false,
           location: undefined,
           organizer: undefined,
+          subrooms: undefined,
         }
       },
     },
@@ -93,16 +112,30 @@ export default {
   },
   methods: {
     setEvent(event) {
-      const formEvent = event
-      formEvent.startDate = new Date(new Date(event.startDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(0, -8)
-      formEvent.endDate = new Date(new Date(event.endDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(0, -8)
+      const formEvent = {}
+      Object.assign(formEvent, event)
+      formEvent.startDate = new Date(new Date(event.startDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000)
+        .toISOString()
+        .slice(0, -8)
+      formEvent.endDate = new Date(new Date(event.endDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000)
+        .toISOString()
+        .slice(0, -8)
+      const room = this.$root.getRoomByName(formEvent.location)
+      if (formEvent.subrooms === null && room.isDividable) {
+        formEvent.subrooms = room.subrooms
+      }
       return formEvent
     },
     send() {
-      const event = {};
+      const event = {}
       Object.assign(event, this.formEvent)
       event.startDate = new Date(this.formEvent.startDate)
       event.endDate = new Date(this.formEvent.endDate)
+      if (event.subrooms !== null) {
+        if (event.subrooms.length === this.$root.getRoomByName(this.formEvent.location).subrooms.length) {
+          event.subrooms = null
+        }
+      }
       this.$emit('done', event)
     },
     clear() {
@@ -113,6 +146,7 @@ export default {
         roomService: false,
         location: undefined,
         organizer: undefined,
+        subrooms: undefined,
       }
     },
   },
@@ -120,6 +154,11 @@ export default {
   watch: {
     event: function () {
       this.formEvent = this.setEvent(this.event)
+    },
+    'formEvent.location': function () {
+      if (this.$root.getRoomByName(this.formEvent.location).isDividable) {
+        this.formEvent.subrooms = this.$root.getRoomByName(this.formEvent.location).subrooms
+      }
     },
   },
 }

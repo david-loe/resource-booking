@@ -94,10 +94,18 @@ export default {
         }
       }
     },
+    getRoomByName(name) {
+      for (const room of this.rooms) {
+        if (room.name === name) {
+          return room
+        }
+      }
+      return null
+    },
   },
   beforeMount() {
     this.authAndGetRoom()
-    document.title = this.$t('headlines.roomBooking') +' 🏠'
+    document.title = this.$t('headlines.roomBooking') + ' 🏠'
   },
 }
 </script>

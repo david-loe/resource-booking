@@ -8,7 +8,9 @@ router.post('/room', async (req, res) => {
         size: req.body.size,
         description: req.body.description,
         img: req.body.img,
-        color: req.body.color
+        color: req.body.color,
+        isDividable: req.body.isDividable,
+        subrooms: req.body.subrooms
     })
     try {
         res.send(await room.save())
@@ -18,23 +20,23 @@ router.post('/room', async (req, res) => {
 })
 
 router.post('/room/change', async (req, res) => {
-    if(req.body.name){
+    if (req.body.name) {
         const room = await Room.findOne({ name: req.body.name })
-        if(room){
+        if (room) {
             room.size = req.body.size,
-            room.description = req.body.description,
-            room.img = req.body.img,
-            room.color = req.body.color
+                room.description = req.body.description,
+                room.img = req.body.img,
+                room.color = req.body.color
             try {
                 res.send(await room.save())
             } catch (error) {
                 res.status(400).send({ message: "Unable to save room", error: error })
             }
-        }else{
-            res.status(400).send({message: "No room found named: " + req.body.name})
+        } else {
+            res.status(400).send({ message: "No room found named: " + req.body.name })
         }
-    }else{
-        res.status(400).send({message: "Name Missing"})
+    } else {
+        res.status(400).send({ message: "Name Missing" })
     }
 })
 
@@ -71,16 +73,16 @@ router.post('/user', async (req, res) => {
 })
 
 router.post('/user/change', async (req, res) => {
-    if(req.body.uid != undefined && req.body.isAdmin != undefined && req.body.isRoomService != undefined){
-        const user = await User.findOne({uid: req.body.uid})
-        if(user){
+    if (req.body.uid != undefined && req.body.isAdmin != undefined && req.body.isRoomService != undefined) {
+        const user = await User.findOne({ uid: req.body.uid })
+        if (user) {
             user.isAdmin = req.body.isAdmin
             user.isRoomService = req.body.isRoomService
             res.send(await user.save())
-        }else {
-            res.status(400).send({ message: "No user found with uid:" +  req.body.uid})
+        } else {
+            res.status(400).send({ message: "No user found with uid:" + req.body.uid })
         }
-    }else{
+    } else {
         res.status(400).send({ message: "Please provide a uid, isAdmin and isRoomService." })
     }
 })

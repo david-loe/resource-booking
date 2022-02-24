@@ -63,16 +63,16 @@ router.get('/user', async (req, res) => {
     if (user) {
         isAdmin = user.isAdmin
         isRoomService = user.isRoomService
-    }else{
+    } else {
         var mail = req.user[process.env.LDAP_MAIL_ATTRIBUTE]
-        if(Array.isArray(mail)){
-            if(mail.length > 0){
+        if (Array.isArray(mail)) {
+            if (mail.length > 0) {
                 mail = mail[0]
-            }else{
+            } else {
                 mail = ""
             }
         }
-        const newUser = new User({uid: req.user[process.env.LDAP_UID_ATTRIBUTE], mail: mail})
+        const newUser = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], mail: mail })
         try {
             await newUser.save()
         } catch (error) {
@@ -100,10 +100,14 @@ router.get('/room/search', async (req, res) => {
         const rooms = await Room.find()
         for (const room of rooms) {
             const conflictingEvents = getConflictingEvents(room.ical, req.query.startDate, req.query.endDate)
-            if (conflictingEvents.length == 0) {
-                available.push(room)
+            const freeSubrooms = await helper.getFreeSubrooms(conflictingEvents)
+            if (conflictingEvents.length === 0) {
+                available.push(helper.roomToSimpleRoom(room))
+            } else if (freeSubrooms[room.name] && freeSubrooms[room.name].length > 0) {
+                room.subrooms = freeSubrooms[room.name]
+                available.push(helper.roomToSimpleRoom(room, true))
             } else {
-                unavailable.push({ room: room, conflictingEvents: conflictingEvents })
+                unavailable.push({ room: helper.roomToSimpleRoom(room), conflictingEvents: conflictingEvents })
             }
         }
         res.send({ available: available, unavailable: unavailable })
@@ -134,15 +138,45 @@ router.post('/booking', async (req, res) => {
                 if (req.body.roomService != undefined) {
                     vevent.addPropertyWithValue('x-room-service', req.body.roomService)
                 }
+                if (room.isDividable) {
+                    const selectedSubrooms = []
+                    for (const subroom of req.body.subrooms) {
+                        if (subroom.room === room.name) {
+                            selectedSubrooms.push(subroom.subroom)
+                        }
+                    }
+                    var bookedPartly = false
+                    for (const subroom of room.subrooms) {
+                        if (selectedSubrooms.indexOf(subroom) === -1) {
+                            bookedPartly = true
+                        }
+                    }
+                    if (bookedPartly) {
+                        vevent.addPropertyWithValue('x-subrooms', selectedSubrooms)
+                    }
+                }
                 const comp = new ICAL.Component(room.ical)
                 comp.addSubcomponent(vevent)
-                room.markModified('ical');
-                const result = await room.save()
-                bookedRooms.push(result)
+                bookedRooms.push(room)
             }
         }))
+        const freeSubooms = await helper.getFreeSubrooms(conflictingEvents)
+        var subroomsFree = false
+        if (req.body.subrooms !== null) {
+            subroomsFree = true
+            for (subroom of req.body.subrooms) {
+                if (!freeSubooms[subroom.room] || freeSubooms[subroom.room].indexOf(subroom.subroom) === -1) {
+                    subroomsFree = false
+                }
+            }
+        }
+
         if (bookedRooms.length > 0) {
-            if (conflictingEvents.length === 0) {
+            if (conflictingEvents.length === 0 || subroomsFree) {
+                for (room of bookedRooms) {
+                    room.markModified('ical');
+                    await room.save()
+                }
                 res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
                 sendConformationMail(req.body.startDate, req.body.endDate, roomNames, req.body.summary, req.body.roomService, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
             } else {
@@ -164,10 +198,10 @@ router.delete('/booking', async (req, res) => {
             if (eventComp) {
                 const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
                 var isAdmin = false;
-                if(user){
+                if (user) {
                     isAdmin = user.isAdmin
                 }
-                if(eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin){
+                if (eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
                 room.markModified('ical');
@@ -214,18 +248,39 @@ router.post('/booking/change', async (req, res) => {
             if (eventComp) {
                 const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
                 var isAdmin = false;
-                if(user){
+                if (user) {
                     isAdmin = user.isAdmin
                 }
-                if(eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin){
+                if (eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
                 const conflictingEvents = getConflictingEvents(newRoom.ical, req.body.new.startDate, req.body.new.endDate)
-                if (conflictingEvents.length == 0) {
-                    if (req.body.new.roomService != undefined) {
+                const freeSubooms = await helper.getFreeSubrooms(conflictingEvents)
+                var subrooms = null
+                if (req.body.new.subrooms !== undefined) {
+                    subrooms = req.body.new.subrooms
+                } else {
+                    subrooms = eventComp.getFirstPropertyValue('x-subrooms')
+                }
+                var subroomsFree = false
+                if (subrooms !== null) {
+                    subroomsFree = true
+                    for (subroom of subrooms) {
+                        if (!freeSubooms[newRoom.name] || freeSubooms[newRoom.name].indexOf(subroom) === -1) {
+                            subroomsFree = false
+                        }
+                    }
+                }
+
+                if (conflictingEvents.length === 0 || subroomsFree) {
+                    if (req.body.new.roomService !== undefined) {
                         eventComp.updatePropertyWithValue('x-room-service', req.body.new.roomService)
                     }
-                    eventComp.updatePropertyWithValue
+                    if (subrooms !== null) {
+                        eventComp.updatePropertyWithValue('x-subrooms', subrooms)
+                    } else {
+                        eventComp.removeProperty('x-subrooms')
+                    }
                     newEvent = new ICAL.Event(eventComp)
                     newEvent.startDate = ICAL.Time.fromJSDate(new Date(req.body.new.startDate))
                     newEvent.endDate = ICAL.Time.fromJSDate(new Date(req.body.new.endDate))

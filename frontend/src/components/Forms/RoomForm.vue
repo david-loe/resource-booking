@@ -52,10 +52,44 @@
           <textarea class="form-control" id="roomFormDes" rows="3" v-model="formRoom.description"></textarea>
         </div>
         <div class="col-sm">
-          <label for="roomFormImg" class="form-label"> {{ $t('labels.image') }} (max 1MB)</label>
-          <input class="form-control" type="file" id="roomFormImg" @change="changeFile" accept="image/*" />
+          <div class="mb-2">
+            <label for="roomFormImg" class="form-label"> {{ $t('labels.image') }} (max 1MB)</label>
+            <input class="form-control" type="file" id="roomFormImg" @change="changeFile" accept="image/*" />
+          </div>
+
+          <div class="form-check">
+            <label for="roomFormDividable" class="form-check-label text-nowrap"> {{ $t('labels.isDividable') }}</label>
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="roomFormDividable"
+              role="switch"
+              v-model="formRoom.isDividable"
+              :disabled="this.mode === 'edit'"
+            />
+          </div>
         </div>
       </div>
+    </div>
+    <div class="mb-2">
+      <template v-if="formRoom.isDividable">
+        <label for="roomFormSubroomAdd" class="form-label">
+          {{ $t('labels.subrooms') }}
+        </label>
+        <div class="input-group mb-1" v-if="this.mode !== 'edit'">
+          <input type="text" class="form-control" id="roomFormSubroomAdd" :placeholder="$t('labels.addSubroom')" v-model="subroomAdd" />
+          <button v-on:click="addSubroom(this.subroomAdd)" type="button" class="btn btn-outline-secondary">
+            <i class="bi bi-plus"></i>
+          </button>
+        </div>
+        <br v-if="this.mode === 'edit'" />
+        <div v-for="subroom of formRoom.subrooms" :key="subroom" class="badge bg-secondary me-2 mb-1">
+          {{ subroom }}
+          <button v-on:click="deleteSubroom(subroom)" type="button" class="btn text-light p-0" v-if="this.mode !== 'edit'">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </template>
     </div>
     <div class="mb-2">
       <button type="submit" class="btn btn-primary me-2" v-if="this.mode === 'add'">
@@ -85,6 +119,8 @@ export default {
           description: '',
           img: undefined,
           color: undefined,
+          isDividable: false,
+          subrooms: [],
         }
       },
     },
@@ -99,9 +135,23 @@ export default {
   data() {
     return {
       formRoom: this.room,
+      subroomAdd: '',
     }
   },
   methods: {
+    addSubroom(subroom) {
+      const index = this.formRoom.subrooms.indexOf(subroom)
+      if (index === -1) {
+        this.formRoom.subrooms.push(subroom)
+        this.subroomAdd = ''
+      }
+    },
+    deleteSubroom(subroom) {
+      const index = this.formRoom.subrooms.indexOf(subroom)
+      if (index !== -1) {
+        this.formRoom.subrooms.splice(index, 1)
+      }
+    },
     clear() {
       this.formRoom = {
         name: '',
@@ -109,6 +159,8 @@ export default {
         description: '',
         img: undefined,
         color: this.correctColorLuminance(this.generateRandomColorHex()),
+        isDividable: false,
+        subrooms: [],
       }
     },
     changeFile(event) {
@@ -196,10 +248,10 @@ export default {
     }
   },
   watch: {
-    room: function() {
+    room: function () {
       this.formRoom = this.room
-    }
-  }
+    },
+  },
 }
 </script>
 

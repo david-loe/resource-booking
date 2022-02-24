@@ -32,7 +32,11 @@
     "delete": "Delete",
     "uid": "UID",
     "admin": "Admin",
-    "image": "Image"
+    "image": "Image",
+    "isDividable": "Is Dividable",
+    "subrooms": "Subrooms",
+    "addSubroom": "Add subroom",
+    "selectSubrooms": "Select Subrooms"
   },
   "alerts": {
     "loginFailed": "Failed to Login!",

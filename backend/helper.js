@@ -27,6 +27,7 @@ module.exports = {
      */
     icalEventToSimpleEvent: function (vevent) {
         const icalEvent = new ICAL.Event(vevent);
+
         return {
             startDate: icalEvent.startDate.toJSDate(),
             endDate: icalEvent.endDate.toJSDate(),
@@ -34,7 +35,47 @@ module.exports = {
             organizer: icalEvent.organizer,
             location: icalEvent.location,
             color: icalEvent.color,
-            roomService: vevent.getFirstPropertyValue('x-room-service')
+            uid: icalEvent.uid,
+            roomService: vevent.getFirstPropertyValue('x-room-service'),
+            subrooms: vevent.getFirstPropertyValue('x-subrooms')
         }
+    },
+
+    roomToSimpleRoom: function (room, isPartlyBooked = false) {
+        return {
+            name: room.name,
+            description: room.description,
+            size: room.size,
+            img: room.img,
+            isDividable: room.isDividable,
+            subrooms: room.subrooms,
+            color: room.color,
+            isPartlyBooked: isPartlyBooked
+        }
+    },
+
+    /**
+     * 
+     * @param {Array} conflictingEvents
+     * @returns Array of free Subrooms grouped by room name
+     */
+    getFreeSubrooms: async function (conflictingEvents) {
+        const freeSubrooms = {}
+        for (const event of conflictingEvents) {
+            if (event.subrooms !== null) {
+                if (!freeSubrooms[event.location]) {
+                    const room = await Room.findOne({ name: event.location })
+                    freeSubrooms[event.location] = room.subrooms
+                }
+                for (const subroom of event.subrooms) {
+                    const index = freeSubrooms[event.location].indexOf(subroom)
+                    if (index !== -1) {
+                        freeSubrooms[event.location].splice(index, 1)
+                    }
+                }
+
+            }
+        }
+        return freeSubrooms
     }
 }

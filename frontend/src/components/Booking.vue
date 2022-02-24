@@ -16,7 +16,7 @@
           <div v-if="booked.startDate" class="modal-body">
             {{
               $t('comp.booking.bookingSuccess.text', {
-                rooms: booked.roomNames.join(", "),
+                rooms: booked.roomNames.join(', '),
                 startDate: new Date(booked.startDate).toLocaleString(),
                 endDate: new Date(booked.endDate).toLocaleString(),
               })
@@ -62,7 +62,11 @@
           </div>
           <div v-if="searchresult.available.length > 0 || searchresult.unavailable.length > 0" class="container mb-3">
             <div class="list-group">
-              <label class="list-group-item d-flex gap-3 align-items-center" v-for="room of searchresult.available" v-bind:key="room.name">
+              <label
+                class="list-group-item d-flex gap-3 align-items-center flex-wrap"
+                v-for="room of searchresult.available"
+                v-bind:key="room.name"
+              >
                 <input
                   class="form-check-input flex-shrink-0 my-auto"
                   type="checkbox"
@@ -71,10 +75,38 @@
                   v-model="selectedRooms"
                 />
                 <img v-bind:src="room.img" width="45" height="45" class="rounded-circle flex-shrink-0" />
-                <span class="pt-1 form-checked-content">
+                <span class="pt-1 form-checked-content me-auto">
                   <h6>{{ room.name }}</h6>
                   <small class="d-none d-md-block text-muted"> {{ room.description }} - {{ $t('labels.size') }}: {{ room.size }} </small>
                 </span>
+                <div class="dropdown" v-if="selectedRooms.indexOf(room.name) !== -1 && room.isDividable">
+                  <button
+                    :class="'btn dropdown-toggle btn-' + (room.isPartlyBooked ? 'danger' : 'light')"
+                    type="button"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    data-bs-auto-close="outside"
+                    aria-expanded="false"
+                  >
+                    {{ $t('labels.selectSubrooms') }}
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    <li class="ms-2 form-check" v-for="subroom of room.subrooms" :key="subroom">
+                      <label :for="'roomFormSubroom' + room.name + subroom" class="form-check-label text-nowrap" style="width: 100%">
+                        {{ subroom }}</label
+                      >
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        :id="'roomFormSubroom' + room.name + subroom"
+                        role="switch"
+                        :value="{ room: room.name, subroom: subroom }"
+                        v-model="selectedSubrooms"
+                        :selected="true"
+                      />
+                    </li>
+                  </ul>
+                </div>
               </label>
               <label class="list-group-item d-flex gap-3 bg-light" v-if="searchresult.unavailable.length > 0">
                 <span class="pt-1">
@@ -144,6 +176,7 @@ export default {
       },
       searchresult: { available: [], unavailable: [] },
       selectedRooms: [],
+      selectedSubrooms: [],
       modal: undefined,
       booked: {
         startDate: undefined,
@@ -153,9 +186,10 @@ export default {
     }
   },
   methods: {
-    clear(){
+    clear() {
       this.searchresult = { available: [], unavailable: [] }
       this.selectedRooms = []
+      this.selectedSubrooms = []
     },
     async search() {
       try {
@@ -187,6 +221,7 @@ export default {
           startDate: new Date(this.bookingData.startDate),
           endDate: new Date(this.bookingData.endDate),
           roomService: this.bookingData.roomService,
+          subrooms: this.selectedSubrooms,
         }
         const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/booking', data, {
           withCredentials: true,
@@ -211,6 +246,67 @@ export default {
   },
   mounted() {
     this.modal = new Modal(document.getElementById('bookingInfoModal'), {})
+  },
+  watch: {
+    selectedRooms: {
+      handler: function (newVal, oldVal) {
+        const added = newVal.filter((x) => !oldVal.includes(x))
+        if (added.length > 0) {
+          for (const room of this.searchresult.available) {
+            for (const newRoom of added) {
+              if (room.name === newRoom && room.isDividable) {
+                for (const subroom of room.subrooms) {
+                  this.selectedSubrooms.push({ room: room.name, subroom: subroom })
+                }
+              }
+            }
+          }
+        }
+        if (Array.isArray(oldVal)) {
+          const removed = oldVal.filter((x) => !newVal.includes(x))
+          if (removed.length > 0) {
+            for (const removedRoom of removed) {
+              const indices = []
+              for (const subroom of this.selectedSubrooms) {
+                if (subroom.room === removedRoom) {
+                  const index = this.selectedSubrooms.findIndex((sb) => sb.room === subroom.room && sb.subroom === subroom.subroom)
+                  if (index !== -1) {
+                    indices.push(index)
+                  }
+                }
+              }
+              indices.sort(function (a, b) {
+                return b - a
+              })
+              for (const index of indices) {
+                this.selectedSubrooms.splice(index, 1)
+              }
+            }
+          }
+        }
+      },
+    },
+    selectedSubrooms: {
+      handler: function (newVal, oldVal) {
+        if (Array.isArray(oldVal)) {
+          const removed = oldVal.filter((x) => !newVal.includes(x))
+          for (const removedSubroom of removed) {
+            var lastSubroomOfRoom = true
+            for (const subroom of newVal) {
+              if (subroom.room === removedSubroom.room) {
+                lastSubroomOfRoom = false
+              }
+            }
+            if (lastSubroomOfRoom) {
+              const index = this.selectedRooms.indexOf(removedSubroom.room)
+              if (index !== -1) {
+                this.selectedRooms.splice(index, 1)
+              }
+            }
+          }
+        }
+      },
+    },
   },
 }
 </script>
