@@ -32,7 +32,7 @@
     <div class="mb-3">
       <label for="location" class="form-label"> {{ $t('labels.room') }} </label>
       <select class="form-select" aria-label="Default select example" id="location" v-model="formEvent.location">
-        <option v-for="name in this.roomNames" :value="name" :key="name">{{ name }}</option>
+        <option v-for="name in this.$root.roomNames" :value="name" :key="name">{{ name }}</option>
       </select>
     </div>
 
@@ -100,14 +100,11 @@ export default {
         return ['add', 'edit'].indexOf(value) !== -1
       },
     },
-    roomNames: {
-      type: Array,
-      required: true,
-    },
   },
   data() {
     return {
       formEvent: this.event,
+      isNewOpened: true
     }
   },
   methods: {
@@ -154,11 +151,13 @@ export default {
   watch: {
     event: function () {
       this.formEvent = this.setEvent(this.event)
+      this.isNewOpened = true
     },
     'formEvent.location': function () {
-      if (this.$root.getRoomByName(this.formEvent.location).isDividable) {
+      if (!this.isNewOpened && this.$root.getRoomByName(this.formEvent.location).isDividable) {
         this.formEvent.subrooms = this.$root.getRoomByName(this.formEvent.location).subrooms
       }
+      this.isNewOpened = false
     },
   },
 }

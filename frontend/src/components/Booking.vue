@@ -192,26 +192,8 @@ export default {
       this.selectedSubrooms = []
     },
     async search() {
-      try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/room/search', {
-          params: {
-            startDate: new Date(this.bookingData.startDate),
-            endDate: new Date(this.bookingData.endDate),
-          },
-          withCredentials: true,
-        })
-        if (res.status === 200) {
-          this.searchresult.available = res.data.available
-          this.searchresult.unavailable = res.data.unavailable
-          this.selectedRooms = []
-        }
-      } catch (error) {
-        if (error.response.status === 401) {
-          this.$router.push('login')
-        } else {
-          console.log(error.response.data)
-        }
-      }
+      this.searchresult = await this.$root.getRoomsAvailability(new Date(this.bookingData.startDate), new Date(this.bookingData.endDate))
+      this.selectedRooms = [] 
     },
     async book() {
       try {

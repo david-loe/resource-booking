@@ -66,7 +66,6 @@
           </div>
           <div class="modal-body">
             <BookingForm
-              :roomNames="this.roomNames"
               :event="this.selectedBooking"
               mode="edit"
               v-on:cancel="this.editModal.hide()"
@@ -76,7 +75,7 @@
         </div>
       </div>
     </div>
-    <FullCalendar :options="calendarOptions" />
+    <FullCalendar ref="fullCalendar" :options="calendarOptions" />
   </div>
 </template>
 
@@ -133,6 +132,7 @@ export default {
         aspectRatio: 2.1,
         eventDrop: this.eventCheck,
         eventClick: this.eventClick,
+        datesSet: this.changedViewDates,
       },
       dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' },
       infoModal: undefined,
@@ -199,6 +199,9 @@ export default {
           console.log(error.response.data)
         }
       }
+    },
+    changedViewDates(dateInfo){
+      this.$emit('changed-view-dates', dateInfo.start, dateInfo.end)
     },
     async eventClick(eventClickInfo) {
       this.selectedBooking = await this.getBooking(eventClickInfo.event)

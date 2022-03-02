@@ -36,7 +36,8 @@
     "isDividable": "Unterteilbar",
     "subrooms": "Unterräume",
     "addSubroom": "Unterraum hinzufügen",
-    "selectSubrooms": "Unterräume wählen"
+    "selectSubrooms": "Unterräume wählen",
+    "onlyShowAvailableRooms": "Nur verfügbare Räume anzeigen"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",

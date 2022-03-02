@@ -36,7 +36,8 @@
     "isDividable": "Is Dividable",
     "subrooms": "Subrooms",
     "addSubroom": "Add subroom",
-    "selectSubrooms": "Select Subrooms"
+    "selectSubrooms": "Select Subrooms",
+    "onlyShowAvailableRooms": "Only show available Rooms"
   },
   "alerts": {
     "loginFailed": "Failed to Login!",

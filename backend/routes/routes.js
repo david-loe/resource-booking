@@ -6,6 +6,7 @@ const uid = require('uid')
 const i18n = require('../i18n')
 const helper = require('../helper')
 const sendConformationMail = require('../mail/confirmation')
+const { find } = require('../models/room')
 
 
 function getConflictingEvents(ical, startDate, endDate) {
@@ -30,6 +31,121 @@ function getConflictingEvents(ical, startDate, endDate) {
         }
     }
     return conflictingEvents
+}
+
+function getFreeSpots(room, startDate, endDate, minDuration = 1) {
+    const frameStart = new Date(startDate)
+    frameStart.setMinutes(0, 0, 0)
+    const frameEnd = new Date(endDate)
+    frameEnd.setMinutes(0, 0, 0)
+    const comp = new ICAL.Component(room.ical)
+    const isDayFree = []
+    var findEnd = frameStart
+    findEnd.setHours(frameEnd.getHours())
+    while (findEnd < frameEnd) {
+        isDayFree.push({ free: true, subrooms: null })
+        findEnd = new Date(findEnd.getTime() + 24 * 60 * 60 * 1000)
+    }
+    var nothingFree = false
+    for (const vevent of comp.getAllSubcomponents('vevent')) {
+        const event = new ICAL.Event(vevent);
+        const eventStart = event.startDate.toJSDate()
+        eventStart.setMinutes(0, 0, 0)
+        const eventEnd = event.endDate.toJSDate()
+        eventEnd.setMinutes(0, 0, 0)
+        if (frameStart < eventEnd && eventStart < frameEnd) {
+            const subrooms = vevent.getFirstPropertyValue('x-subrooms')
+            if (eventStart < frameStart && frameEnd < eventEnd) {
+                if (subrooms === null) {
+                    nothingFree = true
+                    break
+                } else {
+                    for (const day of isDayFree) {
+                        day.free = false
+                        day.subrooms = subrooms
+                    }
+                }
+            }
+            var eventStartDay = Math.ceil((eventStart.getTime() - frameStart.getTime()) / (24 * 60 * 60 * 1000))
+            if (frameStart.getHours() < eventStart.getHours()) {
+                eventStartDay--
+            }
+            if (eventStart.getHours() < frameEnd.getHours()) {
+                eventStartDay--
+            }
+            var eventEndDay = Math.ceil((eventEnd.getTime() - frameStart.getTime()) / (24 * 60 * 60 * 1000))
+            if (frameStart.getHours() < eventEnd.getHours()) {
+                eventEndDay--
+            }
+            if (eventEnd.getHours() < frameStart.getHours()) {
+                eventEndDay--
+            }
+            if (eventStartDay < 0) {
+                eventStartDay = 0
+            }
+            if (eventEndDay > isDayFree.length - 1) {
+                eventEndDay = isDayFree.length - 1
+            }
+            for (var i = eventStartDay; i <= eventEndDay; i++) {
+                if (isDayFree[i].free) {
+                    isDayFree[i].free = false
+                    isDayFree[i].subrooms = subrooms
+                } else if (isDayFree[i].subrooms !== null && subrooms !== null) {
+                    for(const subroom of subrooms){
+                        if(isDayFree[i].subrooms.indexOf(subroom) === -1){
+                            isDayFree[i].subrooms.push(subroom)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    const freeSpots = []
+    if (!nothingFree) {
+        for (var day = 0; day < isDayFree.length; day++) {
+            var free = false
+            if (isDayFree[day].free || isDayFree[day].subrooms !== null) {
+                var allSubroomsFree = true
+                var subrooms = room.subrooms.slice()
+                free = true
+                for (var forward = day; ((forward - day) < minDuration) && forward < isDayFree.length; forward++) {
+                    if (isDayFree[forward].free) {
+                        continue
+                    } else if (isDayFree[forward].subrooms === null) {
+                        free = false
+                        break
+                    } else {
+                        for (const subroom of isDayFree[forward].subrooms) {
+                            const index = subrooms.indexOf(subroom)
+                            if (index !== -1) {
+                                allSubroomsFree = false
+                                subrooms.splice(index, 1)
+                            }
+                            if (subrooms.length === 0) {
+                                free = false
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            const freeSpotStartDate = new Date(frameStart.getTime() + day * 24 * 60 * 60 * 1000)
+            const freeSpotEndDate = new Date(frameStart.getTime() + (day + minDuration) * 24 * 60 * 60 * 1000)
+            freeSpotEndDate.setHours(frameEnd.getHours())
+            if (allSubroomsFree) {
+                subrooms = null
+            }
+            if (free) {
+                freeSpots.push({
+                    startDate: freeSpotStartDate,
+                    endDate: freeSpotEndDate,
+                    subrooms: subrooms,
+                })
+            }
+
+        }
+    }
+    return freeSpots
 }
 
 function getEventByUid(ical, uid) {
@@ -94,26 +210,54 @@ router.get('/room', async (req, res) => {
 
 
 router.get('/room/search', async (req, res) => {
+    const endDate = new Date(req.query.endDate)
+    const startDate = new Date(req.query.startDate)
+    var bookingDurationInDays = 0
+    if (req.query.bookingDurationInDays !== undefined) {
+        bookingDurationInDays = Number(req.query.bookingDurationInDays)
+    }
+    const rooms = await Room.find()
+    const available = []
+    const unavailable = []
     if (req.query.startDate && req.query.endDate) {
-        const available = [];
-        const unavailable = [];
-        const rooms = await Room.find()
-        for (const room of rooms) {
-            const conflictingEvents = getConflictingEvents(room.ical, req.query.startDate, req.query.endDate)
-            const freeSubrooms = await helper.getFreeSubrooms(conflictingEvents)
-            if (conflictingEvents.length === 0) {
-                available.push(helper.roomToSimpleRoom(room))
-            } else if (freeSubrooms[room.name] && freeSubrooms[room.name].length > 0) {
-                room.subrooms = freeSubrooms[room.name]
-                available.push(helper.roomToSimpleRoom(room, true))
-            } else {
-                unavailable.push({ room: helper.roomToSimpleRoom(room), conflictingEvents: conflictingEvents })
+        if (bookingDurationInDays > 0) {
+            for (const room of rooms) {
+                const freeSpots = getFreeSpots(room, startDate, endDate, bookingDurationInDays)
+                if (freeSpots.length > 0) {
+                    var allSubroomsFree = true
+                    for (const freeSpot of freeSpots) {
+                        if (freeSpot.subrooms !== null) {
+                            allSubroomsFree = false
+                        }
+                    }
+                    if (allSubroomsFree) {
+                        available.push({ room: helper.roomToSimpleRoom(room), freeSpots: freeSpots })
+                    } else {
+                        available.push({ room: helper.roomToSimpleRoom(room, true), freeSpots: freeSpots })
+                    }
+                } else {
+                    unavailable.push({ room: helper.roomToSimpleRoom(room), conflictingEvents: [] })
+                }
+            }
+        } else {
+            for (const room of rooms) {
+                const conflictingEvents = getConflictingEvents(room.ical, startDate, endDate)
+                const freeSubrooms = await helper.getFreeSubrooms(conflictingEvents)
+                if (conflictingEvents.length === 0) {
+                    available.push(helper.roomToSimpleRoom(room))
+                } else if (freeSubrooms[room.name] && freeSubrooms[room.name].length > 0) {
+                    room.subrooms = freeSubrooms[room.name]
+                    available.push(helper.roomToSimpleRoom(room, true))
+                } else {
+                    unavailable.push({ room: helper.roomToSimpleRoom(room), conflictingEvents: conflictingEvents })
+                }
             }
         }
         res.send({ available: available, unavailable: unavailable })
     } else {
         res.status(400).send({ message: "Start or End Missing" })
     }
+
 })
 
 router.post('/booking', async (req, res) => {

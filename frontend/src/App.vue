@@ -53,6 +53,7 @@
 
 <script>
 import axios from 'axios'
+import jp from 'jsonpath'
 export default {
   data() {
     return {
@@ -61,6 +62,7 @@ export default {
       isAdmin: false,
       isRoomService: false,
       rooms: [],
+      roomNames: []
     }
   },
   methods: {
@@ -85,6 +87,7 @@ export default {
         })
         if (res.status === 200) {
           this.rooms = res.data.rooms
+          this.roomNames = jp.query(res.data.rooms, '$..name')
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -93,6 +96,29 @@ export default {
           console.log(error.response.data)
         }
       }
+    },
+    async getRoomsAvailability(startDate, endDate, bookingDurationInDays = undefined) {
+      try {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/room/search', {
+          params: {
+            startDate: startDate,
+            endDate: endDate,
+            bookingDurationInDays: bookingDurationInDays,
+          },
+          withCredentials: true,
+        })
+        if (res.status === 200) {
+          return res.data
+        }
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.$router.push('login')
+        } else {
+          console.log(error.response.data)
+        }
+        return {available: [], unavailable: []}
+      }
+
     },
     getRoomByName(name) {
       for (const room of this.rooms) {
