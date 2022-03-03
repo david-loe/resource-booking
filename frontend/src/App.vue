@@ -62,7 +62,8 @@ export default {
       isAdmin: false,
       isRoomService: false,
       rooms: [],
-      roomNames: []
+      roomNames: [],
+      reload: null
     }
   },
   methods: {
@@ -132,6 +133,9 @@ export default {
   beforeMount() {
     this.authAndGetRoom()
     document.title = this.$t('headlines.roomBooking') + ' 🏠'
+    this.reload = setInterval(() => {
+      this.getRooms()
+      }, 60 * 1000);
   },
 }
 </script>

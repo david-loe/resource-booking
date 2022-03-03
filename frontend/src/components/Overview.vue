@@ -118,10 +118,11 @@ export default {
   },
   watch: {
     rooms: function () {
-      this.overviewRooms = this.rooms
-    },
-    '$root.roomNames': function () {
-      this.roomNames = this.$root.roomNames
+      if(this.onlyShowAvailableRooms){
+        this.setAvailableRooms(this.calendarViewStartDate, this.calendarViewEndDate, true)
+      }else{
+        this.overviewRooms = this.rooms
+      }
     },
     availableRooms: function () {
       if (this.onlyShowAvailableRooms) {
