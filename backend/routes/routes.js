@@ -10,30 +10,6 @@ const sendChangeMail = require('../mail/change')
 const sendDeletionMail = require('../mail/deletion')
 
 
-function getConflictingEvents(ical, startDate, endDate) {
-    const conflictingEvents = []
-    const confStart = new Date(startDate)
-    const confEnd = new Date(endDate)
-    const comp = new ICAL.Component(ical)
-    for (const vevent of comp.getAllSubcomponents('vevent')) {
-        const event = new ICAL.Event(vevent);
-        const eventStart = event.startDate.toJSDate()
-        const eventEnd = event.endDate.toJSDate()
-        if (confStart < eventStart) {
-            if (confEnd <= eventStart) {
-                continue
-            } else {
-                conflictingEvents.push(helper.icalEventToSimpleEvent(vevent))
-            }
-        } else if (confStart < eventEnd) {
-            conflictingEvents.push(helper.icalEventToSimpleEvent(vevent))
-        } else {
-            continue
-        }
-    }
-    return conflictingEvents
-}
-
 function getFreeSpots(room, startDate, endDate, minDuration = 1) {
     const frameStart = new Date(startDate)
     frameStart.setMinutes(0, 0, 0)
@@ -92,8 +68,8 @@ function getFreeSpots(room, startDate, endDate, minDuration = 1) {
                     isDayFree[i].free = false
                     isDayFree[i].subrooms = subrooms
                 } else if (isDayFree[i].subrooms !== null && subrooms !== null) {
-                    for(const subroom of subrooms){
-                        if(isDayFree[i].subrooms.indexOf(subroom) === -1){
+                    for (const subroom of subrooms) {
+                        if (isDayFree[i].subrooms.indexOf(subroom) === -1) {
                             isDayFree[i].subrooms.push(subroom)
                         }
                     }
@@ -242,7 +218,7 @@ router.get('/room/search', async (req, res) => {
             }
         } else {
             for (const room of rooms) {
-                const conflictingEvents = getConflictingEvents(room.ical, startDate, endDate)
+                const conflictingEvents = helper.getConflictingEvents(room.ical, startDate, endDate)
                 const freeSubrooms = await helper.getFreeSubrooms(conflictingEvents)
                 if (conflictingEvents.length === 0) {
                     available.push(helper.roomToSimpleRoom(room))
@@ -267,66 +243,39 @@ router.post('/booking', async (req, res) => {
     if (new Date(req.body.startDate) < new Date(req.body.endDate)) {
         const conflictingEvents = []
         await Promise.all(req.body.rooms.map(async roomName => {
-            const room = await Room.findOne({ name: roomName })
-            if (room) {
-                conflictingEvents.push(...getConflictingEvents(room.ical, req.body.startDate, req.body.endDate))
-                const vevent = new ICAL.Component('vevent')
-                const event = new ICAL.Event(vevent)
-                event.summary = req.body.summary
-                event.location = room.name
-                event.organizer = req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] + ' <' + req.user[process.env.LDAP_MAIL_ATTRIBUTE] + '>'
-                event.uid = uid.uid()
-                event.color = room.color
-                event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
-                event.endDate = ICAL.Time.fromJSDate(new Date(req.body.endDate))
-                if (req.body.roomService != undefined) {
-                    vevent.addPropertyWithValue('x-room-service', req.body.roomService)
+            const event = {
+                startDate: new Date(req.body.startDate),
+                endDate: new Date(req.body.endDate),
+                summary: req.body.summary,
+                organizer: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] + ' <' + req.user[process.env.LDAP_MAIL_ATTRIBUTE] + '>',
+                location: roomName,
+                roomService: req.body.roomService,
+                subrooms: null
+            }
+            const selectedSubrooms = []
+            for (const subroom of req.body.subrooms) {
+                if (subroom.room === roomName) {
+                    selectedSubrooms.push(subroom.subroom)
                 }
-                if (room.isDividable) {
-                    const selectedSubrooms = []
-                    for (const subroom of req.body.subrooms) {
-                        if (subroom.room === room.name) {
-                            selectedSubrooms.push(subroom.subroom)
-                        }
-                    }
-                    var bookedPartly = false
-                    for (const subroom of room.subrooms) {
-                        if (selectedSubrooms.indexOf(subroom) === -1) {
-                            bookedPartly = true
-                        }
-                    }
-                    if (bookedPartly) {
-                        vevent.addPropertyWithValue('x-subrooms', selectedSubrooms)
-                    }
-                }
-                const comp = new ICAL.Component(room.ical)
-                comp.addSubcomponent(vevent)
-                bookedRooms.push(room)
-                bookedEvents.push(helper.icalEventToSimpleEvent(vevent))
+            }
+            if (selectedSubrooms.length > 0) {
+                event.subrooms = selectedSubrooms
+            }
+            const booking = await helper.book(event)
+            if (booking.success) {
+                bookedRooms.push(booking.bookedRoom)
+                bookedEvents.push(event)
+            } else {
+                conflictingEvents.push(booking.conflictingEvents)
             }
         }))
-        const freeSubooms = await helper.getFreeSubrooms(conflictingEvents)
-        var subroomsFree = false
-        if (req.body.subrooms !== null) {
-            subroomsFree = true
-            for (subroom of req.body.subrooms) {
-                if (!freeSubooms[subroom.room] || freeSubooms[subroom.room].indexOf(subroom.subroom) === -1) {
-                    subroomsFree = false
-                }
-            }
-        }
-
         if (bookedRooms.length > 0) {
-            if (conflictingEvents.length === 0 || subroomsFree) {
-                for (room of bookedRooms) {
-                    room.markModified('ical');
-                    await room.save()
-                }
+            if (conflictingEvents.length === 0) {
                 res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
-                sendConformationMail(bookedEvents, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
             } else {
-                res.status(400).send({ message: "Conflict while booking", conflictingEvents: conflictingEvents })
+                res.status(409).send({ message: "Some bookings had conflicts..", conflictingEvents: conflictingEvents, rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
             }
+            sendConformationMail(bookedEvents, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
         } else {
             res.status(400).send({ message: "No Room Booked" })
         }
@@ -407,7 +356,7 @@ router.post('/booking/change', async (req, res) => {
                 if (organizer.indexOf(req.user[process.env.LDAP_MAIL_ATTRIBUTE]) === -1 && !isAdmin) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
-                const conflictingEvents = getConflictingEvents(newRoom.ical, req.body.new.startDate, req.body.new.endDate)
+                const conflictingEvents = helper.getConflictingEvents(newRoom.ical, req.body.new.startDate, req.body.new.endDate)
                 const freeSubooms = await helper.getFreeSubrooms(conflictingEvents)
                 var subrooms = null
                 if (req.body.new.subrooms !== undefined) {

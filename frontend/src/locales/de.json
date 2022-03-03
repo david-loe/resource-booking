@@ -7,7 +7,8 @@
     "login": "Login",
     "rooms": "Räume",
     "roomService": "Zimmerreinigung",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "import": "Import"
   },
   "labels": {
     "email": "Email Addresse",
@@ -37,7 +38,11 @@
     "subrooms": "Unterräume",
     "addSubroom": "Unterraum hinzufügen",
     "selectSubrooms": "Unterräume wählen",
-    "onlyShowAvailableRooms": "Nur verfügbare Räume anzeigen"
+    "onlyShowAvailableRooms": "Nur verfügbare Räume anzeigen",
+    "separator": "Separator",
+    "arraySeparator": "Array Separator",
+    "csv": "CSV",
+    "import": "Importieren"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",
@@ -68,7 +73,10 @@
       }
     },
     "settings": {},
-    "room": {
+    "import": {
+      "description": "Importiere mehrere Buchungen im CSV Format."
+    },
+      "room": {
       "exampleName": "z.B. Zimmer 103"
     }
   }

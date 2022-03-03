@@ -7,7 +7,8 @@
     "login": "Login",
     "rooms": "Rooms",
     "roomService": "Room Service",
-    "user": "User"
+    "user": "User",
+    "import": "Import"
   },
   "labels": {
     "email": "Email address",
@@ -37,7 +38,11 @@
     "subrooms": "Subrooms",
     "addSubroom": "Add subroom",
     "selectSubrooms": "Select Subrooms",
-    "onlyShowAvailableRooms": "Only show available Rooms"
+    "onlyShowAvailableRooms": "Only show available Rooms",
+    "separator": "Separator",
+    "arraySeparator": "Array Separator",
+    "csv": "CSV",
+    "import": "Import"
   },
   "alerts": {
     "loginFailed": "Failed to Login!",
@@ -68,6 +73,9 @@
       }
     },
     "settings": {},
+    "import": {
+      "description": "Import multiple bookings using the CSV format."
+    },
     "room": {
       "exampleName": "e.g. Room 2"
     }

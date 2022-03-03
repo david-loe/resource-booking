@@ -3,7 +3,7 @@
     <div id="background">
       <img src="../assets/einsames-haus.jpg" id="background-pic" />
     </div>
-    <div id="seperator"></div>
+    <div id="separator"></div>
     <Booking :rooms="this.rooms" v-on:changed="this.$refs.overview.changeSelection()" ref="booking"></Booking>
     <Overview class="mt-5" :rooms="this.rooms" ref="overview" v-on:changed-events="this.$refs.booking.clear()"></Overview>
   </div>
@@ -36,7 +36,7 @@ export default {
   height: 100%;
   width: 100%;
 }
-#seperator {
+#separator {
   height: 10.5vw;
 }
 </style>

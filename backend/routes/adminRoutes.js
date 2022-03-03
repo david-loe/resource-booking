@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const Room = require('../models/room')
 const User = require('../models/user')
+const helper = require('../helper')
 
 router.post('/room', async (req, res) => {
     const room = new Room({
@@ -15,7 +16,7 @@ router.post('/room', async (req, res) => {
     try {
         res.send(await room.save())
     } catch (error) {
-        res.status(400).send({ message: "Unable to save room", error: error })
+        res.status(400).send({ message: 'Unable to save room', error: error })
     }
 })
 
@@ -30,13 +31,13 @@ router.post('/room/change', async (req, res) => {
             try {
                 res.send(await room.save())
             } catch (error) {
-                res.status(400).send({ message: "Unable to save room", error: error })
+                res.status(400).send({ message: 'Unable to save room', error: error })
             }
         } else {
-            res.status(400).send({ message: "No room found named: " + req.body.name })
+            res.status(400).send({ message: 'No room found named: ' + req.body.name })
         }
     } else {
-        res.status(400).send({ message: "Name Missing" })
+        res.status(400).send({ message: 'Name Missing' })
     }
 })
 
@@ -46,10 +47,10 @@ router.delete('/room', async (req, res) => {
             await Room.deleteOne({ name: req.query.name })
             res.send({ message: 'ok' })
         } catch (error) {
-            res.status(400).send({ message: "Unable to delete room " + req.query.name, error: error })
+            res.status(400).send({ message: 'Unable to delete room ' + req.query.name, error: error })
         }
     } else {
-        res.status(400).send({ message: "Name Missing" })
+        res.status(400).send({ message: 'Name Missing' })
     }
 })
 
@@ -68,7 +69,7 @@ router.post('/user', async (req, res) => {
     try {
         res.send(await user.save())
     } catch (error) {
-        res.status(400).send({ message: "Unable to save user", error: error })
+        res.status(400).send({ message: 'Unable to save user', error: error })
     }
 })
 
@@ -80,10 +81,10 @@ router.post('/user/change', async (req, res) => {
             user.isRoomService = req.body.isRoomService
             res.send(await user.save())
         } else {
-            res.status(400).send({ message: "No user found with uid:" + req.body.uid })
+            res.status(400).send({ message: 'No user found with uid:' + req.body.uid })
         }
     } else {
-        res.status(400).send({ message: "Please provide a uid, isAdmin and isRoomService." })
+        res.status(400).send({ message: 'Please provide a uid, isAdmin and isRoomService.' })
     }
 })
 
@@ -93,10 +94,31 @@ router.delete('/user', async (req, res) => {
             await User.deleteOne({ uid: req.query.uid })
             res.send({ message: 'ok' })
         } catch (error) {
-            res.status(400).send({ message: "Unable to delete user " + req.query.uid, error: error })
+            res.status(400).send({ message: 'Unable to delete user ' + req.query.uid, error: error })
         }
     } else {
-        res.status(400).send({ message: "UID Missing" })
+        res.status(400).send({ message: 'UID Missing' })
+    }
+})
+
+router.post('/csv/booking', async (req, res) => {
+    if(req.body.csv && req.body.separator && req.body.arraySeparator && (req.body.separator !== req.body.arraySeparator)){
+        const events = helper.csvToObjekt(req.body.csv, req.body.separator, req.body.arraySeparator)
+        const failedBookings = []
+        for(const event of events){
+            const booking = await helper.book(event)
+            if(!booking.success){
+                failedBookings.push(event)
+            }
+        }
+        if(failedBookings.length === 0){
+            res.send({message: 'ok'})
+        }else{
+            res.status(406).send({message: failedBookings.length + ' Bookings failed', failedBookings: failedBookings})
+        }
+        
+    }else {
+        res.status(400).send({ message: 'Please provide csv, a separator and a different array separator.' })
     }
 })
 

@@ -31,7 +31,7 @@
     </div>
     <div class="mb-3">
       <label for="location" class="form-label"> {{ $t('labels.room') }} </label>
-      <select class="form-select" aria-label="Default select example" id="location" v-model="formEvent.location">
+      <select class="form-select" id="location" v-model="formEvent.location">
         <option v-for="name in this.$root.roomNames" :value="name" :key="name">{{ name }}</option>
       </select>
     </div>
