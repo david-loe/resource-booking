@@ -9,15 +9,23 @@
         "details": "Details",
         "room": "Room",
         "roomService": "Room Service",
-        "summary": "Summary"
+        "summary": "Summary",
+        "subrooms": "Subrooms"
     },
     "mail": {
         "salutation": "Dear {{recipient}}",
         "footer": "View your Booking at",
         "confirmation": {
-            "heading": "Booking Conformation",
-            "content_one": "Your Booking of {{room}} was successful.",
-            "content_other": "Your Booking was successful."
+            "heading": "✅ Booking Conformation",
+            "content": "Your Booking was successful."
+        },
+        "deletion": {
+            "heading": "❌ Booking Deletion",
+            "content": "Your Booking was deleted."
+        },
+        "change": {
+            "heading": "🔄 Booking Change",
+            "content": "One of your bookings was changed:"
         },
         "reminder": {
             "heading": "Reminder",

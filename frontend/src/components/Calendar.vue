@@ -36,7 +36,7 @@
                   </tr>
                 </tbody>
               </table>
-              <template v-if="selectedBooking.organizer === this.$root.name || this.$root.isAdmin">
+              <template v-if="selectedBooking.organizer.indexOf(this.$root.name) === 0 || this.$root.isAdmin">
                 <button
                   type="button"
                   class="btn btn-secondary me-2"

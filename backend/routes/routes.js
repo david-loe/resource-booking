@@ -6,7 +6,8 @@ const uid = require('uid')
 const i18n = require('../i18n')
 const helper = require('../helper')
 const sendConformationMail = require('../mail/confirmation')
-const { find } = require('../models/room')
+const sendChangeMail = require('../mail/change')
+const sendDeletionMail = require('../mail/deletion')
 
 
 function getConflictingEvents(ical, startDate, endDate) {
@@ -262,19 +263,18 @@ router.get('/room/search', async (req, res) => {
 
 router.post('/booking', async (req, res) => {
     const bookedRooms = []
-    const roomNames = []
+    const bookedEvents = []
     if (new Date(req.body.startDate) < new Date(req.body.endDate)) {
         const conflictingEvents = []
         await Promise.all(req.body.rooms.map(async roomName => {
             const room = await Room.findOne({ name: roomName })
             if (room) {
-                roomNames.push(room.name)
                 conflictingEvents.push(...getConflictingEvents(room.ical, req.body.startDate, req.body.endDate))
                 const vevent = new ICAL.Component('vevent')
                 const event = new ICAL.Event(vevent)
                 event.summary = req.body.summary
                 event.location = room.name
-                event.organizer = req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE]
+                event.organizer = req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] + ' <' + req.user[process.env.LDAP_MAIL_ATTRIBUTE] + '>'
                 event.uid = uid.uid()
                 event.color = room.color
                 event.startDate = ICAL.Time.fromJSDate(new Date(req.body.startDate))
@@ -302,6 +302,7 @@ router.post('/booking', async (req, res) => {
                 const comp = new ICAL.Component(room.ical)
                 comp.addSubcomponent(vevent)
                 bookedRooms.push(room)
+                bookedEvents.push(helper.icalEventToSimpleEvent(vevent))
             }
         }))
         const freeSubooms = await helper.getFreeSubrooms(conflictingEvents)
@@ -322,7 +323,7 @@ router.post('/booking', async (req, res) => {
                     await room.save()
                 }
                 res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
-                sendConformationMail(req.body.startDate, req.body.endDate, roomNames, req.body.summary, req.body.roomService, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
+                sendConformationMail(bookedEvents, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
             } else {
                 res.status(400).send({ message: "Conflict while booking", conflictingEvents: conflictingEvents })
             }
@@ -345,11 +346,15 @@ router.delete('/booking', async (req, res) => {
                 if (user) {
                     isAdmin = user.isAdmin
                 }
-                if (eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin) {
+                const organizer = eventComp.getFirstPropertyValue('organizer')
+                const organizerMail = organizer.match(/<([^<]*)>$/)[1]
+                const organizerName = organizer.match(/^.*(?= <)/g)[0]
+                if (organizer.indexOf(req.user[process.env.LDAP_MAIL_ATTRIBUTE]) === -1 && !isAdmin) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
                 room.markModified('ical');
                 res.send(await room.save())
+                sendDeletionMail(helper.icalEventToSimpleEvent(eventComp), organizerName, organizerMail)
             } else {
                 res.status(400).send({ message: "No Event with uid: " + req.query.uid })
             }
@@ -389,13 +394,17 @@ router.post('/booking/change', async (req, res) => {
         }
         if (oldRoom && newRoom) {
             const eventComp = deleteVeventByUid(oldRoom.ical, req.body.old.uid)
+            const oldComp = ICAL.Component.fromString(eventComp.toString())
             if (eventComp) {
                 const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
                 var isAdmin = false;
                 if (user) {
                     isAdmin = user.isAdmin
                 }
-                if (eventComp.getFirstPropertyValue('organizer') !== req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] && !isAdmin) {
+                const organizer = eventComp.getFirstPropertyValue('organizer')
+                const organizerMail = organizer.match(/<([^<]*)>$/)[1]
+                const organizerName = organizer.match(/^.*(?= <)/g)[0]
+                if (organizer.indexOf(req.user[process.env.LDAP_MAIL_ATTRIBUTE]) === -1 && !isAdmin) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
                 const conflictingEvents = getConflictingEvents(newRoom.ical, req.body.new.startDate, req.body.new.endDate)
@@ -437,6 +446,7 @@ router.post('/booking/change', async (req, res) => {
                     comp.addSubcomponent(eventComp)
                     newRoom.markModified('ical');
                     res.send(await newRoom.save())
+                    sendChangeMail(helper.icalEventToSimpleEvent(oldComp), helper.icalEventToSimpleEvent(eventComp), organizerName, organizerMail)
                     if (oldRoom.name !== newRoom.name) {
                         oldRoom.markModified('ical')
                         oldRoom.save()

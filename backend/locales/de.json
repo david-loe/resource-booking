@@ -9,18 +9,26 @@
         "details": "Details",
         "room": "Zimmer",
         "roomService": "Zimmerreinigung",
-        "summary": "Beschreibung"
+        "summary": "Beschreibung",
+        "subrooms": "Unterräume"
     },
     "mail": {
         "salutation": "Hallo {{recipient}}",
-        "footer": "Sehen Sie ihr Buchung unter",
+        "footer": "Siehe deine Buchungungen unter",
         "confirmation": {
-            "heading": "Buchungs Bestätigung",
-            "content_one": "Du hast erfolgreich {{room}} gebucht.",
-            "content_other": "Deine Buchung war erfolgreich."
+            "heading": "✅ Buchungsbestätigung",
+            "content": "Deine Buchung war erfolgreich."
+        },
+        "deletion": {
+            "heading": "❌ Buchungslöschung",
+            "content": "Deine Buchung wurde gelöscht."
+        },
+        "change": {
+            "heading": "🔄 Buchungsänderung",
+            "content": "Folgende Buchung wurde geändert:"
         },
         "reminder": {
-            "heading": "Erinnerung",
+            "heading": "❕ Erinnerung",
             "content": "Die folgenden Räume sind demnächst dran:",
             "bookedFrom": "Gebucht von {{organizer}}"
         }

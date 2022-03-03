@@ -102,7 +102,7 @@ a[x-apple-data-detectors] {
                   <td valign="top" align="center" style="padding:0;Margin:0;width:560px"> 
                    <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                      <tr> 
-                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:21px;color:#333333;font-size:14px"> <%= i18n.t("mail.confirmation.content", { room: roomStr, count: roomNames.length }) %></p></td> 
+                      <td align="left" style="padding:0;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:21px;color:#333333;font-size:14px"> <%= i18n.t("mail.confirmation.content") %></p></td> 
                      </tr> 
                    </table></td> 
                  </tr> 
@@ -129,23 +129,23 @@ a[x-apple-data-detectors] {
                        <table border="0" class="es-table    cke_show_border" align="left" cellspacing="1" cellpadding="5" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.from") %></th> 
-                          <td style="padding:0;Margin:0"> <%= startDate %></td> 
+                          <td style="padding:0;Margin:0"> <%= event.startDate %></td> 
                          </tr> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.to") %></th> 
-                          <td style="padding:0;Margin:0"> <%= endDate %></td> 
+                          <td style="padding:0;Margin:0"> <%= event.endDate %></td> 
                          </tr> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.room") %></th> 
-                          <td style="padding:0;Margin:0"> <%= roomStr %></td> 
-                         </tr> 
+                          <td style="padding:0;Margin:0"> <%= event.location %></td> 
+                         </tr>
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.summary") %></th> 
-                          <td style="padding:0;Margin:0"> <%= summary %></td> 
+                          <td style="padding:0;Margin:0"> <%= event.summary %></td> 
                          </tr> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.roomService") %></th> 
-                          <td style="padding:0;Margin:0"> <%= roomServiceStr %></td> 
+                          <td style="padding:0;Margin:0"> <%= event.roomService %></td> 
                          </tr> 
                        </table></td> 
                      </tr> 

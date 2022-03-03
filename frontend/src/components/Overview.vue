@@ -95,7 +95,6 @@ export default {
         this.availableRooms = jp.query(result.available, '$..room')
         const availableRoomNames = jp.query(this.availableRooms, '$..name')
         const newSelection = []
-        console.log(this.availableRooms)
         for(const room of this.selectedRooms){
           if(availableRoomNames.indexOf(room) !== -1){
             newSelection.push(room)
