@@ -9,7 +9,7 @@
         </select>
       </div>
       <div class="col-auto">
-        <label for="arraySeparatorCSVImport" class="form-label"> {{ $t('labels.arraySeparator') }}: 1{{arraySeparator}}2{{arraySeparator}}3 </label>
+        <label for="arraySeparatorCSVImport" class="form-label"> {{ $t('labels.arraySeparator') }}: [1{{arraySeparator}}2{{arraySeparator}}3] </label>
         <select class="form-select" id="arraySeparatorCSVImport" v-model="arraySeparator">
           <option v-for="sep of this.separatorList" :value="sep.value" :key="sep.name">{{ sep.name }}</option>
         </select>
@@ -34,6 +34,8 @@ export default {
   data() {
     return {
       colums: ['summary', 'startDate', 'endDate', 'location', 'organizer', 'roomService', 'subrooms'],
+      exampleBooking: ['Example Booking', new Date().toISOString(), new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(), 'Example Room', 'Mr. Organizer <mr.organizer@email.com>', 'false', ''],
+      exampleSubrooms: ['Subroom 1', 'Subroom 4'],
       separatorList: [
         { name: 'Tab', value: '\t' },
         { name: 'Komma', value: ', ' },
@@ -74,11 +76,16 @@ export default {
     },
   },
   beforeMount() {
-    this.csv = this.colums.join(this.separator) + '\n'
+    this.exampleBooking[this.exampleBooking.length - 1] = '[' + this.exampleSubrooms.join(this.arraySeparator) + ']'
+    this.csv = this.colums.join(this.separator) + '\n' + this.exampleBooking.join(this.separator) + '\n'
   },
   watch: {
     separator: function () {
-      this.csv = this.colums.join(this.separator) + '\n'
+      this.csv = this.colums.join(this.separator) + '\n' + this.exampleBooking.join(this.separator) + '\n'
+    },
+    arraySeparator: function () {
+      this.exampleBooking[this.exampleBooking.length - 1] = '[' + this.exampleSubrooms.join(this.arraySeparator) + ']'
+    this.csv = this.colums.join(this.separator) + '\n' + this.exampleBooking.join(this.separator) + '\n'
     },
   },
 }

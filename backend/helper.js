@@ -95,10 +95,12 @@ function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
         }
         var currentline = lines[i].split(separator);
         for (var j = 0; j < headers.length; j++) {
-            if(currentline[j].indexOf(arraySeparator) === -1){
+            // search for [] to identify arrays
+            const match = currentline[j].match(/^\[(.*)\]$/)
+            if(match === null){
                 obj[headers[j]] = currentline[j];
             }else {
-                obj[headers[j]] = currentline[j].split(arraySeparator)
+                obj[headers[j]] = match[1].split(arraySeparator)
             }
             
         }
@@ -131,9 +133,22 @@ async function book(event) {
             return { success: false, bookedRoom: [], conflictingEvents: []}
         }
     }
+    if(event.organizer.match(/.* <.*>$/) === null){
+        return { success: false, bookedRoom: [], conflictingEvents: []}
+    }
     const room = await Room.findOne({ name: event.location })
     if (!room) {
         return { success: false, bookedRoom: [], conflictingEvents: [] }
+    }
+    if(!room.isDividable && event.subrooms !== null){
+        return { success: false, bookedRoom: [], conflictingEvents: [] }
+    }
+    if(event.subrooms !== null){
+        for (subroom of event.subrooms) {
+            if(room.subrooms.indexOf(subroom) === -1){
+                return { success: false, bookedRoom: [], conflictingEvents: [] }
+            }
+        }
     }
     const conflictingEvents = getConflictingEvents(room.ical, event.startDate, event.endDate)
     const freeSubooms = await getFreeSubrooms(conflictingEvents)
