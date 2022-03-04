@@ -1,4 +1,5 @@
 const Room = require('./models/room')
+const User = require('./models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
 
@@ -90,19 +91,19 @@ function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
     var headers = lines[0].split(separator);
     for (var i = 1; i < lines.length; i++) {
         var obj = {};
-        if(lines[i] === ''){
+        if (lines[i] === '') {
             break
         }
         var currentline = lines[i].split(separator);
         for (var j = 0; j < headers.length; j++) {
             // search for [] to identify arrays
             const match = currentline[j].match(/^\[(.*)\]$/)
-            if(match === null){
+            if (match === null) {
                 obj[headers[j]] = currentline[j];
-            }else {
+            } else {
                 obj[headers[j]] = match[1].split(arraySeparator)
             }
-            
+
         }
         result.push(obj);
     }
@@ -111,42 +112,52 @@ function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
 /**
  * 
  * @param {SimpleEvent} event 
+ * @param {Room} optional a room to use
  * @returns {Object} .success returns wether successful
  */
-async function book(event) {
+async function book(event, room = null) {
     if (!event.location || !event.summary || !event.organizer || !event.startDate || !event.endDate || event.roomService === undefined || event.subrooms === undefined || (event.startDate >= event.endDate)) {
-        return { success: false, bookedRoom: [], conflictingEvents: [] }
+        return { success: false, bookedRoom: [], conflictingEvents: [], error: 'The event is missing parameters or startDate is behind endDate' }
     }
     try {
         new Date(event.startDate)
         new Date(event.endDate)
     } catch (error) {
-        return { success: false, bookedRoom: [], conflictingEvents: [], error: error}
+        return { success: false, bookedRoom: [], conflictingEvents: [], error: error }
     }
-    if (typeof event.roomService === 'string' || event.roomService instanceof String){
+    if (typeof event.roomService === 'string' || event.roomService instanceof String) {
         event.roomService = event.roomService.toLowerCase() === 'true'
     }
-    if (typeof event.subrooms === 'string' || event.subrooms instanceof String){
-        if(event.subrooms.toLowerCase() === 'null'){
+    if (typeof event.subrooms === 'string' || event.subrooms instanceof String) {
+        if (event.subrooms.toLowerCase() === 'null') {
             event.subrooms = null
-        }else{
-            return { success: false, bookedRoom: [], conflictingEvents: []}
+        } else {
+            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Unvalid value in subroom: ' + event.subrooms }
         }
     }
-    if(event.organizer.match(/.* <.*>$/) === null){
-        return { success: false, bookedRoom: [], conflictingEvents: []}
+    if (event.organizer.match(/.* <.*>$/) === null) {
+        return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Organizer does not match: /.* <.*>$/' }
     }
-    const room = await Room.findOne({ name: event.location })
-    if (!room) {
-        return { success: false, bookedRoom: [], conflictingEvents: [] }
+    if (room === null) {
+        room = await Room.findOne({ name: event.location })
+        if (!room) {
+            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'No Room found with name: ' + event.location }
+        }
+    } else {
+        if (room.name !== event.location) {
+            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Provided room and event location are different' }
+        }
     }
-    if(!room.isDividable && event.subrooms !== null){
-        return { success: false, bookedRoom: [], conflictingEvents: [] }
+    if (!room.isDividable && event.subrooms !== null) {
+        return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Event location has no subrooms' }
     }
-    if(event.subrooms !== null){
+    if (event.subrooms !== null) {
+        if (event.subrooms.length === 0) {
+            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Unvalid value in subroom: empty Array' }
+        }
         for (subroom of event.subrooms) {
-            if(room.subrooms.indexOf(subroom) === -1){
-                return { success: false, bookedRoom: [], conflictingEvents: [] }
+            if (room.subrooms.indexOf(subroom) === -1) {
+                return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Unknown subroom: ' + subroom }
             }
         }
     }
@@ -171,7 +182,7 @@ async function book(event) {
         }
     }
     if (conflictingEvents.length > 0 && !subroomsFree) {
-        return { success: false, bookedRoom: [], conflictingEvents: conflictingEvents }
+        return { success: false, bookedRoom: [], conflictingEvents: conflictingEvents, error: 'Conflicting Event' }
     }
     const vevent = new ICAL.Component('vevent')
     const icalEvent = new ICAL.Event(vevent)
@@ -193,7 +204,7 @@ async function book(event) {
     const comp = new ICAL.Component(room.ical)
     comp.addSubcomponent(vevent)
     room.markModified('ical');
-    return { success: true, bookedRoom: await room.save(), conflictingEvents: [] }
+    return { success: true, bookedRoom: await room.save(), conflictingEvents: [], error: '' }
 }
 
 function getConflictingEvents(ical, startDate, endDate) {
@@ -220,6 +231,15 @@ function getConflictingEvents(ical, startDate, endDate) {
     return conflictingEvents
 }
 
+async function isUserOrganizerOrAdmin(eventOrganizer, reqUser) {
+    const user = await User.findOne({ uid: reqUser[process.env.LDAP_UID_ATTRIBUTE] })
+    var isAdmin = false;
+    if (user) {
+        isAdmin = user.isAdmin
+    }
+    return eventOrganizer.indexOf(reqUser[process.env.LDAP_MAIL_ATTRIBUTE]) !== -1 || isAdmin
+}
+
 module.exports = {
     getRoomServiceIcal: getRoomServiceIcal,
     icalEventToSimpleEvent: icalEventToSimpleEvent,
@@ -228,4 +248,5 @@ module.exports = {
     csvToObjekt: csvToObjekt,
     book: book,
     getConflictingEvents: getConflictingEvents,
+    isUserOrganizerOrAdmin: isUserOrganizerOrAdmin,
 }

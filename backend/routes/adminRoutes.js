@@ -102,22 +102,22 @@ router.delete('/user', async (req, res) => {
 })
 
 router.post('/csv/booking', async (req, res) => {
-    if(req.body.csv && req.body.separator && req.body.arraySeparator && (req.body.separator !== req.body.arraySeparator)){
+    if (req.body.csv && req.body.separator && req.body.arraySeparator && (req.body.separator !== req.body.arraySeparator)) {
         const events = helper.csvToObjekt(req.body.csv, req.body.separator, req.body.arraySeparator)
         const failedBookings = []
-        for(const event of events){
+        for (const event of events) {
             const booking = await helper.book(event)
-            if(!booking.success){
-                failedBookings.push(event)
+            if (!booking.success) {
+                failedBookings.push({ event: event, error: booking.error, conflictingEvents: booking.conflictingEvents })
             }
         }
-        if(failedBookings.length === 0){
-            res.send({message: 'ok'})
-        }else{
-            res.status(406).send({message: failedBookings.length + ' Bookings failed', failedBookings: failedBookings})
+        if (failedBookings.length === 0) {
+            res.send({ message: 'ok' })
+        } else {
+            res.status(406).send({ message: failedBookings.length + ' Bookings failed', failedBookings: failedBookings })
         }
-        
-    }else {
+
+    } else {
         res.status(400).send({ message: 'Please provide csv, a separator and a different array separator.' })
     }
 })

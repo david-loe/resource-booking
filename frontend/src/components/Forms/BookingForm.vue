@@ -104,7 +104,7 @@ export default {
   data() {
     return {
       formEvent: this.event,
-      isNewOpened: true
+      isNewOpened: true,
     }
   },
   methods: {
@@ -154,8 +154,12 @@ export default {
       this.isNewOpened = true
     },
     'formEvent.location': function () {
-      if (!this.isNewOpened && this.$root.getRoomByName(this.formEvent.location).isDividable) {
-        this.formEvent.subrooms = this.$root.getRoomByName(this.formEvent.location).subrooms
+      if (this.$root.getRoomByName(this.formEvent.location).isDividable) {
+        if (!this.isNewOpened) {
+          this.formEvent.subrooms = this.$root.getRoomByName(this.formEvent.location).subrooms
+        }
+      } else {
+        this.formEvent.subrooms = null
       }
       this.isNewOpened = false
     },
