@@ -34,7 +34,19 @@
         </div>
       </div>
     </header>
-    <router-view :rooms="this.rooms" />
+
+    <div v-if="isLoading" class="position-absolute top-50 start-50 translate-middle">
+      <div class="spinner-grow me-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="spinner-grow me-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="spinner-grow" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <router-view v-else :rooms="this.rooms" />
 
     <footer class="py-3 border-top">
       <div class="container">
@@ -63,7 +75,8 @@ export default {
       isRoomService: false,
       rooms: [],
       roomNames: [],
-      reload: null
+      reload: null,
+      isLoading: true,
     }
   },
   methods: {
@@ -80,6 +93,7 @@ export default {
       } catch (error) {
         this.$router.push('login')
       }
+      this.isLoading = false
     },
     async getRooms() {
       try {
@@ -117,9 +131,8 @@ export default {
         } else {
           console.log(error.response.data)
         }
-        return {available: [], unavailable: []}
+        return { available: [], unavailable: [] }
       }
-
     },
     getRoomByName(name) {
       for (const room of this.rooms) {
@@ -135,7 +148,7 @@ export default {
     document.title = this.$t('headlines.roomBooking') + ' 🏠'
     this.reload = setInterval(() => {
       this.getRooms()
-      }, 60 * 1000);
+    }, 60 * 1000)
   },
 }
 </script>
