@@ -8,6 +8,10 @@ Using [OpenLDAP Docker Image](https://github.com/rroemhild/docker-test-openldap)
 
 Using [ical.js](https://github.com/mozilla-comm/ical.js/) to generate and handle iCalendar.
 
+## Requirements
+- [docker](https://docs.docker.com/engine/install/)
+- [docker-compose](https://docs.docker.com/compose/install/)
+
 ## Install & Run
 ```
 git clone https://github.com/david-loe/room-booking.git
