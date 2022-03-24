@@ -24,10 +24,12 @@ router.post('/room/change', async (req, res) => {
     if (req.body.name) {
         const room = await Room.findOne({ name: req.body.name })
         if (room) {
-            room.size = req.body.size,
-                room.description = req.body.description,
-                room.img = req.body.img,
-                room.color = req.body.color
+            room.size = req.body.size
+            room.description = req.body.description
+            room.img = req.body.img
+            room.color = req.body.color
+            helper.updateAttributeInAllEvents('color', req.body.color, room.ical)
+            room.markModified('ical')
             try {
                 res.send(await room.save())
             } catch (error) {

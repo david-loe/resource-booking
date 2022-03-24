@@ -4,9 +4,9 @@ const ICAL = require('ical.js')
 const uid = require('uid')
 
 /**
-     * Return all bookings with roomservice as a ICAL Component
-     * @returns {ICAL.Component} ICAL Component
-     */
+ * Return all bookings with roomservice as a ICAL Component
+ * @returns {ICAL.Component} ICAL Component
+ */
 async function getRoomServiceIcal() {
     const rooms = await Room.find({})
     const roomServiceIcal = new ICAL.Component(['vcalendar', [], []])
@@ -56,9 +56,8 @@ function roomToSimpleRoom(room, isPartlyBooked = false) {
 }
 
 /**
- * 
  * @param {Array} conflictingEvents
- * @returns Array of free Subrooms grouped by room name
+ * @returns {Array} Array of free Subrooms grouped by room name
  */
 async function getFreeSubrooms(conflictingEvents) {
     const freeSubrooms = {}
@@ -109,8 +108,21 @@ function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
     }
     return result
 }
+
 /**
- * 
+ * @param {string} attribute    The attribute to update
+ * @param {string} value        The new value of the attribute
+ * @param {ICAL.Component} ical The calendar which holds the events to update
+ * @returns 
+ */
+function updateAttributeInAllEvents(attribute, value, ical) {
+    const comp = new ICAL.Component(ical)
+    for (const vevent of comp.getAllSubcomponents('vevent')) {
+        vevent.updatePropertyWithValue(attribute, value)
+    }
+}
+
+/**
  * @param {SimpleEvent} event 
  * @param {Room} optional a room to use
  * @returns {Object} .success returns wether successful
@@ -246,6 +258,7 @@ module.exports = {
     roomToSimpleRoom: roomToSimpleRoom,
     getFreeSubrooms: getFreeSubrooms,
     csvToObjekt: csvToObjekt,
+    updateAttributeInAllEvents: updateAttributeInAllEvents,
     book: book,
     getConflictingEvents: getConflictingEvents,
     isUserOrganizerOrAdmin: isUserOrganizerOrAdmin,
