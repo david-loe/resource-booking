@@ -31,6 +31,10 @@
             "heading": "Reminder",
             "content": "The following rooms are coming up soon:",
             "bookedFrom": "Booked from {{organizer}}"
+        },
+        "notifyOnEnd": {
+            "heading": "ℹ End of stay",
+            "content": "The following bookings end today:"
         }
     },
     "alerts": {

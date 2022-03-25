@@ -10,7 +10,7 @@ async function sendRoomServiceReminder() {
     if (mailClient == undefined) {
         return false
     }
-    const dateStringOptions = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+    const dateStringOptions = { weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
     const roomServiceIcal = await helper.getRoomServiceIcal()
     const events = []
     const reminderMinThreshold = new Date(Date.now() + (3600 * 1000 * (parseInt(process.env.MAIL_REMINDER_TIME) - 1)))
@@ -41,7 +41,7 @@ async function sendRoomServiceReminder() {
         mailClient.sendMail({
             from: '"' + i18n.t("headlines.roomBooking") + ' 🏠" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
             to: recipients, // list of receivers
-            subject: i18n.t("headlines.roomService") + ' ' + i18n.t("mail.reminder.heading"), // Subject line
+            subject: i18n.t("mail.reminder.heading"), // Subject line
             text: plainText, // plain text body
             html: renderedHTML, // html body
         })

@@ -31,6 +31,10 @@
             "heading": "❕ Erinnerung",
             "content": "Die folgenden Räume sind demnächst dran:",
             "bookedFrom": "Gebucht von {{organizer}}"
+        },
+        "notifyOnEnd": {
+            "heading": "ℹ Aufenthaltsende",
+            "content": "Heute enden folgende Buchungen:"
         }
     },
     "alerts": {
