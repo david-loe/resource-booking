@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h2>{{ $t('headlines.overview') }}</h2>
-    <div v-if="rooms.length > 0">
+    <div v-if="resources.length > 0">
       <div class="container my-3">
         <div class="row justify-content-center">
           <div class="col-9">
@@ -9,35 +9,35 @@
               <div class="px-2 pt-2 pb-1">
                 <div class="d-inline-block">Filter:</div>
                 <div class="form-check form-check-inline float-end">
-                  <label for="onlyShowAvailableRooms" class="form-check-label text-nowrap">
-                    {{ $t('labels.onlyShowAvailableRooms') }}</label
+                  <label for="onlyShowAvailableResources" class="form-check-label text-nowrap">
+                    {{ $t('labels.onlyShowAvailableResources') }}</label
                   >
                   <input
                     class="form-check-input"
                     type="checkbox"
-                    id="onlyShowAvailableRooms"
+                    id="onlyShowAvailableResources"
                     role="switch"
-                    v-model="this.onlyShowAvailableRooms"
+                    v-model="this.onlyShowAvailableResources"
                   />
                 </div>
               </div>
               <div class="list-group list-group-checkable d-flex flex-wrap flex-row justify-content-center bg-light px-2 pb-2">
-                <div v-for="(room, index) of overviewRooms" v-bind:key="room.name" class="ps-2">
+                <div v-for="(resource, index) of overviewResources" v-bind:key="resource.name" class="ps-2">
                   <input
                     class="list-group-item-check"
                     type="checkbox"
                     name="filter"
                     v-bind:id="index"
-                    v-bind:value="room.name"
-                    v-model="selectedRooms"
+                    v-bind:value="resource.name"
+                    v-model="selectedResources"
                     @change="changeSelection"
                   />
                   <label class="list-group-item py-1 small" v-bind:for="index">
-                    <img v-bind:src="room.img" width="24" height="24" class="rounded-circle flex-shrink-0 border me-1" />
-                    <span class="align-middle" :style="{ color: room.color }">{{ room.name }}</span>
+                    <img v-bind:src="resource.img" width="24" height="24" class="rounded-circle flex-shrink-0 border me-1" />
+                    <span class="align-middle" :style="{ color: resource.color }">{{ resource.name }}</span>
                     <span
                       class="position-absolute top-50 start-0 translate-middle p-2 border border-light rounded-circle"
-                      :style="{ backgroundColor: room.color }"
+                      :style="{ backgroundColor: resource.color }"
                     ></span>
                   </label>
                 </div>
@@ -47,16 +47,16 @@
         </div>
       </div>
       <Calendar
-        :roomNames="this.roomNames"
+        :resourceNames="this.resourceNames"
         tab="month"
-        v-on:changed-events="this.$emit('changed-events')"
-        v-on:changed-view-dates="this.setAvailableRooms"
+        v-on:changed-bookings="this.$emit('changed-bookings')"
+        v-on:changed-view-dates="this.setAvailableResources"
       ></Calendar>
     </div>
 
     <div v-else class="alert alert-primary" role="alert">
-      <h4 class="alert-heading">{{ $t('alerts.noRoom.heading') }}</h4>
-      {{ $t('alerts.noRoom.text') }}
+      <h4 class="alert-heading">{{ $t('alerts.noResource.heading') }}</h4>
+      {{ $t('alerts.noResource.text') }}
     </div>
   </div>
 </template>
@@ -70,7 +70,7 @@ export default {
     Calendar,
   },
   props: {
-    rooms: {
+    resources: {
       type: Array,
       default: function () {
         return []
@@ -79,63 +79,63 @@ export default {
   },
   data() {
     return {
-      overviewRooms: [],
-      selectedRooms: [],
-      roomNames: [],
-      onlyShowAvailableRooms: true,
-      availableRooms: [],
+      overviewResources: [],
+      selectedResources: [],
+      resourceNames: [],
+      onlyShowAvailableResources: true,
+      availableResources: [],
       calendarViewStartDate: new Date(),
       calendarViewEndDate: new Date(),
     }
   },
   methods: {
-    async setAvailableRooms(startDate, endDate, force = false) {
-      if (this.onlyShowAvailableRooms && (startDate.getTime() !== this.calendarViewStartDate.getTime() || endDate.getTime() !== this.calendarViewEndDate.getTime() || force)) {
-        const result = await this.$root.getRoomsAvailability(startDate, endDate, 1)
-        this.availableRooms = jp.query(result.available, '$..room')
-        const availableRoomNames = jp.query(this.availableRooms, '$..name')
+    async setAvailableResources(startDate, endDate, force = false) {
+      if (this.onlyShowAvailableResources && (startDate.getTime() !== this.calendarViewStartDate.getTime() || endDate.getTime() !== this.calendarViewEndDate.getTime() || force)) {
+        const result = await this.$root.getResourcesAvailability(startDate, endDate, 1)
+        this.availableResources = jp.query(result.available, '$..resource')
+        const availableResourceNames = jp.query(this.availableResources, '$..name')
         const newSelection = []
-        for(const room of this.selectedRooms){
-          if(availableRoomNames.indexOf(room) !== -1){
-            newSelection.push(room)
+        for(const resource of this.selectedResources){
+          if(availableResourceNames.indexOf(resource) !== -1){
+            newSelection.push(resource)
           }
         }
-        this.selectedRooms = newSelection
+        this.selectedResources = newSelection
         this.calendarViewStartDate = startDate
         this.calendarViewEndDate = endDate
       }
     },
     changeSelection() {
-      if (this.selectedRooms.length === 0) {
-        this.roomNames = jp.query(this.overviewRooms, '$..name')
+      if (this.selectedResources.length === 0) {
+        this.resourceNames = jp.query(this.overviewResources, '$..name')
       } else {
-        this.roomNames = this.selectedRooms
+        this.resourceNames = this.selectedResources
       }
     },
   },
   beforeMount() {
-    this.roomNames = this.$root.roomNames
+    this.resourceNames = this.$root.resourceNames
   },
   watch: {
-    rooms: function () {
-      if(this.onlyShowAvailableRooms){
-        this.setAvailableRooms(this.calendarViewStartDate, this.calendarViewEndDate, true)
+    resources: function () {
+      if(this.onlyShowAvailableResources){
+        this.setAvailableResources(this.calendarViewStartDate, this.calendarViewEndDate, true)
       }else{
-        this.overviewRooms = this.rooms
+        this.overviewResources = this.resources
       }
     },
-    availableRooms: function () {
-      if (this.onlyShowAvailableRooms) {
-        this.overviewRooms = this.availableRooms
+    availableResources: function () {
+      if (this.onlyShowAvailableResources) {
+        this.overviewResources = this.availableResources
         this.changeSelection()
       }
     },
-    onlyShowAvailableRooms: function () {
-      if (this.onlyShowAvailableRooms) {
-        this.setAvailableRooms(this.calendarViewStartDate, this.calendarViewEndDate, true)
-        this.overviewRooms = this.availableRooms
+    onlyShowAvailableResources: function () {
+      if (this.onlyShowAvailableResources) {
+        this.setAvailableResources(this.calendarViewStartDate, this.calendarViewEndDate, true)
+        this.overviewResources = this.availableResources
       } else {
-        this.overviewRooms = this.$root.rooms
+        this.overviewResources = this.$root.resources
       }
       this.changeSelection()
     },

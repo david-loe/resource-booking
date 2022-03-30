@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const Room = require('../models/room')
+const Resource = require('../models/resource')
 const User = require('../models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
@@ -10,67 +10,67 @@ const sendChangeMail = require('../mail/change')
 const sendDeletionMail = require('../mail/deletion')
 
 
-function getFreeSpots(room, startDate, endDate, minDuration = 1) {
+function getFreeSpots(resource, startDate, endDate, minDuration = 1) {
     const frameStart = new Date(startDate)
     frameStart.setMinutes(0, 0, 0)
     const frameEnd = new Date(endDate)
     frameEnd.setMinutes(0, 0, 0)
-    const comp = new ICAL.Component(room.ical)
+    const comp = new ICAL.Component(resource.ical)
     const isDayFree = []
     var findEnd = frameStart
     findEnd.setHours(frameEnd.getHours())
     while (findEnd < frameEnd) {
-        isDayFree.push({ free: true, subrooms: null })
+        isDayFree.push({ free: true, subresources: null })
         findEnd = new Date(findEnd.getTime() + 24 * 60 * 60 * 1000)
     }
     var nothingFree = false
     for (const vevent of comp.getAllSubcomponents('vevent')) {
-        const event = new ICAL.Event(vevent);
-        const eventStart = event.startDate.toJSDate()
-        eventStart.setMinutes(0, 0, 0)
-        const eventEnd = event.endDate.toJSDate()
-        eventEnd.setMinutes(0, 0, 0)
-        if (frameStart < eventEnd && eventStart < frameEnd) {
-            const subrooms = vevent.getFirstPropertyValue('x-subrooms')
-            if (eventStart < frameStart && frameEnd < eventEnd) {
-                if (subrooms === null) {
+        const icalEvent = new ICAL.Event(vevent);
+        const bookingStart = icalEvent.startDate.toJSDate()
+        bookingStart.setMinutes(0, 0, 0)
+        const bookingEnd = icalEvent.endDate.toJSDate()
+        bookingEnd.setMinutes(0, 0, 0)
+        if (frameStart < bookingEnd && bookingStart < frameEnd) {
+            const subresources = vevent.getFirstPropertyValue('x-subresources')
+            if (bookingStart < frameStart && frameEnd < bookingEnd) {
+                if (subresources === null) {
                     nothingFree = true
                     break
                 } else {
                     for (const day of isDayFree) {
                         day.free = false
-                        day.subrooms = subrooms
+                        day.subresources = subresources
                     }
                 }
             }
-            var eventStartDay = Math.ceil((eventStart.getTime() - frameStart.getTime()) / (24 * 60 * 60 * 1000))
-            if (frameStart.getHours() < eventStart.getHours()) {
-                eventStartDay--
+            var bookingStartDay = Math.ceil((bookingStart.getTime() - frameStart.getTime()) / (24 * 60 * 60 * 1000))
+            if (frameStart.getHours() < bookingStart.getHours()) {
+                bookingStartDay--
             }
-            if (eventStart.getHours() < frameEnd.getHours()) {
-                eventStartDay--
+            if (bookingStart.getHours() < frameEnd.getHours()) {
+                bookingStartDay--
             }
-            var eventEndDay = Math.ceil((eventEnd.getTime() - frameStart.getTime()) / (24 * 60 * 60 * 1000))
-            if (frameStart.getHours() < eventEnd.getHours()) {
-                eventEndDay--
+            var bookingEndDay = Math.ceil((bookingEnd.getTime() - frameStart.getTime()) / (24 * 60 * 60 * 1000))
+            if (frameStart.getHours() < bookingEnd.getHours()) {
+                bookingEndDay--
             }
-            if (eventEnd.getHours() < frameStart.getHours()) {
-                eventEndDay--
+            if (bookingEnd.getHours() < frameStart.getHours()) {
+                bookingEndDay--
             }
-            if (eventStartDay < 0) {
-                eventStartDay = 0
+            if (bookingStartDay < 0) {
+                bookingStartDay = 0
             }
-            if (eventEndDay > isDayFree.length - 1) {
-                eventEndDay = isDayFree.length - 1
+            if (bookingEndDay > isDayFree.length - 1) {
+                bookingEndDay = isDayFree.length - 1
             }
-            for (var i = eventStartDay; i <= eventEndDay; i++) {
+            for (var i = bookingStartDay; i <= bookingEndDay; i++) {
                 if (isDayFree[i].free) {
                     isDayFree[i].free = false
-                    isDayFree[i].subrooms = subrooms
-                } else if (isDayFree[i].subrooms !== null && subrooms !== null) {
-                    for (const subroom of subrooms) {
-                        if (isDayFree[i].subrooms.indexOf(subroom) === -1) {
-                            isDayFree[i].subrooms.push(subroom)
+                    isDayFree[i].subresources = subresources
+                } else if (isDayFree[i].subresources !== null && subresources !== null) {
+                    for (const subresource of subresources) {
+                        if (isDayFree[i].subresources.indexOf(subresource) === -1) {
+                            isDayFree[i].subresources.push(subresource)
                         }
                     }
                 }
@@ -81,24 +81,24 @@ function getFreeSpots(room, startDate, endDate, minDuration = 1) {
     if (!nothingFree) {
         for (var day = 0; day < isDayFree.length; day++) {
             var free = false
-            if (isDayFree[day].free || isDayFree[day].subrooms !== null) {
-                var allSubroomsFree = true
-                var subrooms = room.subrooms.slice()
+            if (isDayFree[day].free || isDayFree[day].subresources !== null) {
+                var allSubresourcesFree = true
+                var subresources = resource.subresources.slice()
                 free = true
                 for (var forward = day; ((forward - day) < minDuration) && forward < isDayFree.length; forward++) {
                     if (isDayFree[forward].free) {
                         continue
-                    } else if (isDayFree[forward].subrooms === null) {
+                    } else if (isDayFree[forward].subresources === null) {
                         free = false
                         break
                     } else {
-                        for (const subroom of isDayFree[forward].subrooms) {
-                            const index = subrooms.indexOf(subroom)
+                        for (const subresource of isDayFree[forward].subresources) {
+                            const index = subresources.indexOf(subresource)
                             if (index !== -1) {
-                                allSubroomsFree = false
-                                subrooms.splice(index, 1)
+                                allSubresourcesFree = false
+                                subresources.splice(index, 1)
                             }
-                            if (subrooms.length === 0) {
+                            if (subresources.length === 0) {
                                 free = false
                                 break
                             }
@@ -109,14 +109,14 @@ function getFreeSpots(room, startDate, endDate, minDuration = 1) {
             const freeSpotStartDate = new Date(frameStart.getTime() + day * 24 * 60 * 60 * 1000)
             const freeSpotEndDate = new Date(frameStart.getTime() + (day + minDuration) * 24 * 60 * 60 * 1000)
             freeSpotEndDate.setHours(frameEnd.getHours())
-            if (allSubroomsFree) {
-                subrooms = null
+            if (allSubresourcesFree) {
+                subresources = null
             }
             if (free) {
                 freeSpots.push({
                     startDate: freeSpotStartDate,
                     endDate: freeSpotEndDate,
-                    subrooms: subrooms,
+                    subresources: subresources,
                 })
             }
 
@@ -125,12 +125,12 @@ function getFreeSpots(room, startDate, endDate, minDuration = 1) {
     return freeSpots
 }
 
-function getEventByUid(ical, uid) {
+function getBookingByUid(ical, uid) {
     const comp = new ICAL.Component(ical)
     for (const vevent of comp.getAllSubcomponents('vevent')) {
-        const event = new ICAL.Event(vevent);
-        if (event.uid === uid) {
-            return helper.icalEventToSimpleEvent(vevent)
+        const icalEvent = new ICAL.Event(vevent);
+        if (icalEvent.uid === uid) {
+            return helper.icalEventToSimpleBooking(vevent)
         }
     }
     return false
@@ -139,8 +139,8 @@ function getEventByUid(ical, uid) {
 function deleteVeventByUid(ical, uid) {
     const comp = new ICAL.Component(ical)
     for (const vevent of comp.getAllSubcomponents('vevent')) {
-        const event = new ICAL.Event(vevent);
-        if (event.uid === uid) {
+        const icalEvent = new ICAL.Event(vevent);
+        if (icalEvent.uid === uid) {
             if (comp.removeSubcomponent(vevent)) {
                 return vevent
             }
@@ -151,11 +151,11 @@ function deleteVeventByUid(ical, uid) {
 
 router.get('/user', async (req, res) => {
     var isAdmin = false;
-    var isRoomService = false;
+    var isService = false;
     const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
     if (user) {
         isAdmin = user.isAdmin
-        isRoomService = user.isRoomService
+        isService = user.isService
     } else {
         var mail = req.user[process.env.LDAP_MAIL_ATTRIBUTE]
         if (Array.isArray(mail)) {
@@ -175,58 +175,58 @@ router.get('/user', async (req, res) => {
     res.send({
         name: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE],
         isAdmin: isAdmin,
-        isRoomService: isRoomService,
+        isService: isService,
     })
 })
 
 
-router.get('/room', async (req, res) => {
-    const rooms = await Room.find()
-    res.send({ rooms: rooms })
+router.get('/resource', async (req, res) => {
+    const resources = await Resource.find()
+    res.send({ resources: resources })
 })
 
 
-router.get('/room/search', async (req, res) => {
+router.get('/resource/search', async (req, res) => {
     const endDate = new Date(req.query.endDate)
     const startDate = new Date(req.query.startDate)
     var bookingDurationInDays = 0
     if (req.query.bookingDurationInDays !== undefined) {
         bookingDurationInDays = Number(req.query.bookingDurationInDays)
     }
-    const rooms = await Room.find()
+    const resources = await Resource.find()
     const available = []
     const unavailable = []
     if (req.query.startDate && req.query.endDate) {
         if (bookingDurationInDays > 0) {
-            for (const room of rooms) {
-                const freeSpots = getFreeSpots(room, startDate, endDate, bookingDurationInDays)
+            for (const resource of resources) {
+                const freeSpots = getFreeSpots(resource, startDate, endDate, bookingDurationInDays)
                 if (freeSpots.length > 0) {
-                    var allSubroomsFree = true
+                    var allSubresourcesFree = true
                     for (const freeSpot of freeSpots) {
-                        if (freeSpot.subrooms !== null) {
-                            allSubroomsFree = false
+                        if (freeSpot.subresources !== null) {
+                            allSubresourcesFree = false
                         }
                     }
-                    if (allSubroomsFree) {
-                        available.push({ room: helper.roomToSimpleRoom(room), freeSpots: freeSpots })
+                    if (allSubresourcesFree) {
+                        available.push({ resource: helper.resourceToSimpleResource(resource), freeSpots: freeSpots })
                     } else {
-                        available.push({ room: helper.roomToSimpleRoom(room, true), freeSpots: freeSpots })
+                        available.push({ resource: helper.resourceToSimpleResource(resource, true), freeSpots: freeSpots })
                     }
                 } else {
-                    unavailable.push({ room: helper.roomToSimpleRoom(room), conflictingEvents: [] })
+                    unavailable.push({ resource: helper.resourceToSimpleResource(resource), conflictingBookings: [] })
                 }
             }
         } else {
-            for (const room of rooms) {
-                const conflictingEvents = helper.getConflictingEvents(room.ical, startDate, endDate)
-                const freeSubrooms = await helper.getFreeSubrooms(conflictingEvents)
-                if (conflictingEvents.length === 0) {
-                    available.push(helper.roomToSimpleRoom(room))
-                } else if (freeSubrooms[room.name] && freeSubrooms[room.name].length > 0) {
-                    room.subrooms = freeSubrooms[room.name]
-                    available.push(helper.roomToSimpleRoom(room, true))
+            for (const resource of resources) {
+                const conflictingBookings = helper.getConflictingBookings(resource.ical, startDate, endDate)
+                const freeSubresources = await helper.getFreeSubresources(conflictingBookings)
+                if (conflictingBookings.length === 0) {
+                    available.push(helper.resourceToSimpleResource(resource))
+                } else if (freeSubresources[resource.name] && freeSubresources[resource.name].length > 0) {
+                    resource.subresources = freeSubresources[resource.name]
+                    available.push(helper.resourceToSimpleResource(resource, true))
                 } else {
-                    unavailable.push({ room: helper.roomToSimpleRoom(room), conflictingEvents: conflictingEvents })
+                    unavailable.push({ resource: helper.resourceToSimpleResource(resource), conflictingBookings: conflictingBookings })
                 }
             }
         }
@@ -238,49 +238,49 @@ router.get('/room/search', async (req, res) => {
 })
 
 router.post('/booking', async (req, res) => {
-    const bookedRooms = []
-    const bookedEvents = []
-    const conflictingEvents = []
+    const bookedResources = []
+    const bookedBookings = []
+    const conflictingBookings = []
     const errors = []
     if (new Date(req.body.startDate) < new Date(req.body.endDate)) {
 
-        await Promise.all(req.body.rooms.map(async roomName => {
-            const event = {
+        await Promise.all(req.body.resources.map(async resourceName => {
+            const booking = {
                 startDate: new Date(req.body.startDate),
                 endDate: new Date(req.body.endDate),
                 summary: req.body.summary,
                 organizer: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] + ' <' + req.user[process.env.LDAP_MAIL_ATTRIBUTE] + '>',
-                location: roomName,
-                roomService: req.body.roomService,
-                subrooms: null
+                resource: resourceName,
+                service: req.body.service,
+                subresources: null
             }
-            const selectedSubrooms = []
-            for (const subroom of req.body.subrooms) {
-                if (subroom.room === roomName) {
-                    selectedSubrooms.push(subroom.subroom)
+            const selectedSubresources = []
+            for (const subresource of req.body.subresources) {
+                if (subresource.resource === resourceName) {
+                    selectedSubresources.push(subresource.subresource)
                 }
             }
-            if (selectedSubrooms.length > 0) {
-                event.subrooms = selectedSubrooms
+            if (selectedSubresources.length > 0) {
+                booking.subresources = selectedSubresources
             }
-            const booking = await helper.book(event)
-            if (booking.success) {
-                bookedRooms.push(booking.bookedRoom)
-                bookedEvents.push(event)
+            const bookingResult = await helper.book(booking)
+            if (bookingResult.success) {
+                bookedResources.push(bookingResult.bookedResource)
+                bookedBookings.push(booking)
             } else {
-                conflictingEvents.push(booking.conflictingEvents)
-                errors.push(booking.error)
+                conflictingBookings.push(bookingResult.conflictingBookings)
+                errors.push(bookingResult.error)
             }
         }))
-        if (bookedRooms.length > 0) {
-            if (conflictingEvents.length === 0) {
-                res.send({ rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
+        if (bookedResources.length > 0) {
+            if (conflictingBookings.length === 0) {
+                res.send({ resources: bookedResources, startDate: req.body.startDate, endDate: req.body.endDate })
             } else {
-                res.status(409).send({ message: "Some bookings had conflicts..", errors: errors, conflictingEvents: conflictingEvents, rooms: bookedRooms, startDate: req.body.startDate, endDate: req.body.endDate })
+                res.status(409).send({ message: "Some bookings had conflicts..", errors: errors, conflictingBookings: conflictingBookings, resources: bookedResources, startDate: req.body.startDate, endDate: req.body.endDate })
             }
-            sendConformationMail(bookedEvents, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
+            sendConformationMail(bookedBookings, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
         } else {
-            res.status(400).send({ message: "No Room Booked", errors: errors, conflictingEvents: conflictingEvents })
+            res.status(400).send({ message: "No Resource Booked", errors: errors, conflictingBookings: conflictingBookings })
         }
     } else {
         res.status(400).send({ message: "Start Date > End Date" })
@@ -288,10 +288,10 @@ router.post('/booking', async (req, res) => {
 })
 
 router.delete('/booking', async (req, res) => {
-    if (req.query.location && req.query.uid) {
-        const room = await Room.findOne({ name: req.query.location })
-        if (room) {
-            const eventComp = deleteVeventByUid(room.ical, req.query.uid)
+    if (req.query.resource && req.query.uid) {
+        const resource = await Resource.findOne({ name: req.query.resource })
+        if (resource) {
+            const eventComp = deleteVeventByUid(resource.ical, req.query.uid)
             if (eventComp) {
                 const organizer = eventComp.getFirstPropertyValue('organizer')
                 const organizerMail = organizer.match(/<([^<]*)>$/)[1]
@@ -299,49 +299,49 @@ router.delete('/booking', async (req, res) => {
                 if (!await helper.isUserOrganizerOrAdmin(organizer, req.user)) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
-                room.markModified('ical');
-                res.send(await room.save())
-                sendDeletionMail(helper.icalEventToSimpleEvent(eventComp), organizerName, organizerMail)
+                resource.markModified('ical');
+                res.send(await resource.save())
+                sendDeletionMail(helper.icalEventToSimpleBooking(eventComp), organizerName, organizerMail)
             } else {
-                res.status(400).send({ message: "No Event with uid: " + req.query.uid })
+                res.status(400).send({ message: "No Booking with uid: " + req.query.uid })
             }
         } else {
-            res.status(400).send({ message: "No room found named: " + req.query.location })
+            res.status(400).send({ message: "No resource found named: " + req.query.resource })
         }
     } else {
-        res.status(400).send({ message: "Please provide location and uid." })
+        res.status(400).send({ message: "Please provide resource and uid." })
     }
 })
 
 router.get('/booking', async (req, res) => {
-    if (req.query.location && req.query.uid) {
-        const room = await Room.findOne({ name: req.query.location })
-        if (room) {
-            const event = getEventByUid(room.ical, req.query.uid)
-            if (event) {
-                res.send(event)
+    if (req.query.resource && req.query.uid) {
+        const resource = await Resource.findOne({ name: req.query.resource })
+        if (resource) {
+            const booking = getBookingByUid(resource.ical, req.query.uid)
+            if (booking) {
+                res.send(booking)
             } else {
-                res.status(400).send({ message: "No Event with uid: " + req.query.uid })
+                res.status(400).send({ message: "No Booking with uid: " + req.query.uid })
             }
 
         } else {
-            res.status(400).send({ message: "No room found named: " + req.query.location })
+            res.status(400).send({ message: "No resource found named: " + req.query.resource })
         }
     } else {
-        res.status(400).send({ message: "Please provide location and uid." })
+        res.status(400).send({ message: "Please provide resource and uid." })
     }
 })
 
 router.post('/booking/change', async (req, res) => {
-    if (req.body.old.location && req.body.old.uid && req.body.new.startDate && req.body.new.endDate && req.body.new.location) {
-        const oldRoom = await Room.findOne({ name: req.body.old.location })
-        var newRoom = oldRoom;
-        if (req.body.old.location !== req.body.new.location) {
-            newRoom = await Room.findOne({ name: req.body.new.location })
+    if (req.body.old.resource && req.body.old.uid && req.body.new.startDate && req.body.new.endDate && req.body.new.resource) {
+        const oldResource = await Resource.findOne({ name: req.body.old.resource })
+        var newResource = oldResource;
+        if (req.body.old.resource !== req.body.new.resource) {
+            newResource = await Resource.findOne({ name: req.body.new.resource })
         }
-        if (oldRoom && newRoom) {
-            const eventComp = deleteVeventByUid(oldRoom.ical, req.body.old.uid)
-            const oldEvent = helper.icalEventToSimpleEvent(eventComp)
+        if (oldResource && newResource) {
+            const eventComp = deleteVeventByUid(oldResource.ical, req.body.old.uid)
+            const oldBooking = helper.icalEventToSimpleBooking(eventComp)
             if (eventComp) {
                 const organizer = eventComp.getFirstPropertyValue('organizer')
                 const organizerMail = organizer.match(/<([^<]*)>$/)[1]
@@ -349,42 +349,42 @@ router.post('/booking/change', async (req, res) => {
                 if (!await helper.isUserOrganizerOrAdmin(organizer, req.user)) {
                     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
                 }
-                const newEvent = helper.icalEventToSimpleEvent(eventComp)
-                newEvent.startDate = ICAL.Time.fromJSDate(new Date(req.body.new.startDate))
-                newEvent.endDate = ICAL.Time.fromJSDate(new Date(req.body.new.endDate))
-                newEvent.location = req.body.new.location
+                const newBooking = helper.icalEventToSimpleBooking(eventComp)
+                newBooking.startDate = ICAL.Time.fromJSDate(new Date(req.body.new.startDate))
+                newBooking.endDate = ICAL.Time.fromJSDate(new Date(req.body.new.endDate))
+                newBooking.resource = req.body.new.resource
                 if (req.body.new.summary) {
-                    newEvent.summary = req.body.new.summary
+                    newBooking.summary = req.body.new.summary
                 }
-                if (req.body.new.roomService !== undefined) {
-                    newEvent.roomService = req.body.new.roomService
+                if (req.body.new.service !== undefined) {
+                    newBooking.service = req.body.new.service
                 }
-                if (req.body.new.subrooms !== undefined) {
-                    newEvent.subrooms = req.body.new.subrooms
+                if (req.body.new.subresources !== undefined) {
+                    newBooking.subresources = req.body.new.subresources
                 } else {
-                    if (!newRoom.isDividable) {
-                        newEvent.subrooms = null
+                    if (!newResource.isDividable) {
+                        newBooking.subresources = null
                     }
                 }
-                const booking = await helper.book(newEvent, newRoom)
+                const booking = await helper.book(newBooking, newResource)
                 if (booking.success) {
                     res.send({ message: 'ok' })
-                    sendChangeMail(oldEvent, newEvent, organizerName, organizerMail)
-                    if (oldRoom.name !== newRoom.name) {
-                        oldRoom.markModified('ical')
-                        oldRoom.save()
+                    sendChangeMail(oldBooking, newBooking, organizerName, organizerMail)
+                    if (oldResource.name !== newResource.name) {
+                        oldResource.markModified('ical')
+                        oldResource.save()
                     }
                 } else {
-                    res.status(400).send({ message: "New Date generates conflicts.", conflictingEvents: booking.conflictingEvents, error: booking.error })
+                    res.status(400).send({ message: "New Date generates conflicts.", conflictingBookings: booking.conflictingBookings, error: booking.error })
                 }
             } else {
-                res.status(400).send({ message: "No Event with uid: " + req.body.old.uid })
+                res.status(400).send({ message: "No Booking with uid: " + req.body.old.uid })
             }
         } else {
-            res.status(400).send({ message: "No room found named: " + req.body.old.location })
+            res.status(400).send({ message: "No resource found named: " + req.body.old.resource })
         }
     } else {
-        res.status(400).send({ message: "Please provide location, uid, startDate and endDate." })
+        res.status(400).send({ message: "Please provide resource, uid, startDate and endDate." })
     }
 })
 

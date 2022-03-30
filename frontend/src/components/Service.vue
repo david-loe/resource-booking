@@ -1,11 +1,11 @@
 <template>
-<calendar :roomNames="['roomservice']" :editable="false"></calendar>
+<calendar :resourceNames="['service']" :editable="false"></calendar>
 </template>
 
 <script>
 import Calendar from './Calendar.vue'
 export default {
-  name: 'RoomService',
+  name: 'Service',
   components: {
     Calendar,
   },

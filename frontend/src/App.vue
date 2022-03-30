@@ -6,13 +6,13 @@
           <div class="me-auto">
             <a href="/" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-1 bi bi-house"></i>
-              <span class="fs-4 ms-2 d-none d-md-block">{{ $t('headlines.roomBooking') }}</span>
+              <span class="fs-4 ms-2 d-none d-md-block">{{ $t('headlines.resourceBooking') }}</span>
             </a>
           </div>
           <div>
-            <router-link v-if="useRoomservice && (isAdmin || isRoomService)" to="/room-service" class="nav-link link-dark d-flex align-items-center">
+            <router-link v-if="useService && (isAdmin || isService)" to="/service" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-4 bi bi-bucket"></i>
-              <span class="ms-1 d-none d-md-block">{{ $t('headlines.roomService') }}</span>
+              <span class="ms-1 d-none d-md-block">{{ $t('headlines.service') }}</span>
             </router-link>
           </div>
           <div>
@@ -46,7 +46,7 @@
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-    <router-view v-else :rooms="this.rooms" />
+    <router-view v-else :resources="this.resources" />
 
     <footer class="py-3 border-top">
       <div class="container">
@@ -54,7 +54,7 @@
           <a href="/" class="text-decoration-none link-dark lh-1">
             <i class="fs-3 bi bi-house"></i>
           </a>
-          <span class="ps-2 text-muted">© {{ new Date().getFullYear() }} Room Booking</span>
+          <span class="ps-2 text-muted">© {{ new Date().getFullYear() }} Resource Booking</span>
         </div>
       </div>
     </footer>
@@ -72,17 +72,17 @@ export default {
       auth: false,
       name: '',
       isAdmin: false,
-      isRoomService: false,
-      rooms: [],
-      roomNames: [],
+      isService: false,
+      resources: [],
+      resourceNames: [],
       reload: null,
       isLoading: true,
-      useSubrooms: process.env.VUE_APP_USE_SUBROOMS.toLowerCase() === 'true',
-      useRoomservice: process.env.VUE_APP_USE_ROOMSERVICE.toLowerCase() === 'true',
+      useSubresources: process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
+      useService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
     }
   },
   methods: {
-    async authAndGetRoom() {
+    async authAndGetResource() {
       try {
         const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/user', {
           withCredentials: true,
@@ -90,21 +90,21 @@ export default {
         this.name = res.data.name
         this.auth = res.status === 200
         this.isAdmin = res.data.isAdmin
-        this.isRoomService = res.data.isRoomService
-        this.getRooms()
+        this.isService = res.data.isService
+        this.getResources()
       } catch (error) {
         this.$router.push('login')
       }
       this.isLoading = false
     },
-    async getRooms() {
+    async getResources() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/room', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/resource', {
           withCredentials: true,
         })
         if (res.status === 200) {
-          this.rooms = res.data.rooms
-          this.roomNames = jp.query(res.data.rooms, '$..name')
+          this.resources = res.data.resources
+          this.resourceNames = jp.query(res.data.resources, '$..name')
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -114,9 +114,9 @@ export default {
         }
       }
     },
-    async getRoomsAvailability(startDate, endDate, bookingDurationInDays = undefined) {
+    async getResourcesAvailability(startDate, endDate, bookingDurationInDays = undefined) {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/room/search', {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/resource/search', {
           params: {
             startDate: startDate,
             endDate: endDate,
@@ -136,20 +136,20 @@ export default {
         return { available: [], unavailable: [] }
       }
     },
-    getRoomByName(name) {
-      for (const room of this.rooms) {
-        if (room.name === name) {
-          return room
+    getResourceByName(name) {
+      for (const resource of this.resources) {
+        if (resource.name === name) {
+          return resource
         }
       }
       return null
     },
   },
   beforeMount() {
-    this.authAndGetRoom()
-    document.title = this.$t('headlines.roomBooking') + ' 🏠'
+    this.authAndGetResource()
+    document.title = this.$t('headlines.resourceBooking') + ' 🏠'
     this.reload = setInterval(() => {
-      this.getRooms()
+      this.getResources()
     }, 60 * 1000)
   },
 }

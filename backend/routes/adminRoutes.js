@@ -1,55 +1,55 @@
 const router = require('express').Router()
-const Room = require('../models/room')
+const Resource = require('../models/resource')
 const User = require('../models/user')
 const helper = require('../helper')
 
-router.post('/room', async (req, res) => {
-    const room = new Room({
+router.post('/resource', async (req, res) => {
+    const resource = new Resource({
         name: req.body.name,
         size: req.body.size,
         description: req.body.description,
         img: req.body.img,
         color: req.body.color,
         isDividable: req.body.isDividable,
-        subrooms: req.body.subrooms
+        subresources: req.body.subresources
     })
     try {
-        res.send(await room.save())
+        res.send(await resource.save())
     } catch (error) {
-        res.status(400).send({ message: 'Unable to save room', error: error })
+        res.status(400).send({ message: 'Unable to save resource', error: error })
     }
 })
 
-router.post('/room/change', async (req, res) => {
+router.post('/resource/change', async (req, res) => {
     if (req.body.name) {
-        const room = await Room.findOne({ name: req.body.name })
-        if (room) {
-            room.size = req.body.size
-            room.description = req.body.description
-            room.img = req.body.img
-            room.color = req.body.color
-            helper.updateAttributeInAllEvents('color', req.body.color, room.ical)
-            room.markModified('ical')
+        const resource = await Resource.findOne({ name: req.body.name })
+        if (resource) {
+            resource.size = req.body.size
+            resource.description = req.body.description
+            resource.img = req.body.img
+            resource.color = req.body.color
+            helper.updateAttributeInAllBookings('color', req.body.color, resource.ical)
+            resource.markModified('ical')
             try {
-                res.send(await room.save())
+                res.send(await resource.save())
             } catch (error) {
-                res.status(400).send({ message: 'Unable to save room', error: error })
+                res.status(400).send({ message: 'Unable to save resource', error: error })
             }
         } else {
-            res.status(400).send({ message: 'No room found named: ' + req.body.name })
+            res.status(400).send({ message: 'No resource found named: ' + req.body.name })
         }
     } else {
         res.status(400).send({ message: 'Name Missing' })
     }
 })
 
-router.delete('/room', async (req, res) => {
+router.delete('/resource', async (req, res) => {
     if (req.query.name) {
         try {
-            await Room.deleteOne({ name: req.query.name })
+            await Resource.deleteOne({ name: req.query.name })
             res.send({ message: 'ok' })
         } catch (error) {
-            res.status(400).send({ message: 'Unable to delete room ' + req.query.name, error: error })
+            res.status(400).send({ message: 'Unable to delete resource ' + req.query.name, error: error })
         }
     } else {
         res.status(400).send({ message: 'Name Missing' })
@@ -65,7 +65,7 @@ router.post('/user', async (req, res) => {
     const user = new User({
         uid: req.body.uid,
         isAdmin: req.body.isAdmin,
-        isRoomService: req.body.isRoomService,
+        isService: req.body.isService,
         mail: req.body.mail
     })
     try {
@@ -76,17 +76,17 @@ router.post('/user', async (req, res) => {
 })
 
 router.post('/user/change', async (req, res) => {
-    if (req.body.uid != undefined && req.body.isAdmin != undefined && req.body.isRoomService != undefined) {
+    if (req.body.uid != undefined && req.body.isAdmin != undefined && req.body.isService != undefined) {
         const user = await User.findOne({ uid: req.body.uid })
         if (user) {
             user.isAdmin = req.body.isAdmin
-            user.isRoomService = req.body.isRoomService
+            user.isService = req.body.isService
             res.send(await user.save())
         } else {
             res.status(400).send({ message: 'No user found with uid:' + req.body.uid })
         }
     } else {
-        res.status(400).send({ message: 'Please provide a uid, isAdmin and isRoomService.' })
+        res.status(400).send({ message: 'Please provide a uid, isAdmin and isService.' })
     }
 })
 
@@ -105,18 +105,18 @@ router.delete('/user', async (req, res) => {
 
 router.post('/csv/booking', async (req, res) => {
     if (req.body.csv && req.body.separator && req.body.arraySeparator && (req.body.separator !== req.body.arraySeparator)) {
-        const events = helper.csvToObjekt(req.body.csv, req.body.separator, req.body.arraySeparator)
+        const bookings = helper.csvToObjekt(req.body.csv, req.body.separator, req.body.arraySeparator)
         const failedBookings = []
-        for (const event of events) {
-            if(process.env.VUE_APP_USE_ROOMSERVICE.toLowerCase() !== 'true'){
-                event.roomService = false
+        for (const booking of bookings) {
+            if(process.env.VUE_APP_USE_SERVICE.toLowerCase() !== 'true'){
+                booking.service = false
             }
-            if(process.env.VUE_APP_USE_SUBROOMS.toLowerCase() !== 'true'){
-                event.subrooms = null
+            if(process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() !== 'true'){
+                booking.subresources = null
             }
-            const booking = await helper.book(event)
+            const booking = await helper.book(booking)
             if (!booking.success) {
-                failedBookings.push({ event: event, error: booking.error, conflictingEvents: booking.conflictingEvents })
+                failedBookings.push({ booking: booking, error: booking.error, conflictingBookings: booking.conflictingBookings })
             }
         }
         if (failedBookings.length === 0) {

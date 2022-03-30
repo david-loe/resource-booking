@@ -106,11 +106,11 @@ app.use('/api/admin', adminRoutes)
 const icalRoute = require('./routes/icalRoute')
 app.use(icalRoute)
 
-const sendRoomServiceReminder = require('./mail/reminder')
+const sendServiceReminder = require('./mail/reminder')
 const sendBookingEndNotification = require('./mail/notifyOnEnd')
 // Cron Job every hour on the first minute
 cron.schedule('1 * * * *', () => {
-  sendRoomServiceReminder()
+  sendServiceReminder()
 })
 // Cron Job every day at 01:00 am
 cron.schedule('0 1 * * *', () => {

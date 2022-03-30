@@ -16,10 +16,10 @@
     </div>
 
     <div class="row mb-2">
-      <div class="col" v-if="this.$root.useRoomservice">
+      <div class="col" v-if="this.$root.useService">
         <div class="form-check">
-          <label for="userFormRoomService" class="form-check-label text-nowrap"> {{ $t('headlines.roomService') }}</label>
-          <input class="form-check-input" type="checkbox" id="userFormRoomService" role="switch" v-model="formUser.isRoomService" />
+          <label for="userFormService" class="form-check-label text-nowrap"> {{ $t('headlines.service') }}</label>
+          <input class="form-check-input" type="checkbox" id="userFormService" role="switch" v-model="formUser.isService" />
         </div>
       </div>
       <div class="col">
@@ -55,7 +55,7 @@ export default {
         return {
           uid: '',
           isAdmin: false,
-          isRoomService: false,
+          isService: false,
           mail: '',
         }
       },
@@ -78,7 +78,7 @@ export default {
       this.formUser = {
         uid: '',
         isAdmin: false,
-        isRoomService: false,
+        isService: false,
         mail: '',
       }
     },

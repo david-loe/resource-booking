@@ -1,16 +1,16 @@
 {
     "headlines": {
-        "roomBooking": "Zimmerverwaltung",
-        "roomService": "Zimmerreinigung"
+        "resourceBooking": "Zimmerverwaltung",
+        "service": "Zimmerreinigung"
     },
     "labels": {
         "from": "Von",
         "to": "Bis",
         "details": "Details",
-        "room": "Zimmer",
-        "roomService": "Zimmerreinigung",
+        "resource": "Zimmer",
+        "service": "Zimmerreinigung",
         "summary": "Beschreibung",
-        "subrooms": "Unterräume"
+        "subresources": "Unterräume"
     },
     "mail": {
         "salutation": "Hallo {{recipient}}",

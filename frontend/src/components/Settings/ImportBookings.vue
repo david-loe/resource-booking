@@ -8,7 +8,7 @@
           <option v-for="sep of this.separatorList" :value="sep.value" :key="sep.name">{{ sep.name }}</option>
         </select>
       </div>
-      <div class="col-auto" v-if="this.$root.useSubrooms">
+      <div class="col-auto" v-if="this.$root.useSubresources">
         <label for="arraySeparatorCSVImport" class="form-label">
           {{ $t('labels.arraySeparator') }}: [1{{ arraySeparator }}2{{ arraySeparator }}3]
         </label>
@@ -39,12 +39,12 @@ export default {
         summary: 'Example Booking',
         startDate: new Date().toISOString(),
         endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        location: 'Example Room',
+        resource: 'Example Resource',
         organizer: 'Mr. Organizer <mr.organizer@email.com>',
-        roomService: 'false',
-        subrooms: '',
+        service: 'false',
+        subresources: '',
       },
-      exampleSubrooms: ['Subroom 1', 'Subroom 4'],
+      exampleSubresources: ['Subresource 1', 'Subresource 4'],
       separatorList: [
         { name: 'Tab', value: '\t' },
         { name: 'Komma', value: ', ' },
@@ -54,7 +54,7 @@ export default {
       separator: '\t',
       arraySeparator: ', ',
       csv: '',
-      roomToEdit: undefined,
+      resourceToEdit: undefined,
     }
   },
   methods: {
@@ -85,13 +85,13 @@ export default {
     },
   },
   beforeMount() {
-    if (this.$root.useSubrooms) {
-      this.exampleBooking.subrooms = '[' + this.exampleSubrooms.join(this.arraySeparator) + ']'
+    if (this.$root.useSubresources) {
+      this.exampleBooking.subresources = '[' + this.exampleSubresources.join(this.arraySeparator) + ']'
     } else {
-      delete this.exampleBooking.subrooms
+      delete this.exampleBooking.subresources
     }
-    if (!this.$root.useRoomservice){
-      delete this.exampleBooking.roomService
+    if (!this.$root.useService){
+      delete this.exampleBooking.service
     }
     this.csv = Object.keys(this.exampleBooking).join(this.separator) + '\n' + Object.values(this.exampleBooking).join(this.separator) + '\n'
   },
@@ -100,8 +100,8 @@ export default {
       this.csv = Object.keys(this.exampleBooking).join(this.separator) + '\n' + Object.values(this.exampleBooking).join(this.separator) + '\n'
     },
     arraySeparator: function () {
-      if (this.$root.useSubrooms) {
-        this.exampleBooking.subrooms = '[' + this.exampleSubrooms.join(this.arraySeparator) + ']'
+      if (this.$root.useSubresources) {
+        this.exampleBooking.subresources = '[' + this.exampleSubresources.join(this.arraySeparator) + ']'
       }
       this.csv = Object.keys(this.exampleBooking).join(this.separator) + '\n' + Object.values(this.exampleBooking).join(this.separator) + '\n'
     },

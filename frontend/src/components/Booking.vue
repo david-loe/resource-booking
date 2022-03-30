@@ -16,7 +16,7 @@
           <div v-if="booked.startDate" class="modal-body">
             {{
               $t('comp.booking.bookingSuccess.text', {
-                rooms: booked.roomNames.join(', '),
+                resources: booked.resourceNames.join(', '),
                 startDate: new Date(booked.startDate).toLocaleString(),
                 endDate: new Date(booked.endDate).toLocaleString(),
               })
@@ -31,7 +31,7 @@
     <div class="container">
       <div class="mx-auto px-3 py-2 bg-light bg-opacity-75 rounded-3" style="max-width: 80%">
         <h2>{{ $t('headlines.booking') }}</h2>
-        <div v-if="rooms.length > 0">
+        <div v-if="resources.length > 0">
           <div class="container mb-3">
             <form @submit.prevent="search()">
               <div class="row justify-content-center">
@@ -64,45 +64,45 @@
             <div class="list-group">
               <label
                 class="list-group-item d-flex gap-3 align-items-center flex-wrap"
-                v-for="room of searchresult.available"
-                v-bind:key="room.name"
+                v-for="resource of searchresult.available"
+                v-bind:key="resource.name"
               >
                 <input
                   class="form-check-input flex-shrink-0 my-auto"
                   type="checkbox"
-                  v-bind:value="room.name"
+                  v-bind:value="resource.name"
                   style="font-size: 1.375em"
-                  v-model="selectedRooms"
+                  v-model="selectedResources"
                 />
-                <img v-bind:src="room.img" width="45" height="45" class="rounded-circle flex-shrink-0" />
+                <img v-bind:src="resource.img" width="45" height="45" class="rounded-circle flex-shrink-0" />
                 <span class="pt-1 form-checked-content me-auto">
-                  <h6>{{ room.name }}</h6>
-                  <small class="d-none d-md-block text-muted"> {{ room.description }} - {{ $t('labels.size') }}: {{ room.size }} </small>
+                  <h6>{{ resource.name }}</h6>
+                  <small class="d-none d-md-block text-muted"> {{ resource.description }} - {{ $t('labels.size') }}: {{ resource.size }} </small>
                 </span>
-                <template v-if="this.$root.useSubrooms">
-                  <div class="dropdown" v-if="selectedRooms.indexOf(room.name) !== -1 && room.isDividable">
+                <template v-if="this.$root.useSubresources">
+                  <div class="dropdown" v-if="selectedResources.indexOf(resource.name) !== -1 && resource.isDividable">
                     <button
-                      :class="'btn dropdown-toggle btn-' + (room.isPartlyBooked ? 'danger' : 'light')"
+                      :class="'btn dropdown-toggle btn-' + (resource.isPartlyBooked ? 'danger' : 'light')"
                       type="button"
                       id="dropdownMenuButton1"
                       data-bs-toggle="dropdown"
                       data-bs-auto-close="outside"
                       aria-expanded="false"
                     >
-                      {{ $t('labels.selectSubrooms') }}
+                      {{ $t('labels.selectSubresources') }}
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                      <li class="ms-2 form-check" v-for="subroom of room.subrooms" :key="subroom">
-                        <label :for="'roomFormSubroom' + room.name + subroom" class="form-check-label text-nowrap" style="width: 100%">
-                          {{ subroom }}</label
+                      <li class="ms-2 form-check" v-for="subresource of resource.subresources" :key="subresource">
+                        <label :for="'resourceFormSubresource' + resource.name + subresource" class="form-check-label text-nowrap" style="width: 100%">
+                          {{ subresource }}</label
                         >
                         <input
                           class="form-check-input"
                           type="checkbox"
-                          :id="'roomFormSubroom' + room.name + subroom"
+                          :id="'resourceFormSubresource' + resource.name + subresource"
                           role="switch"
-                          :value="{ room: room.name, subroom: subroom }"
-                          v-model="selectedSubrooms"
+                          :value="{ resource: resource.name, subresource: subresource }"
+                          v-model="selectedSubresources"
                           :selected="true"
                         />
                       </li>
@@ -113,14 +113,14 @@
               <label class="list-group-item d-flex gap-3 bg-light" v-if="searchresult.unavailable.length > 0">
                 <span class="pt-1">
                   <span class="w-100" v-if="searchresult.unavailable.length > 0 && searchresult.available.length === 0">{{
-                    $t('comp.booking.allRoomsBooked')
+                    $t('comp.booking.allResourcesBooked')
                   }}</span>
-                  <span class="w-100" v-else>{{ $t('comp.booking.roomsBooked', searchresult.unavailable.length) }}</span>
+                  <span class="w-100" v-else>{{ $t('comp.booking.resourcesBooked', searchresult.unavailable.length) }}</span>
                 </span>
               </label>
             </div>
           </div>
-          <div v-if="selectedRooms.length > 0" class="container">
+          <div v-if="selectedResources.length > 0" class="container">
             <form @submit.prevent="book()">
               <div class="row justify-content-center">
                 <div class="col-auto">
@@ -136,17 +136,17 @@
                         required
                       />
                     </div>
-                    <template v-if="this.$root.useRoomservice">
+                    <template v-if="this.$root.useService">
                       <div class="w-100"></div>
                       <div class="col p-2">
                         <div class="form-check form-check-inline">
-                          <label for="roomService" class="form-check-label text-nowrap"> {{ $t('labels.roomService') }}</label>
+                          <label for="service" class="form-check-label text-nowrap"> {{ $t('labels.service') }}</label>
                           <input
                             class="form-check-input"
                             type="checkbox"
-                            id="roomService"
+                            id="service"
                             role="switch"
-                            v-model="bookingData.roomService"
+                            v-model="bookingData.service"
                           />
                         </div>
                       </div>
@@ -162,8 +162,8 @@
           </div>
         </div>
         <div v-else class="alert alert-primary" role="alert">
-          <h4 class="alert-heading">{{ $t('alerts.noRoom.heading') }}</h4>
-          {{ $t('alerts.noRoom.text') }}
+          <h4 class="alert-heading">{{ $t('alerts.noResource.heading') }}</h4>
+          {{ $t('alerts.noResource.text') }}
         </div>
       </div>
     </div>
@@ -176,45 +176,45 @@ import { Modal } from 'bootstrap'
 import jp from 'jsonpath'
 export default {
   name: 'Booking',
-  props: ['rooms'],
+  props: ['resources'],
   data() {
     return {
       bookingData: {
         startDate: new Date().toISOString().split('T')[0] + 'T16:00',
         endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T12:00',
         summary: '',
-        roomService: false,
+        service: false,
       },
       searchresult: { available: [], unavailable: [] },
-      selectedRooms: [],
-      selectedSubrooms: [],
+      selectedResources: [],
+      selectedSubresources: [],
       modal: undefined,
       booked: {
         startDate: undefined,
         endDate: undefined,
-        roomNames: [],
+        resourceNames: [],
       },
     }
   },
   methods: {
     clear() {
       this.searchresult = { available: [], unavailable: [] }
-      this.selectedRooms = []
-      this.selectedSubrooms = []
+      this.selectedResources = []
+      this.selectedSubresources = []
     },
     async search() {
-      this.searchresult = await this.$root.getRoomsAvailability(new Date(this.bookingData.startDate), new Date(this.bookingData.endDate))
-      this.selectedRooms = []
+      this.searchresult = await this.$root.getResourcesAvailability(new Date(this.bookingData.startDate), new Date(this.bookingData.endDate))
+      this.selectedResources = []
     },
     async book() {
       try {
         const data = {
-          rooms: this.selectedRooms,
+          resources: this.selectedResources,
           summary: this.bookingData.summary,
           startDate: new Date(this.bookingData.startDate),
           endDate: new Date(this.bookingData.endDate),
-          roomService: this.bookingData.roomService,
-          subrooms: this.selectedSubrooms,
+          service: this.bookingData.service,
+          subresources: this.selectedSubresources,
         }
         const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/booking', data, {
           withCredentials: true,
@@ -223,7 +223,7 @@ export default {
           this.clear()
           this.booked.startDate = res.data.startDate
           this.booked.endDate = res.data.endDate
-          this.booked.roomNames = jp.query(res.data.rooms, '$..name')
+          this.booked.resourceNames = jp.query(res.data.resources, '$..name')
           this.$emit('changed')
         }
       } catch (error) {
@@ -232,7 +232,7 @@ export default {
         } else {
           console.log(error.response.data)
         }
-        this.booked = { startDate: undefined, endDate: undefined, roomNames: [] }
+        this.booked = { startDate: undefined, endDate: undefined, resourceNames: [] }
       }
       this.modal.show()
     },
@@ -241,15 +241,15 @@ export default {
     this.modal = new Modal(document.getElementById('bookingInfoModal'), {})
   },
   watch: {
-    selectedRooms: {
+    selectedResources: {
       handler: function (newVal, oldVal) {
         const added = newVal.filter((x) => !oldVal.includes(x))
         if (added.length > 0) {
-          for (const room of this.searchresult.available) {
-            for (const newRoom of added) {
-              if (room.name === newRoom && room.isDividable) {
-                for (const subroom of room.subrooms) {
-                  this.selectedSubrooms.push({ room: room.name, subroom: subroom })
+          for (const resource of this.searchresult.available) {
+            for (const newResource of added) {
+              if (resource.name === newResource && resource.isDividable) {
+                for (const subresource of resource.subresources) {
+                  this.selectedSubresources.push({ resource: resource.name, subresource: subresource })
                 }
               }
             }
@@ -258,11 +258,11 @@ export default {
         if (Array.isArray(oldVal)) {
           const removed = oldVal.filter((x) => !newVal.includes(x))
           if (removed.length > 0) {
-            for (const removedRoom of removed) {
+            for (const removedResource of removed) {
               const indices = []
-              for (const subroom of this.selectedSubrooms) {
-                if (subroom.room === removedRoom) {
-                  const index = this.selectedSubrooms.findIndex((sb) => sb.room === subroom.room && sb.subroom === subroom.subroom)
+              for (const subresource of this.selectedSubresources) {
+                if (subresource.resource === removedResource) {
+                  const index = this.selectedSubresources.findIndex((sb) => sb.resource === subresource.resource && sb.subresource === subresource.subresource)
                   if (index !== -1) {
                     indices.push(index)
                   }
@@ -272,28 +272,28 @@ export default {
                 return b - a
               })
               for (const index of indices) {
-                this.selectedSubrooms.splice(index, 1)
+                this.selectedSubresources.splice(index, 1)
               }
             }
           }
         }
       },
     },
-    selectedSubrooms: {
+    selectedSubresources: {
       handler: function (newVal, oldVal) {
         if (Array.isArray(oldVal)) {
           const removed = oldVal.filter((x) => !newVal.includes(x))
-          for (const removedSubroom of removed) {
-            var lastSubroomOfRoom = true
-            for (const subroom of newVal) {
-              if (subroom.room === removedSubroom.room) {
-                lastSubroomOfRoom = false
+          for (const removedSubresource of removed) {
+            var lastSubresourceOfResource = true
+            for (const subresource of newVal) {
+              if (subresource.resource === removedSubresource.resource) {
+                lastSubresourceOfResource = false
               }
             }
-            if (lastSubroomOfRoom) {
-              const index = this.selectedRooms.indexOf(removedSubroom.room)
+            if (lastSubresourceOfResource) {
+              const index = this.selectedResources.indexOf(removedSubresource.resource)
               if (index !== -1) {
-                this.selectedRooms.splice(index, 1)
+                this.selectedResources.splice(index, 1)
               }
             }
           }

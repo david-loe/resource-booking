@@ -48,7 +48,7 @@ export default {
           { withCredentials: true },
         )
         if (res.status === 200) {
-          this.$root.authAndGetRoom()
+          this.$root.authAndGetResource()
           this.$router.push('/')
         }
       } catch (error) {

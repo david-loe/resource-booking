@@ -1,42 +1,42 @@
 <template>
-  <form class="container" @submit.prevent="this.mode === 'add' ? this.$emit('add', this.formRoom) : this.$emit('edit', this.formRoom)">
+  <form class="container" @submit.prevent="this.mode === 'add' ? this.$emit('add', this.formResource) : this.$emit('edit', this.formResource)">
     <div class="mb-2">
       <div class="row">
         <div class="col-sm">
-          <label for="roomFormName" class="form-label">
+          <label for="resourceFormName" class="form-label">
             {{ $t('labels.name') }}
           </label>
           <input
             type="text"
             class="form-control"
-            id="roomFormName"
-            :placeholder="$t('comp.room.exampleName')"
-            v-model="formRoom.name"
+            id="resourceFormName"
+            :placeholder="$t('comp.resource.exampleName')"
+            v-model="formResource.name"
             required
             :disabled="this.mode === 'edit'"
-            pattern='^(?!roomservice\b)[^<>\/\\\*\|":\?]*$'
+            pattern='^(?!service\b)[^<>\/\\\*\|":\?]*$'
             :title="$t('alerts.nameValidation')"
           />
         </div>
         <div class="col-sm">
           <div class="row">
             <div class="col">
-              <label for="roomFormSize" class="form-label">
+              <label for="resourceFormSize" class="form-label">
                 {{ $t('labels.size') }}
               </label>
-              <input type="text" class="form-control" id="roomFormSize" v-model="formRoom.size" />
+              <input type="text" class="form-control" id="resourceFormSize" v-model="formResource.size" />
             </div>
             <div class="col-auto">
-              <label for="roomFormColor" class="form-label">
+              <label for="resourceFormColor" class="form-label">
                 {{ $t('labels.color') }}
               </label>
               <input
                 style="min-height: 27px"
                 type="color"
                 class="form-control"
-                id="roomFormColor"
-                v-model="formRoom.color"
-                @change="formRoom.color = correctColorLuminance(formRoom.color)"
+                id="resourceFormColor"
+                v-model="formResource.color"
+                @change="formResource.color = correctColorLuminance(formResource.color)"
               />
             </div>
           </div>
@@ -46,25 +46,25 @@
     <div class="mb-2">
       <div class="row">
         <div class="col-sm">
-          <label for="roomFormDes" class="form-label">
+          <label for="resourceFormDes" class="form-label">
             {{ $t('labels.description') }}
           </label>
-          <textarea class="form-control" id="roomFormDes" rows="3" v-model="formRoom.description"></textarea>
+          <textarea class="form-control" id="resourceFormDes" rows="3" v-model="formResource.description"></textarea>
         </div>
         <div class="col-sm">
           <div class="mb-2">
-            <label for="roomFormImg" class="form-label"> {{ $t('labels.image') }} (max 1MB)</label>
-            <input class="form-control" type="file" id="roomFormImg" @change="changeFile" accept="image/*" />
+            <label for="resourceFormImg" class="form-label"> {{ $t('labels.image') }} (max 1MB)</label>
+            <input class="form-control" type="file" id="resourceFormImg" @change="changeFile" accept="image/*" />
           </div>
 
-          <div v-if="this.$root.useSubrooms" class="form-check">
-            <label for="roomFormDividable" class="form-check-label text-nowrap"> {{ $t('labels.isDividable') }}</label>
+          <div v-if="this.$root.useSubresources" class="form-check">
+            <label for="resourceFormDividable" class="form-check-label text-nowrap"> {{ $t('labels.isDividable') }}</label>
             <input
               class="form-check-input"
               type="checkbox"
-              id="roomFormDividable"
+              id="resourceFormDividable"
               role="switch"
-              v-model="formRoom.isDividable"
+              v-model="formResource.isDividable"
               :disabled="this.mode === 'edit'"
             />
           </div>
@@ -72,20 +72,20 @@
       </div>
     </div>
     <div class="mb-2">
-      <template v-if="formRoom.isDividable">
-        <label for="roomFormSubroomAdd" class="form-label">
-          {{ $t('labels.subrooms') }}
+      <template v-if="formResource.isDividable">
+        <label for="resourceFormSubresourceAdd" class="form-label">
+          {{ $t('labels.subresources') }}
         </label>
         <div class="input-group mb-1" v-if="this.mode !== 'edit'">
-          <input type="text" class="form-control" id="roomFormSubroomAdd" :placeholder="$t('labels.addSubroom')" v-model="subroomAdd" />
-          <button v-on:click="addSubroom(this.subroomAdd)" type="button" class="btn btn-outline-secondary">
+          <input type="text" class="form-control" id="resourceFormSubresourceAdd" :placeholder="$t('labels.addSubresource')" v-model="subresourceAdd" />
+          <button v-on:click="addSubresource(this.subresourceAdd)" type="button" class="btn btn-outline-secondary">
             <i class="bi bi-plus"></i>
           </button>
         </div>
         <br v-if="this.mode === 'edit'" />
-        <div v-for="subroom of formRoom.subrooms" :key="subroom" class="badge bg-secondary me-2 mb-1">
-          {{ subroom }}
-          <button v-on:click="deleteSubroom(subroom)" type="button" class="btn text-light p-0" v-if="this.mode !== 'edit'">
+        <div v-for="subresource of formResource.subresources" :key="subresource" class="badge bg-secondary me-2 mb-1">
+          {{ subresource }}
+          <button v-on:click="deleteSubresource(subresource)" type="button" class="btn text-light p-0" v-if="this.mode !== 'edit'">
             <i class="bi bi-x"></i>
           </button>
         </div>
@@ -93,7 +93,7 @@
     </div>
     <div class="mb-2">
       <button type="submit" class="btn btn-primary me-2" v-if="this.mode === 'add'">
-        {{ $t('labels.addRoom') }}
+        {{ $t('labels.addResource') }}
       </button>
       <button type="submit" class="btn btn-primary me-2" v-if="this.mode === 'edit'">
         {{ $t('labels.save') }}
@@ -108,9 +108,9 @@
 <script>
 export default {
   components: {},
-  name: 'RoomForm',
+  name: 'ResourceForm',
   props: {
-    room: {
+    resource: {
       type: Object,
       default: function () {
         return {
@@ -120,7 +120,7 @@ export default {
           img: undefined,
           color: undefined,
           isDividable: false,
-          subrooms: [],
+          subresources: [],
         }
       },
     },
@@ -134,44 +134,44 @@ export default {
   },
   data() {
     return {
-      formRoom: this.room,
-      subroomAdd: '',
+      formResource: this.resource,
+      subresourceAdd: '',
     }
   },
   methods: {
-    addSubroom(subroom) {
-      const index = this.formRoom.subrooms.indexOf(subroom)
-      if (index === -1 && subroom.length > 0) {
-        this.formRoom.subrooms.push(subroom)
-        this.subroomAdd = ''
+    addSubresource(subresource) {
+      const index = this.formResource.subresources.indexOf(subresource)
+      if (index === -1 && subresource.length > 0) {
+        this.formResource.subresources.push(subresource)
+        this.subresourceAdd = ''
       }
     },
-    deleteSubroom(subroom) {
-      const index = this.formRoom.subrooms.indexOf(subroom)
+    deleteSubresource(subresource) {
+      const index = this.formResource.subresources.indexOf(subresource)
       if (index !== -1) {
-        this.formRoom.subrooms.splice(index, 1)
+        this.formResource.subresources.splice(index, 1)
       }
     },
     clear() {
-      this.formRoom = {
+      this.formResource = {
         name: '',
         size: '',
         description: '',
         img: undefined,
         color: this.correctColorLuminance(this.generateRandomColorHex()),
         isDividable: false,
-        subrooms: [],
+        subresources: [],
       }
     },
-    changeFile(event) {
+    changeFile(booking) {
       const reader = new FileReader()
-      if (event.target.files.length === 1 && event.target.files[0].size < 1000000) {
-        reader.readAsDataURL(event.target.files[0])
+      if (booking.target.files.length === 1 && booking.target.files[0].size < 1000000) {
+        reader.readAsDataURL(booking.target.files[0])
         reader.onload = async () => {
-          this.formRoom.img = await this.resizedataURL(reader.result, 50, 50)
+          this.formResource.img = await this.resizedataURL(reader.result, 50, 50)
         }
       } else {
-        this.formRoom.img = undefined
+        this.formResource.img = undefined
       }
     },
 
@@ -202,7 +202,7 @@ export default {
         // We create an image to receive the Data URI
         var img = document.createElement('img')
 
-        // When the event "onload" is triggered we can resize the image.
+        // When the booking "onload" is triggered we can resize the image.
         img.onload = function () {
           // We create a canvas and get its context.
           var canvas = document.createElement('canvas')
@@ -243,13 +243,13 @@ export default {
     },
   },
   beforeMount() {
-    if (this.formRoom.color === undefined) {
-      this.formRoom.color = this.correctColorLuminance(this.generateRandomColorHex())
+    if (this.formResource.color === undefined) {
+      this.formResource.color = this.correctColorLuminance(this.generateRandomColorHex())
     }
   },
   watch: {
-    room: function () {
-      this.formRoom = this.room
+    resource: function () {
+      this.formResource = this.resource
     },
   },
 }

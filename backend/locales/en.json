@@ -1,16 +1,16 @@
 {
     "headlines": {
-        "roomBooking": "Room Booking",
-        "roomService": "Room Service"
+        "resourceBooking": "Resource Booking",
+        "service": "Service"
     },
     "labels": {
         "from": "From",
         "to": "To",
         "details": "Details",
-        "room": "Room",
-        "roomService": "Room Service",
+        "resource": "Resource",
+        "service": "Service",
         "summary": "Summary",
-        "subrooms": "Subrooms"
+        "subresources": "Subresources"
     },
     "mail": {
         "salutation": "Dear {{recipient}}",
@@ -29,7 +29,7 @@
         },
         "reminder": {
             "heading": "Reminder",
-            "content": "The following rooms are coming up soon:",
+            "content": "The following resources are coming up soon:",
             "bookedFrom": "Booked from {{organizer}}"
         },
         "notifyOnEnd": {

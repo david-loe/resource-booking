@@ -23,12 +23,12 @@
                     <td>{{ new Date(selectedBooking.endDate).toLocaleDateString(undefined, dateStringOptions) }}</td>
                   </tr>
                   <tr>
-                    <th>{{ $t('labels.room') }}</th>
-                    <td>{{ selectedBooking.location }}</td>
+                    <th>{{ $t('labels.resource') }}</th>
+                    <td>{{ selectedBooking.resource }}</td>
                   </tr>
-                  <tr v-if="selectedBooking.subrooms !== null">
-                    <th>{{ $t('labels.subrooms') }}</th>
-                    <td>{{ selectedBooking.subrooms.join(', ') }}</td>
+                  <tr v-if="selectedBooking.subresources !== null">
+                    <th>{{ $t('labels.subresources') }}</th>
+                    <td>{{ selectedBooking.subresources.join(', ') }}</td>
                   </tr>
                   <tr>
                     <th>{{ $t('labels.organizer') }}</th>
@@ -55,18 +55,18 @@
         </div>
       </div>
     </div>
-    <div class="modal fade" id="eventEditModal" tabindex="-1" aria-labelledby="eventEditModalLabel" aria-hidden="true">
+    <div class="modal fade" id="bookingEditModal" tabindex="-1" aria-labelledby="bookingEditModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="eventEditModalLabel">
+            <h5 class="modal-title" id="bookingEditModalLabel">
               {{ selectedBooking.summary }}
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <BookingForm
-              :event="this.selectedBooking"
+              :booking="this.selectedBooking"
               mode="edit"
               v-on:cancel="this.editModal.hide()"
               v-on:done="editBooking"
@@ -93,7 +93,7 @@ import axios from 'axios'
 export default {
   name: 'Calendar',
   props: {
-    roomNames: {
+    resourceNames: {
       type: Array,
       required: true,
     },
@@ -130,7 +130,7 @@ export default {
         displayEventTime: false,
         height: 'auto',
         aspectRatio: 2.1,
-        eventDrop: this.eventCheck,
+        eventDrop: this.bookingCheck,
         eventClick: this.eventClick,
         datesSet: this.changedViewDates,
       },
@@ -142,9 +142,9 @@ export default {
     }
   },
   methods: {
-    changedEvents() {
-      this.calendarOptions.events = this.genEventSources(this.roomNames)
-      this.$emit('changed-events')
+    changedBookings() {
+      this.calendarOptions.events = this.genEventSources(this.resourceNames)
+      this.$emit('changed-bookings')
     },
     async editBooking(newBooking) {
       try {
@@ -153,22 +153,22 @@ export default {
           {
             old: {
               uid: this.selectedBooking.uid,
-              location: this.selectedBooking.location,
+              resource: this.selectedBooking.resource,
             },
             new: {
-              location: newBooking.location,
+              resource: newBooking.resource,
               startDate: newBooking.startDate,
               endDate: newBooking.endDate,
               summary: newBooking.summary,
-              roomService: newBooking.roomService,
-              subrooms: newBooking.subrooms,
+              service: newBooking.service,
+              subresources: newBooking.subresources,
             },
           },
           { withCredentials: true },
         )
         if (res.status === 200) {
           this.editModal.hide()
-          this.changedEvents()
+          this.changedBookings()
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -179,15 +179,15 @@ export default {
         }
       }
     },
-    async getBooking(event) {
-      if (!event.id) {
+    async getBooking(booking) {
+      if (!booking.id) {
         return {}
       }
       try {
         const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
           params: {
-            uid: event.id,
-            location: event.extendedProps.location,
+            uid: booking.id,
+            resource: booking.extendedProps.location,
           },
           withCredentials: true,
         })
@@ -213,12 +213,12 @@ export default {
           const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
             params: {
               uid: booking.uid,
-              location: booking.location,
+              resource: booking.resource,
             },
             withCredentials: true,
           })
           if (res.status === 200) {
-            this.changedEvents()
+            this.changedBookings()
           }
         } catch (error) {
           if (error.response.status === 401) {
@@ -230,17 +230,17 @@ export default {
       }
       this.infoModal.hide()
     },
-    async eventCheck(eventDropInfo) {
+    async bookingCheck(eventDropInfo) {
       try {
         const res = await axios.post(
           process.env.VUE_APP_BACKEND_URL + '/api/booking/change',
           {
             old: {
               uid: eventDropInfo.event.id,
-              location: eventDropInfo.event.extendedProps.location,
+              resource: eventDropInfo.event.extendedProps.location,
             },
             new: {
-              location: eventDropInfo.event.extendedProps.location,
+              resource: eventDropInfo.event.extendedProps.location,
               startDate: eventDropInfo.event.start,
               endDate: eventDropInfo.event.end,
             },
@@ -248,7 +248,7 @@ export default {
           { withCredentials: true },
         )
         if (res.status === 200) {
-          this.changedEvents()
+          this.changedBookings()
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -259,27 +259,27 @@ export default {
         eventDropInfo.revert()
       }
     },
-    genEventSources(roomNames) {
-      if (roomNames.length === 0) {
+    genEventSources(resourceNames) {
+      if (resourceNames.length === 0) {
         return ''
       }
       const urlParts = [process.env.VUE_APP_BACKEND_URL + '/ical', '?token=', process.env.VUE_APP_ICAL_TOKEN]
-      for (const name of roomNames) {
+      for (const name of resourceNames) {
         urlParts.push('&name=' + name)
       }
       return { url: urlParts.join(''), format: 'ics' }
     },
   },
   beforeMount() {
-    this.calendarOptions.events = this.genEventSources(this.roomNames)
+    this.calendarOptions.events = this.genEventSources(this.resourceNames)
   },
   mounted() {
     this.infoModal = new Modal(document.getElementById('calendarInfoModal'), {})
-    this.editModal = new Modal(document.getElementById('eventEditModal'), {})
+    this.editModal = new Modal(document.getElementById('bookingEditModal'), {})
   },
   watch: {
-    roomNames: function () {
-      this.calendarOptions.events = this.genEventSources(this.roomNames)
+    resourceNames: function () {
+      this.calendarOptions.events = this.genEventSources(this.resourceNames)
     },
   },
 }

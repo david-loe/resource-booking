@@ -1,12 +1,12 @@
 {
   "headlines": {
-    "roomBooking": "Room Booking",
+    "resourceBooking": "Resource Booking",
     "overview": "Overview",
     "booking": "Booking",
     "settings": "Settings",
     "login": "Login",
-    "rooms": "Rooms",
-    "roomService": "Room Service",
+    "resources": "Resources",
+    "service": "Service",
     "user": "User",
     "import": "Import"
   },
@@ -23,11 +23,11 @@
     "cancel": "Cancel",
     "search": "Search",
     "book": "Book",
-    "addRoom": "Add Room",
+    "addResource": "Add Resource",
     "addUser": "Add User",
-    "roomService": "Room Service",
+    "service": "Service",
     "organizer": "Organizer",
-    "room": "Room",
+    "resource": "Resource",
     "edit": "Edit",
     "save": "Save",
     "delete": "Delete",
@@ -35,10 +35,10 @@
     "admin": "Admin",
     "image": "Image",
     "isDividable": "Is Dividable",
-    "subrooms": "Subrooms",
-    "addSubroom": "Add subroom",
-    "selectSubrooms": "Select Subrooms",
-    "onlyShowAvailableRooms": "Only show available Rooms",
+    "subresources": "Subresources",
+    "addSubresource": "Add subresource",
+    "selectSubresources": "Select Subresources",
+    "onlyShowAvailableResources": "Only show available Resources",
     "separator": "Separator",
     "arraySeparator": "Array Separator",
     "csv": "CSV",
@@ -46,11 +46,11 @@
   },
   "alerts": {
     "loginFailed": "Failed to Login!",
-    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'roomservice'.",
+    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'service'.",
     "bookingconflict": "The chosen details cause a conflict with an already exsiting Booking.",
-    "noRoom": {
-      "heading": "No Room",
-      "text": "There is no Room to view. Please setup a room under Settings."
+    "noResource": {
+      "heading": "No Resource",
+      "text": "There is no Resource to view. Please setup a resource under Settings."
     }
   },
   "comp": {
@@ -61,11 +61,11 @@
     "overview": {},
     "booking": {
       "exampleSummary": "e.g. John Doe for an interview",
-      "roomsBooked": "One room is already booked. | {count} rooms are already booked.",
-      "allRoomsBooked": "All rooms are booked in this time frame.",
+      "resourcesBooked": "One resource is already booked. | {count} resources are already booked.",
+      "allResourcesBooked": "All resources are booked in this time frame.",
       "bookingSuccess": {
         "heading": "Successfully Booked",
-        "text": "You've booked {rooms} from {startDate} to {endDate}."
+        "text": "You've booked {resources} from {startDate} to {endDate}."
       },
       "bookingFailure": {
         "heading": "Something went wrong",
@@ -76,8 +76,8 @@
     "import": {
       "description": "Import multiple bookings using the CSV format."
     },
-    "room": {
-      "exampleName": "e.g. Room 2"
+    "resource": {
+      "exampleName": "e.g. Resource 2"
     }
   }
 }

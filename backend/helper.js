@@ -1,32 +1,32 @@
-const Room = require('./models/room')
+const Resource = require('./models/resource')
 const User = require('./models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
 
 /**
- * Return all bookings with roomservice as a ICAL Component
+ * Return all bookings with service as a ICAL Component
  * @returns {ICAL.Component} ICAL Component
  */
-async function getRoomServiceIcal() {
-    const rooms = await Room.find({})
-    const roomServiceIcal = new ICAL.Component(['vcalendar', [], []])
-    for (var room of rooms) {
-        const comp = new ICAL.Component(room.ical)
+async function getServiceIcal() {
+    const resources = await Resource.find({})
+    const serviceIcal = new ICAL.Component(['vcalendar', [], []])
+    for (var resource of resources) {
+        const comp = new ICAL.Component(resource.ical)
         for (const vevent of comp.getAllSubcomponents('vevent')) {
-            if (vevent.getFirstPropertyValue('x-room-service')) {
-                roomServiceIcal.addSubcomponent(vevent)
+            if (vevent.getFirstPropertyValue('x-service')) {
+                serviceIcal.addSubcomponent(vevent)
             }
         }
     }
-    return roomServiceIcal
+    return serviceIcal
 }
 
 /**
  * 
  * @param {ICAL.Component} vevent 
- * @returns Simple Event
+ * @returns Simple Booking
  */
-function icalEventToSimpleEvent(vevent) {
+function icalEventToSimpleBooking(vevent) {
     const icalEvent = new ICAL.Event(vevent);
 
     return {
@@ -34,49 +34,49 @@ function icalEventToSimpleEvent(vevent) {
         endDate: icalEvent.endDate.toJSDate(),
         summary: icalEvent.summary,
         organizer: icalEvent.organizer,
-        location: icalEvent.location,
+        resource: icalEvent.location,
         color: icalEvent.color,
         uid: icalEvent.uid,
-        roomService: vevent.getFirstPropertyValue('x-room-service'),
-        subrooms: vevent.getFirstPropertyValue('x-subrooms')
+        service: vevent.getFirstPropertyValue('x-service'),
+        subresources: vevent.getFirstPropertyValue('x-subresources')
     }
 }
 
-function roomToSimpleRoom(room, isPartlyBooked = false) {
+function resourceToSimpleResource(resource, isPartlyBooked = false) {
     return {
-        name: room.name,
-        description: room.description,
-        size: room.size,
-        img: room.img,
-        isDividable: room.isDividable,
-        subrooms: room.subrooms,
-        color: room.color,
+        name: resource.name,
+        description: resource.description,
+        size: resource.size,
+        img: resource.img,
+        isDividable: resource.isDividable,
+        subresources: resource.subresources,
+        color: resource.color,
         isPartlyBooked: isPartlyBooked
     }
 }
 
 /**
- * @param {Array} conflictingEvents
- * @returns {Array} Array of free Subrooms grouped by room name
+ * @param {Array} conflictingBookings
+ * @returns {Array} Array of free Subresources grouped by resource name
  */
-async function getFreeSubrooms(conflictingEvents) {
-    const freeSubrooms = {}
-    for (const event of conflictingEvents) {
-        if (event.subrooms !== null) {
-            if (!freeSubrooms[event.location]) {
-                const room = await Room.findOne({ name: event.location })
-                freeSubrooms[event.location] = room.subrooms
+async function getFreeSubresources(conflictingBookings) {
+    const freeSubresources = {}
+    for (const booking of conflictingBookings) {
+        if (booking.subresources !== null) {
+            if (!freeSubresources[booking.resource]) {
+                const resource = await Resource.findOne({ name: booking.resource })
+                freeSubresources[booking.resource] = resource.subresources
             }
-            for (const subroom of event.subrooms) {
-                const index = freeSubrooms[event.location].indexOf(subroom)
+            for (const subresource of booking.subresources) {
+                const index = freeSubresources[booking.resource].indexOf(subresource)
                 if (index !== -1) {
-                    freeSubrooms[event.location].splice(index, 1)
+                    freeSubresources[booking.resource].splice(index, 1)
                 }
             }
 
         }
     }
-    return freeSubrooms
+    return freeSubresources
 }
 /**
  * 
@@ -112,10 +112,10 @@ function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
 /**
  * @param {string} attribute    The attribute to update
  * @param {string} value        The new value of the attribute
- * @param {ICAL.Component} ical The calendar which holds the events to update
+ * @param {ICAL.Component} ical The calendar which holds the bookings to update
  * @returns 
  */
-function updateAttributeInAllEvents(attribute, value, ical) {
+function updateAttributeInAllBookings(attribute, value, ical) {
     const comp = new ICAL.Component(ical)
     for (const vevent of comp.getAllSubcomponents('vevent')) {
         vevent.updatePropertyWithValue(attribute, value)
@@ -123,143 +123,143 @@ function updateAttributeInAllEvents(attribute, value, ical) {
 }
 
 /**
- * @param {SimpleEvent} event 
- * @param {Room} optional a room to use
+ * @param {SimpleBooking} booking 
+ * @param {Resource} optional a resource to use
  * @returns {Object} .success returns wether successful
  */
-async function book(event, room = null) {
-    if (!event.location || !event.summary || !event.organizer || !event.startDate || !event.endDate || event.roomService === undefined || event.subrooms === undefined || (event.startDate >= event.endDate)) {
-        return { success: false, bookedRoom: [], conflictingEvents: [], error: 'The event is missing parameters or startDate is behind endDate' }
+async function book(booking, resource = null) {
+    if (!booking.resource || !booking.summary || !booking.organizer || !booking.startDate || !booking.endDate || booking.service === undefined || booking.subresources === undefined || (booking.startDate >= booking.endDate)) {
+        return { success: false, bookedResource: [], conflictingBookings: [], error: 'The booking is missing parameters or startDate is behind endDate' }
     }
     try {
-        new Date(event.startDate)
-        new Date(event.endDate)
+        new Date(booking.startDate)
+        new Date(booking.endDate)
     } catch (error) {
-        return { success: false, bookedRoom: [], conflictingEvents: [], error: error }
+        return { success: false, bookedResource: [], conflictingBookings: [], error: error }
     }
-    if (typeof event.roomService === 'string' || event.roomService instanceof String) {
-        event.roomService = event.roomService.toLowerCase() === 'true'
+    if (typeof booking.service === 'string' || booking.service instanceof String) {
+        booking.service = booking.service.toLowerCase() === 'true'
     }
-    if (typeof event.subrooms === 'string' || event.subrooms instanceof String) {
-        if (event.subrooms.toLowerCase() === 'null') {
-            event.subrooms = null
+    if (typeof booking.subresources === 'string' || booking.subresources instanceof String) {
+        if (booking.subresources.toLowerCase() === 'null') {
+            booking.subresources = null
         } else {
-            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Unvalid value in subroom: ' + event.subrooms }
+            return { success: false, bookedResource: [], conflictingBookings: [], error: 'Unvalid value in subresource: ' + booking.subresources }
         }
     }
-    if (event.organizer.match(/.* <.*>$/) === null) {
-        return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Organizer does not match: /.* <.*>$/' }
+    if (booking.organizer.match(/.* <.*>$/) === null) {
+        return { success: false, bookedResource: [], conflictingBookings: [], error: 'Organizer does not match: /.* <.*>$/' }
     }
-    if (room === null) {
-        room = await Room.findOne({ name: event.location })
-        if (!room) {
-            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'No Room found with name: ' + event.location }
+    if (resource === null) {
+        resource = await Resource.findOne({ name: booking.resource })
+        if (!resource) {
+            return { success: false, bookedResource: [], conflictingBookings: [], error: 'No Resource found with name: ' + booking.resource }
         }
     } else {
-        if (room.name !== event.location) {
-            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Provided room and event location are different' }
+        if (resource.name !== booking.resource) {
+            return { success: false, bookedResource: [], conflictingBookings: [], error: 'Provided resource and booking resource are different' }
         }
     }
-    if (!room.isDividable && event.subrooms !== null) {
-        return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Event location has no subrooms' }
+    if (!resource.isDividable && booking.subresources !== null) {
+        return { success: false, bookedResource: [], conflictingBookings: [], error: 'Booking resource has no subresources' }
     }
-    if (event.subrooms !== null) {
-        if (event.subrooms.length === 0) {
-            return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Unvalid value in subroom: empty Array' }
+    if (booking.subresources !== null) {
+        if (booking.subresources.length === 0) {
+            return { success: false, bookedResource: [], conflictingBookings: [], error: 'Unvalid value in subresource: empty Array' }
         }
-        for (subroom of event.subrooms) {
-            if (room.subrooms.indexOf(subroom) === -1) {
-                return { success: false, bookedRoom: [], conflictingEvents: [], error: 'Unknown subroom: ' + subroom }
+        for (subresource of booking.subresources) {
+            if (resource.subresources.indexOf(subresource) === -1) {
+                return { success: false, bookedResource: [], conflictingBookings: [], error: 'Unknown subresource: ' + subresource }
             }
         }
     }
-    const conflictingEvents = getConflictingEvents(room.ical, event.startDate, event.endDate)
-    const freeSubooms = await getFreeSubrooms(conflictingEvents)
-    var subroomsFree = false
-    if (event.subrooms !== null) {
-        subroomsFree = true
-        for (subroom of event.subrooms) {
-            if (!freeSubooms[event.location] || freeSubooms[event.location].indexOf(subroom) === -1) {
-                subroomsFree = false
+    const conflictingBookings = getConflictingBookings(resource.ical, booking.startDate, booking.endDate)
+    const freeSubooms = await getFreeSubresources(conflictingBookings)
+    var subresourcesFree = false
+    if (booking.subresources !== null) {
+        subresourcesFree = true
+        for (subresource of booking.subresources) {
+            if (!freeSubooms[booking.resource] || freeSubooms[booking.resource].indexOf(subresource) === -1) {
+                subresourcesFree = false
             }
         }
         var bookedPartly = false
-        for (const subroom of room.subrooms) {
-            if (event.subrooms.indexOf(subroom) === -1) {
+        for (const subresource of resource.subresources) {
+            if (booking.subresources.indexOf(subresource) === -1) {
                 bookedPartly = true
             }
         }
         if (!bookedPartly) {
-            event.subrooms = null
+            booking.subresources = null
         }
     }
-    if (conflictingEvents.length > 0 && !subroomsFree) {
-        return { success: false, bookedRoom: [], conflictingEvents: conflictingEvents, error: 'Conflicting Event' }
+    if (conflictingBookings.length > 0 && !subresourcesFree) {
+        return { success: false, bookedResource: [], conflictingBookings: conflictingBookings, error: 'Conflicting Booking' }
     }
     const vevent = new ICAL.Component('vevent')
     const icalEvent = new ICAL.Event(vevent)
-    icalEvent.summary = event.summary
-    icalEvent.location = event.location
-    icalEvent.organizer = event.organizer
-    icalEvent.color = room.color
-    icalEvent.startDate = ICAL.Time.fromJSDate(new Date(event.startDate))
-    icalEvent.endDate = ICAL.Time.fromJSDate(new Date(event.endDate))
-    vevent.addPropertyWithValue('x-room-service', event.roomService)
-    if (event.uid === undefined) {
+    icalEvent.summary = booking.summary
+    icalEvent.location = booking.resource
+    icalEvent.organizer = booking.organizer
+    icalEvent.color = resource.color
+    icalEvent.startDate = ICAL.Time.fromJSDate(new Date(booking.startDate))
+    icalEvent.endDate = ICAL.Time.fromJSDate(new Date(booking.endDate))
+    vevent.addPropertyWithValue('x-service', booking.service)
+    if (booking.uid === undefined) {
         icalEvent.uid = uid.uid()
     } else {
-        icalEvent.uid = event.uid
+        icalEvent.uid = booking.uid
     }
-    if (event.subrooms !== null) {
-        vevent.addPropertyWithValue('x-subrooms', event.subrooms)
+    if (booking.subresources !== null) {
+        vevent.addPropertyWithValue('x-subresources', booking.subresources)
     }
-    const comp = new ICAL.Component(room.ical)
+    const comp = new ICAL.Component(resource.ical)
     comp.addSubcomponent(vevent)
-    room.markModified('ical');
-    return { success: true, bookedRoom: await room.save(), conflictingEvents: [], error: '' }
+    resource.markModified('ical');
+    return { success: true, bookedResource: await resource.save(), conflictingBookings: [], error: '' }
 }
 
-function getConflictingEvents(ical, startDate, endDate) {
-    const conflictingEvents = []
+function getConflictingBookings(ical, startDate, endDate) {
+    const conflictingBookings = []
     const confStart = new Date(startDate)
     const confEnd = new Date(endDate)
     const comp = new ICAL.Component(ical)
     for (const vevent of comp.getAllSubcomponents('vevent')) {
-        const event = new ICAL.Event(vevent);
-        const eventStart = event.startDate.toJSDate()
-        const eventEnd = event.endDate.toJSDate()
-        if (confStart < eventStart) {
-            if (confEnd <= eventStart) {
+        const icalEvent = new ICAL.Event(vevent);
+        const bookingStart = icalEvent.startDate.toJSDate()
+        const bookingEnd = icalEvent.endDate.toJSDate()
+        if (confStart < bookingStart) {
+            if (confEnd <= bookingStart) {
                 continue
             } else {
-                conflictingEvents.push(icalEventToSimpleEvent(vevent))
+                conflictingBookings.push(icalEventToSimpleBooking(vevent))
             }
-        } else if (confStart < eventEnd) {
-            conflictingEvents.push(icalEventToSimpleEvent(vevent))
+        } else if (confStart < bookingEnd) {
+            conflictingBookings.push(icalEventToSimpleBooking(vevent))
         } else {
             continue
         }
     }
-    return conflictingEvents
+    return conflictingBookings
 }
 
-async function isUserOrganizerOrAdmin(eventOrganizer, reqUser) {
+async function isUserOrganizerOrAdmin(bookingOrganizer, reqUser) {
     const user = await User.findOne({ uid: reqUser[process.env.LDAP_UID_ATTRIBUTE] })
     var isAdmin = false;
     if (user) {
         isAdmin = user.isAdmin
     }
-    return eventOrganizer.indexOf(reqUser[process.env.LDAP_MAIL_ATTRIBUTE]) !== -1 || isAdmin
+    return bookingOrganizer.indexOf(reqUser[process.env.LDAP_MAIL_ATTRIBUTE]) !== -1 || isAdmin
 }
 
 module.exports = {
-    getRoomServiceIcal: getRoomServiceIcal,
-    icalEventToSimpleEvent: icalEventToSimpleEvent,
-    roomToSimpleRoom: roomToSimpleRoom,
-    getFreeSubrooms: getFreeSubrooms,
+    getServiceIcal: getServiceIcal,
+    icalEventToSimpleBooking: icalEventToSimpleBooking,
+    resourceToSimpleResource: resourceToSimpleResource,
+    getFreeSubresources: getFreeSubresources,
     csvToObjekt: csvToObjekt,
-    updateAttributeInAllEvents: updateAttributeInAllEvents,
+    updateAttributeInAllBookings: updateAttributeInAllBookings,
     book: book,
-    getConflictingEvents: getConflictingEvents,
+    getConflictingBookings: getConflictingBookings,
     isUserOrganizerOrAdmin: isUserOrganizerOrAdmin,
 }

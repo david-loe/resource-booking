@@ -4,8 +4,8 @@
       <img src="../assets/einsames-haus.jpg" id="background-pic" />
     </div>
     <div id="separator"></div>
-    <Booking :rooms="this.rooms" v-on:changed="this.$refs.overview.changeSelection()" ref="booking"></Booking>
-    <Overview class="mt-5" :rooms="this.rooms" ref="overview" v-on:changed-events="this.$refs.booking.clear()"></Overview>
+    <Booking :resources="this.resources" v-on:changed="this.$refs.overview.changeSelection()" ref="booking"></Booking>
+    <Overview class="mt-5" :resources="this.resources" ref="overview" v-on:changed-bookings="this.$refs.booking.clear()"></Overview>
   </div>
 </template>
 
@@ -13,7 +13,7 @@
 import Overview from './Overview.vue'
 import Booking from './Booking.vue'
 export default {
-  props: ['rooms'],
+  props: ['resources'],
   components: {
     Overview,
     Booking,

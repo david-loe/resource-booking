@@ -7,7 +7,7 @@
             <span class="fs-6">
               {{ user.uid }}
               <i v-if="user.isAdmin" class="ms-4 bi bi-person-fill"></i>
-              <i v-if="user.isRoomService" class="ms-4 bi bi-bucket-fill"></i>
+              <i v-if="user.isService" class="ms-4 bi bi-bucket-fill"></i>
             </span>
           </div>
           <div class="col-auto">

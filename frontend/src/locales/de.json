@@ -1,12 +1,12 @@
 {
   "headlines": {
-    "roomBooking": "Zimmerverwaltung",
+    "resourceBooking": "Zimmerverwaltung",
     "overview": "Überblick",
     "booking": "Buchen",
     "settings": "Einstellungen",
     "login": "Login",
-    "rooms": "Räume",
-    "roomService": "Zimmerreinigung",
+    "resources": "Räume",
+    "service": "Zimmerreinigung",
     "user": "Benutzer",
     "import": "Import"
   },
@@ -23,11 +23,11 @@
     "cancel": "Abbrechen",
     "search": "Suchen",
     "book": "Buchen",
-    "addRoom": "Raum hinzufügen",
+    "addResource": "Raum hinzufügen",
     "addUser": "Benutzer hinzufügen",
-    "roomService": "Zimmerreinigung",
+    "service": "Zimmerreinigung",
     "organizer": "Organisator",
-    "room": "Raum",
+    "resource": "Raum",
     "edit": "Bearbeiten",
     "save": "Speichern",
     "delete": "Löschen",
@@ -35,10 +35,10 @@
     "admin": "Administrator",
     "image": "Bild",
     "isDividable": "Unterteilbar",
-    "subrooms": "Unterräume",
-    "addSubroom": "Unterraum hinzufügen",
-    "selectSubrooms": "Unterräume wählen",
-    "onlyShowAvailableRooms": "Nur verfügbare Räume anzeigen",
+    "subresources": "Unterräume",
+    "addSubresource": "Unterraum hinzufügen",
+    "selectSubresources": "Unterräume wählen",
+    "onlyShowAvailableResources": "Nur verfügbare Räume anzeigen",
     "separator": "Separator",
     "arraySeparator": "Array Separator",
     "csv": "CSV",
@@ -46,9 +46,9 @@
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",
-    "nameValidation": "Name darf dies nicht enthalten: ^<>/\\\":?  oder 'roomservice' sein.",
+    "nameValidation": "Name darf dies nicht enthalten: ^<>/\\\":?  oder 'service' sein.",
     "bookingconflict": "Die gewählten Details verursachen einen Konflikt mit einer bereits bestehenden Buchung.",
-    "noRoom": {
+    "noResource": {
       "heading": "Keine Räume",
       "text": "Es ist kein Raum zu sehen. Bitte fügen Sie unter Einstellungen einen Raum hinzu."
     }
@@ -61,11 +61,11 @@
     "overview": {},
     "booking": {
       "exampleSummary": "z.B. Max Mustermann für ein Gespräch",
-      "roomsBooked": "Ein Zimmer ist bereits belegt. | {count} Zimmer sind bereits belegt.",
-      "allRoomsBooked": "In diesem Zeitraum sind alle Zimmer belegt.",
+      "resourcesBooked": "Ein Zimmer ist bereits belegt. | {count} Zimmer sind bereits belegt.",
+      "allResourcesBooked": "In diesem Zeitraum sind alle Zimmer belegt.",
       "bookingSuccess": {
         "heading": "Die Buchung war erfolgreich!",
-        "text": "Du hast {rooms} vom {startDate} bis zum {endDate} gebucht."
+        "text": "Du hast {resources} vom {startDate} bis zum {endDate} gebucht."
       },
       "bookingFailure": {
         "heading": "Etwas ist schief gelaufen..",
@@ -76,7 +76,7 @@
     "import": {
       "description": "Importiere mehrere Buchungen im CSV Format."
     },
-      "room": {
+      "resource": {
       "exampleName": "z.B. Zimmer 103"
     }
   }

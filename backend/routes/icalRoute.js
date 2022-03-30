@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const Room = require('../models/room')
+const Resource = require('../models/resource')
 const ICAL = require('ical.js')
 const helper = require('../helper')
 const i18n = require('../i18n')
@@ -7,23 +7,23 @@ const i18n = require('../i18n')
 router.get('/ical', async (req, res) => {
     if (req.query.token === process.env.VUE_APP_ICAL_TOKEN) {
         if (req.query.name) {
-            if (req.query.name === "roomservice") {
-                const roomServiceIcal = await helper.getRoomServiceIcal()
+            if (req.query.name === "service") {
+                const serviceIcal = await helper.getServiceIcal()
                 res.set({ "Content-Disposition": "attachment; filename=\"" + "calendar" + ".ics\"" })
-                res.send(roomServiceIcal.toString())
+                res.send(serviceIcal.toString())
 
             } else {
-                var roomNames = []
+                var resourceNames = []
                 if (typeof req.query.name === 'string' || req.query.name instanceof String){
-                    roomNames = [req.query.name]
+                    resourceNames = [req.query.name]
                 } else {
-                    roomNames = req.query.name
+                    resourceNames = req.query.name
                 }
                 var ical = 'BEGIN:VCALENDAR'
-                for(const name of roomNames){
-                    const room = await Room.findOne({ name: name })
-                    var tempString = ICAL.stringify(room.ical)
-                    if(room){
+                for(const name of resourceNames){
+                    const resource = await Resource.findOne({ name: name })
+                    var tempString = ICAL.stringify(resource.ical)
+                    if(resource){
                         ical = ical + '\n' + tempString.substring(15, tempString.length - 15)
                     }
                 }

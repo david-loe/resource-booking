@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../components/Login.vue'
 import Settings from '../components/Settings.vue'
 import Home from '../components/Home.vue'
-import RoomService from '../components/RoomService.vue'
+import Service from '../components/Service.vue'
 
 const routes = [
   {
@@ -26,11 +26,11 @@ const routes = [
   }
 ]
 
-if (process.env.VUE_APP_USE_ROOMSERVICE.toLowerCase() === 'true') {
+if (process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true') {
   routes.push({
-    path: '/room-service',
-    name: 'RoomService',
-    component: RoomService
+    path: '/service',
+    name: 'Service',
+    component: Service
   })
 }
 
