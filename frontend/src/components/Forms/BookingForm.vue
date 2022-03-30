@@ -36,7 +36,7 @@
       </select>
     </div>
 
-    <div class="mb-3" v-if="this.$root.getRoomByName(formEvent.location) && this.$root.getRoomByName(formEvent.location).isDividable">
+    <div class="mb-3" v-if="this.$root.useSubrooms && this.$root.getRoomByName(formEvent.location) && this.$root.getRoomByName(formEvent.location).isDividable">
       <label for="subrooms" class="form-label"> {{ $t('labels.subrooms') }} </label>
       <ul id="subrooms">
         <li class="ms-2 form-check" v-for="subroom of this.$root.getRoomByName(formEvent.location).subrooms" :key="subroom">
@@ -53,7 +53,7 @@
       </ul>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3" v-if="this.$root.useRoomservice">
       <div class="form-check">
         <label for="roomService" class="form-check-label text-nowrap"> {{ $t('labels.roomService') }}</label>
         <input class="form-check-input" type="checkbox" id="roomService" role="switch" v-model="formEvent.roomService" />

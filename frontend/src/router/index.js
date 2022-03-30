@@ -16,16 +16,23 @@ const routes = [
     component: Settings
   },
   {
-    path: '/room-service',
-    name: 'RoomService',
-    component: RoomService
-  },
-  {
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
+
+if (process.env.VUE_APP_USE_ROOMSERVICE.toLowerCase() === 'true') {
+  routes.push({
+    path: '/room-service',
+    name: 'RoomService',
+    component: RoomService
+  })
+}
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),

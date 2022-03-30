@@ -10,7 +10,7 @@
             </a>
           </div>
           <div>
-            <router-link v-if="isAdmin || isRoomService" to="/room-service" class="nav-link link-dark d-flex align-items-center">
+            <router-link v-if="useRoomservice && (isAdmin || isRoomService)" to="/room-service" class="nav-link link-dark d-flex align-items-center">
               <i class="fs-4 bi bi-bucket"></i>
               <span class="ms-1 d-none d-md-block">{{ $t('headlines.roomService') }}</span>
             </router-link>
@@ -77,6 +77,8 @@ export default {
       roomNames: [],
       reload: null,
       isLoading: true,
+      useSubrooms: process.env.VUE_APP_USE_SUBROOMS.toLowerCase() === 'true',
+      useRoomservice: process.env.VUE_APP_USE_ROOMSERVICE.toLowerCase() === 'true',
     }
   },
   methods: {

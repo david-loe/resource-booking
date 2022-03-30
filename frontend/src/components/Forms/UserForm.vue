@@ -16,7 +16,7 @@
     </div>
 
     <div class="row mb-2">
-      <div class="col">
+      <div class="col" v-if="this.$root.useRoomservice">
         <div class="form-check">
           <label for="userFormRoomService" class="form-check-label text-nowrap"> {{ $t('headlines.roomService') }}</label>
           <input class="form-check-input" type="checkbox" id="userFormRoomService" role="switch" v-model="formUser.isRoomService" />

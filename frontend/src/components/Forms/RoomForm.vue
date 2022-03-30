@@ -57,7 +57,7 @@
             <input class="form-control" type="file" id="roomFormImg" @change="changeFile" accept="image/*" />
           </div>
 
-          <div class="form-check">
+          <div v-if="this.$root.useSubrooms" class="form-check">
             <label for="roomFormDividable" class="form-check-label text-nowrap"> {{ $t('labels.isDividable') }}</label>
             <input
               class="form-check-input"
@@ -141,7 +141,7 @@ export default {
   methods: {
     addSubroom(subroom) {
       const index = this.formRoom.subrooms.indexOf(subroom)
-      if (index === -1) {
+      if (index === -1 && subroom.length > 0) {
         this.formRoom.subrooms.push(subroom)
         this.subroomAdd = ''
       }

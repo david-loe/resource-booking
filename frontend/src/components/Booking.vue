@@ -79,34 +79,36 @@
                   <h6>{{ room.name }}</h6>
                   <small class="d-none d-md-block text-muted"> {{ room.description }} - {{ $t('labels.size') }}: {{ room.size }} </small>
                 </span>
-                <div class="dropdown" v-if="selectedRooms.indexOf(room.name) !== -1 && room.isDividable">
-                  <button
-                    :class="'btn dropdown-toggle btn-' + (room.isPartlyBooked ? 'danger' : 'light')"
-                    type="button"
-                    id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside"
-                    aria-expanded="false"
-                  >
-                    {{ $t('labels.selectSubrooms') }}
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                    <li class="ms-2 form-check" v-for="subroom of room.subrooms" :key="subroom">
-                      <label :for="'roomFormSubroom' + room.name + subroom" class="form-check-label text-nowrap" style="width: 100%">
-                        {{ subroom }}</label
-                      >
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        :id="'roomFormSubroom' + room.name + subroom"
-                        role="switch"
-                        :value="{ room: room.name, subroom: subroom }"
-                        v-model="selectedSubrooms"
-                        :selected="true"
-                      />
-                    </li>
-                  </ul>
-                </div>
+                <template v-if="this.$root.useSubrooms">
+                  <div class="dropdown" v-if="selectedRooms.indexOf(room.name) !== -1 && room.isDividable">
+                    <button
+                      :class="'btn dropdown-toggle btn-' + (room.isPartlyBooked ? 'danger' : 'light')"
+                      type="button"
+                      id="dropdownMenuButton1"
+                      data-bs-toggle="dropdown"
+                      data-bs-auto-close="outside"
+                      aria-expanded="false"
+                    >
+                      {{ $t('labels.selectSubrooms') }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <li class="ms-2 form-check" v-for="subroom of room.subrooms" :key="subroom">
+                        <label :for="'roomFormSubroom' + room.name + subroom" class="form-check-label text-nowrap" style="width: 100%">
+                          {{ subroom }}</label
+                        >
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          :id="'roomFormSubroom' + room.name + subroom"
+                          role="switch"
+                          :value="{ room: room.name, subroom: subroom }"
+                          v-model="selectedSubrooms"
+                          :selected="true"
+                        />
+                      </li>
+                    </ul>
+                  </div>
+                </template>
               </label>
               <label class="list-group-item d-flex gap-3 bg-light" v-if="searchresult.unavailable.length > 0">
                 <span class="pt-1">
@@ -122,8 +124,8 @@
             <form @submit.prevent="book()">
               <div class="row justify-content-center">
                 <div class="col-auto">
-                  <div class="row bg-dark text-white rounded-2" style="max-width: 350px">
-                    <div class="col p-2">
+                  <div class="row bg-dark text-white rounded-2" style="max-width: 400px">
+                    <div class="col p-2" style="width: 300px">
                       <label for="summary" class="form-label"> {{ $t('labels.summary') }} </label>
                       <input
                         type="text"
@@ -134,14 +136,23 @@
                         required
                       />
                     </div>
-                    <div class="w-100"></div>
-                    <div class="col p-2">
-                      <div class="form-check">
-                        <label for="roomService" class="form-check-label text-nowrap"> {{ $t('labels.roomService') }}</label>
-                        <input class="form-check-input" type="checkbox" id="roomService" role="switch" v-model="bookingData.roomService" />
+                    <template v-if="this.$root.useRoomservice">
+                      <div class="w-100"></div>
+                      <div class="col p-2">
+                        <div class="form-check form-check-inline">
+                          <label for="roomService" class="form-check-label text-nowrap"> {{ $t('labels.roomService') }}</label>
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="roomService"
+                            role="switch"
+                            v-model="bookingData.roomService"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div class="col-auto p-2">
+                    </template>
+
+                    <div class="col-auto p-2 d-flex align-items-end">
                       <button type="submit" class="btn btn-primary">{{ $t('labels.book') }}</button>
                     </div>
                   </div>
@@ -193,7 +204,7 @@ export default {
     },
     async search() {
       this.searchresult = await this.$root.getRoomsAvailability(new Date(this.bookingData.startDate), new Date(this.bookingData.endDate))
-      this.selectedRooms = [] 
+      this.selectedRooms = []
     },
     async book() {
       try {

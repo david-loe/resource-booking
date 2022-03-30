@@ -108,6 +108,12 @@ router.post('/csv/booking', async (req, res) => {
         const events = helper.csvToObjekt(req.body.csv, req.body.separator, req.body.arraySeparator)
         const failedBookings = []
         for (const event of events) {
+            if(process.env.VUE_APP_USE_ROOMSERVICE.toLowerCase() !== 'true'){
+                event.roomService = false
+            }
+            if(process.env.VUE_APP_USE_SUBROOMS.toLowerCase() !== 'true'){
+                event.subrooms = null
+            }
             const booking = await helper.book(event)
             if (!booking.success) {
                 failedBookings.push({ event: event, error: booking.error, conflictingEvents: booking.conflictingEvents })
