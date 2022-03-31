@@ -1,0 +1,130 @@
+{
+  "resource": {
+    "one": {
+      "upper": "Ressource",
+      "lower": "ressource"
+    },
+    "more": {
+      "upper": "Ressourcen",
+      "lower": "ressourcen"
+    },
+    "compound": {
+      "upper": "Ressourcen",
+      "lower": "N/A"
+    },
+    "emoji": "🏠"
+  },
+  "headlines": {
+    "resourceBooking": "@:{'resource.compound.upper'}verwaltung",
+    "overview": "Überblick",
+    "booking": "Buchen",
+    "settings": "Einstellungen",
+    "login": "Login",
+    "resources": "@:{'resource.more.upper'}",
+    "service": "Service",
+    "user": "Benutzer",
+    "import": "Import"
+  },
+  "labels": {
+    "email": "Email Addresse",
+    "password": "Passwort",
+    "name": "Name",
+    "size": "Größe",
+    "color": "Farbe",
+    "description": "Beschreibung",
+    "summary": "Beschreibung",
+    "from": "Von",
+    "to": "Bis",
+    "details": "Details",
+    "cancel": "Abbrechen",
+    "search": "Suchen",
+    "book": "Buchen",
+    "addResource": "@:{'resource.one.upper'} hinzufügen",
+    "addUser": "Benutzer hinzufügen",
+    "service": "Service",
+    "organizer": "Organisator",
+    "resource": "@:{'resource.one.upper'}",
+    "edit": "Bearbeiten",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "uid": "UID",
+    "admin": "Administrator",
+    "image": "Bild",
+    "isDividable": "Unterteilbar",
+    "subresources": "Unter@:{'resource.more.lower'}",
+    "addSubresource": "Unter@:{'resource.one.lower'} hinzufügen",
+    "selectSubresources": "Unter@:{'resource.more.lower'} wählen",
+    "onlyShowAvailableResources": "Nur verfügbare @:{'resource.more.upper'} anzeigen",
+    "separator": "Separator",
+    "arraySeparator": "Array Separator",
+    "csv": "CSV",
+    "import": "Importieren"
+  },
+  "alerts": {
+    "loginFailed": "Anmeldung fehlgeschlagen!",
+    "nameValidation": "Name darf dies nicht enthalten: ^<>/\\\":?  oder 'service' sein.",
+    "bookingconflict": "Die gewählten Details verursachen einen Konflikt mit einer bereits bestehenden Buchung.",
+    "noResource": {
+      "heading": "Keine @:{'resource.more.upper'}",
+      "text": "Es ist kein @:{'resource.one.upper'} zu sehen. Bitte fügen Sie unter @:{'headlines.settings'} einen @:{'resource.one.upper'} hinzu."
+    },
+    "request": {
+      "unauthorized": "Nicht autorisiert!"
+    },
+    "db": {
+      "success": "Erfolgreich mit der Datenbank verbunden."
+    }
+  },
+  "comp": {
+    "login": {
+      "signIn": "Bitte Anmelden"
+    },
+    "calendar": {},
+    "overview": {},
+    "booking": {
+      "exampleSummary": "z.B. Max Mustermann für ein Gespräch",
+      "resourcesBooked": "Ein @:{'resource.one.upper'} ist bereits belegt. | {count} @:{'resource.more.upper'} sind bereits belegt.",
+      "allResourcesBooked": "In diesem Zeitraum sind alle @:{'resource.more.upper'} belegt.",
+      "bookingSuccess": {
+        "heading": "Die Buchung war erfolgreich!",
+        "text": "Du hast {resources} vom {startDate} bis zum {endDate} gebucht."
+      },
+      "bookingFailure": {
+        "heading": "Etwas ist schief gelaufen..",
+        "text": "Deine Buchung war nicht erfolgreich, probier es nochmal."
+      }
+    },
+    "settings": {},
+    "import": {
+      "description": "Importiere mehrere Buchungen im CSV Format."
+    },
+    "resource": {
+      "exampleName": "z.B. @:{'resource.one.upper'} 103"
+    }
+  },
+  "mail": {
+    "salutation": "Hallo {recipient}",
+    "footer": "Siehe deine Buchungungen unter",
+    "confirmation": {
+      "heading": "✅ Buchungsbestätigung",
+      "content": "Deine Buchung war erfolgreich."
+    },
+    "deletion": {
+      "heading": "❌ Buchungslöschung",
+      "content": "Deine Buchung wurde gelöscht."
+    },
+    "change": {
+      "heading": "🔄 Buchungsänderung",
+      "content": "Folgende Buchung wurde geändert:"
+    },
+    "reminder": {
+      "heading": "❕ Erinnerung",
+      "content": "Die folgenden Räume sind demnächst dran:",
+      "bookedFrom": "Gebucht von {organizer}"
+    },
+    "notifyOnEnd": {
+      "heading": "ℹ Aufenthaltsende",
+      "content": "Heute enden folgende Buchungen:"
+    }
+  }
+}

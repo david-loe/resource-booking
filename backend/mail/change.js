@@ -26,7 +26,7 @@ function sendChangeMail(oldBooking, newBooking, recipientName, recipientMail) {
     const plainText = 'Old Booking:\n' + JSON.stringify(oldBooking) + '\n\nNew Booking:\n' + JSON.stringify(newBooking)
 
     mailClient.sendMail({
-        from: '"' + i18n.t("headlines.resourceBooking") + ' 🏠" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
+        from: '"' + i18n.t("headlines.resourceBooking") + ' ' + i18n.t("resource.emoji") + '" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
         to: recipientMail, // list of receivers
         subject: i18n.t("mail.change.heading") + ": " + oldBooking.summary, // Subject line
         text: plainText, // plain text body

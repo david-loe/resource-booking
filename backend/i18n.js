@@ -25,7 +25,13 @@ i18next.init({
     lng: process.env.VUE_APP_I18N_LOCALE || 'en',
     fallbackLng: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
     resources: loadLocaleMessages(),
-    globalInjection: true
+    globalInjection: true,
+    interpolation: {
+      prefix: "{",
+      suffix: "}",
+      nestingPrefix: "@:{'",
+      nestingSuffix: "'}"
+    }
   })
 
 module.exports = i18next

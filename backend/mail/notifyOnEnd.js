@@ -44,7 +44,7 @@ async function sendBookingEndNotification() {
         const plainText = bookings.toString()
 
         mailClient.sendMail({
-            from: '"' + i18n.t("headlines.resourceBooking") + ' 🏠" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
+            from: '"' + i18n.t("headlines.resourceBooking") + ' ' + i18n.t("resource.emoji") + '" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
             to: recipients, // list of receivers
             subject: i18n.t("mail.notifyOnEnd.heading"), // Subject line
             text: plainText, // plain text body

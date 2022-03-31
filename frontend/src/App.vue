@@ -5,7 +5,7 @@
         <div class="d-flex flex-row align-items-center">
           <div class="me-auto">
             <a href="/" class="nav-link link-dark d-flex align-items-center">
-              <i class="fs-1 bi bi-house"></i>
+              <i :class="'fs-1 ' + iconClass"></i>
               <span class="fs-4 ms-2 d-none d-md-block">{{ $t('headlines.resourceBooking') }}</span>
             </a>
           </div>
@@ -52,7 +52,7 @@
       <div class="container">
         <div class="d-flex align-items-center">
           <a href="/" class="text-decoration-none link-dark lh-1">
-            <i class="fs-3 bi bi-house"></i>
+            <i :class="'fs-3 ' + iconClass"></i>
           </a>
           <span class="ps-2 text-muted">© {{ new Date().getFullYear() }} Resource Booking</span>
         </div>
@@ -79,6 +79,7 @@ export default {
       isLoading: true,
       useSubresources: process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
       useService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
+      iconClass: process.env.VUE_APP_ICON_CLASS
     }
   },
   methods: {
@@ -147,7 +148,7 @@ export default {
   },
   beforeMount() {
     this.authAndGetResource()
-    document.title = this.$t('headlines.resourceBooking') + ' 🏠'
+    document.title = this.$t('headlines.resourceBooking') + ' ' + this.$t("resource.emoji")
     this.reload = setInterval(() => {
       this.getResources()
     }, 60 * 1000)

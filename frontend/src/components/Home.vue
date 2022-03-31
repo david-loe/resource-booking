@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="background">
-      <img src="../assets/einsames-haus.jpg" id="background-pic" />
+      <img src="../assets/banner.jpg" id="background-pic" />
     </div>
     <div id="separator"></div>
     <Booking :resources="this.resources" v-on:changed="this.$refs.overview.changeSelection()" ref="booking"></Booking>

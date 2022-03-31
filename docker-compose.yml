@@ -9,6 +9,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - ./locales:/app/locales:ro
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     env_file:
@@ -28,6 +29,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - ./locales:/app/src/locales:ro
     restart: always
     depends_on:
       - backend

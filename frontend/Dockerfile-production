@@ -10,6 +10,8 @@ COPY frontend/ .
 
 COPY .env .
 
+COPY locales ./src/locales
+
 RUN npm run build
 
 FROM nginx as production-stage

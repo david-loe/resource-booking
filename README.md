@@ -28,3 +28,9 @@ change `NODE_ENV` in `.env` to `production` and run:
 ```
 docker-compose up --build -d
 ```
+
+## Customization
+
+1. in `.env` many customizations can be done.
+2. change *resource* into your custom resource name in `/locales/*.json`
+

@@ -33,7 +33,7 @@ function sendDeletionMail(deletedBooking, recipientName, recipientMail) {
 
 
     mailClient.sendMail({
-        from: '"' + i18n.t("headlines.resourceBooking") + ' 🏠" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
+        from: '"' + i18n.t("headlines.resourceBooking") + ' ' + i18n.t("resource.emoji") + '" <' + process.env.MAIL_SENDER_ADDRESS + '>', // sender address
         to: recipientMail, // list of receivers
         subject: i18n.t("mail.deletion.heading") + ": " + deletedBooking.summary, // Subject line
         text: plainText, // plain text body

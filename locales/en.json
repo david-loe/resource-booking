@@ -1,0 +1,130 @@
+{
+  "resource": {
+    "one": {
+      "upper": "Resource",
+      "lower": "resource"
+    },
+    "more": {
+      "upper": "Resources",
+      "lower": "resources"
+    },
+    "compound": {
+      "upper": "N/A",
+      "lower": "N/A"
+    },
+    "emoji": "🏠"
+  },
+  "headlines": {
+    "resourceBooking": "@:{'resource.one.upper'} Booking",
+    "overview": "Overview",
+    "booking": "Booking",
+    "settings": "Settings",
+    "login": "Login",
+    "resources": "@:{'resource.more.upper'}",
+    "service": "Service",
+    "user": "User",
+    "import": "Import"
+  },
+  "labels": {
+    "email": "Email address",
+    "password": "Password",
+    "name": "Name",
+    "size": "Size",
+    "color": "Color",
+    "description": "Description",
+    "summary": "Summary",
+    "from": "From",
+    "to": "To",
+    "details": "Details",
+    "cancel": "Cancel",
+    "search": "Search",
+    "book": "Book",
+    "addResource": "Add @:{'resource.one.upper'}",
+    "addUser": "Add User",
+    "service": "Service",
+    "organizer": "Organizer",
+    "resource": "@:{'resource.one.upper'}",
+    "edit": "Edit",
+    "save": "Save",
+    "delete": "Delete",
+    "uid": "UID",
+    "admin": "Admin",
+    "image": "Image",
+    "isDividable": "Is Dividable",
+    "subresources": "Sub@:{'resource.more.lower'}",
+    "addSubresource": "Add Sub@:{'resource.one.lower'}",
+    "selectSubresources": "Select Sub@:{'resource.more.lower'}",
+    "onlyShowAvailableResources": "Only show available @:{'resource.more.upper'}",
+    "separator": "Separator",
+    "arraySeparator": "Array Separator",
+    "csv": "CSV",
+    "import": "Import"
+  },
+  "alerts": {
+    "loginFailed": "Failed to Login!",
+    "nameValidation": "Name can not contain: ^<>/\\\":?  or be: 'service'.",
+    "bookingconflict": "The chosen details cause a conflict with an already exsiting Booking.",
+    "noResource": {
+      "heading": "No @:{'resource.more.upper'}",
+      "text": "There is no @:{'resource.one.lower'} to view. Please setup a @:{'resource.one.lower'} in the @:{'headlines.settings'}."
+    },
+    "request": {
+      "unauthorized": "Not authorized!"
+    },
+    "db": {
+      "success": "Successfully connected to the Database."
+    }
+  },
+  "comp": {
+    "login": {
+      "signIn": "Please sign in"
+    },
+    "calendar": {},
+    "overview": {},
+    "booking": {
+      "exampleSummary": "e.g. John Doe for an interview",
+      "resourcesBooked": "One @:{'resource.one.lower'} is already booked. | {count} @:{'resource.more.lower'} are already booked.",
+      "allResourcesBooked": "All @:{'resource.more.lower'} are booked in this time frame.",
+      "bookingSuccess": {
+        "heading": "Successfully Booked",
+        "text": "You've booked {resources} from {startDate} to {endDate}."
+      },
+      "bookingFailure": {
+        "heading": "Something went wrong",
+        "text": "Your booking was not successful."
+      }
+    },
+    "settings": {},
+    "import": {
+      "description": "Import multiple bookings using the CSV format."
+    },
+    "resource": {
+      "exampleName": "e.g. @:{'resource.one.upper'} 2"
+    }
+  },
+  "mail": {
+    "salutation": "Dear {recipient}",
+    "footer": "View your Booking at",
+    "confirmation": {
+      "heading": "✅ Booking Conformation",
+      "content": "Your Booking was successful."
+    },
+    "deletion": {
+      "heading": "❌ Booking Deletion",
+      "content": "Your Booking was deleted."
+    },
+    "change": {
+      "heading": "🔄 Booking Change",
+      "content": "One of your bookings was changed:"
+    },
+    "reminder": {
+      "heading": "❕ Reminder",
+      "content": "The following resources are coming up soon:",
+      "bookedFrom": "Booked from {organizer}"
+    },
+    "notifyOnEnd": {
+      "heading": "ℹ End of stay",
+      "content": "The following bookings end today:"
+    }
+  }
+}

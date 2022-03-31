@@ -1,7 +1,7 @@
 <template>
   <div class="text-center" id="loginPage">
     <form class="form-signin" @submit.prevent="login()">
-      <i class="bi bi-house" style="font-size: 8rem"></i>
+      <i :class="this.$root.iconClass" style="font-size: 8rem"></i>
       <h1 class="h3 mb-3 fw-normal">{{ $t('comp.login.signIn') }}</h1>
 
       <div class="form-floating">
