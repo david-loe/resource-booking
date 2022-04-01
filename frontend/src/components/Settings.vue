@@ -34,6 +34,11 @@ export default {
     return {}
   },
   methods: {},
+  beforeMount() {
+    if (this.$root.isLoading) {
+      this.$root.getUserandResources()
+    }
+  },
 }
 </script>
 

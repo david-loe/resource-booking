@@ -74,17 +74,16 @@ app.use('/api', async (req, res, next) => {
     // Add user as admin if no admin exists
     if ((await User.find({ isAdmin: true })).length === 0) {
       const currentUser = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
-      if(currentUser){
+      if (currentUser) {
         currentUser.isAdmin = true
         currentUser.save()
-      }else{
+      } else {
         const firstUser = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], isAdmin: true, mail: req.user[process.env.LDAP_MAIL_ATTRIBUTE] })
         firstUser.save()
       }
-      
+
     }
-  }
-  else {
+  } else {
     return res.status(401).send({ message: i18n.t("alerts.request.unauthorized") })
   }
 })
@@ -95,16 +94,22 @@ app.use('/api/admin', async (req, res, next) => {
   const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
   if (user && user.isAdmin) {
     next();
-  }
-  else {
+  } else {
     return res.status(403).send({ message: i18n.t("alerts.request.unauthorized") })
   }
 })
 const adminRoutes = require('./routes/adminRoutes')
 app.use('/api/admin', adminRoutes)
 
-const icalRoute = require('./routes/icalRoute')
-app.use(icalRoute)
+app.use('/public', async (req, res, next) => {
+  if (req.query.token === process.env.VUE_APP_ACCESS_TOKEN) {
+    next();
+  } else {
+    return res.status(401).send({ message: i18n.t("alerts.request.unauthorized") })
+  }
+})
+const publicRoutes = require('./routes/publicRoutes')
+app.use('/public', publicRoutes)
 
 const sendServiceReminder = require('./mail/reminder')
 const sendBookingEndNotification = require('./mail/notifyOnEnd')

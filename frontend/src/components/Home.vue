@@ -18,6 +18,11 @@ export default {
     Overview,
     Booking,
   },
+  beforeMount() {
+    if (this.$root.isLoading) {
+      this.$root.getUserandResources()
+    }
+  },
 }
 </script>
 

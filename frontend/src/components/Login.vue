@@ -48,7 +48,7 @@ export default {
           { withCredentials: true },
         )
         if (res.status === 200) {
-          this.$root.authAndGetResource()
+          this.$root.isLoading = true
           this.$router.push('/')
         }
       } catch (error) {
@@ -56,6 +56,9 @@ export default {
         alert(this.$t('alerts.loginFailed'))
       }
     },
+  },
+  beforeMount() {
+    this.$root.isLoading = false
   },
 }
 </script>

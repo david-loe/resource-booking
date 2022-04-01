@@ -219,8 +219,22 @@ async function book(booking, resource = null) {
     return { success: true, bookedResource: await resource.save(), conflictingBookings: [], error: '' }
 }
 
+/**
+ * Returns conflicting bookings and a conflict code
+ * @param {ICAL.Component} ical 
+ * @param {Date} startDate 
+ * @param {Date} endDate 
+ * @returns 
+ */
 function getConflictingBookings(ical, startDate, endDate) {
+    const codes = {
+        complete: 1,
+        beginning: 2,
+        inside: 3,
+        end: 4,
+    }
     const conflictingBookings = []
+    const conflictCodes = []
     const confStart = new Date(startDate)
     const confEnd = new Date(endDate)
     const comp = new ICAL.Component(ical)
@@ -232,10 +246,22 @@ function getConflictingBookings(ical, startDate, endDate) {
             if (confEnd <= bookingStart) {
                 continue
             } else {
-                conflictingBookings.push(icalEventToSimpleBooking(vevent))
+                const booking = icalEventToSimpleBooking(vevent)
+                if(confEnd <= bookingEnd){
+                    booking.conflictCode = codes.end
+                }else{
+                    booking.conflictCode = codes.inside
+                }
+                conflictingBookings.push(booking)
             }
         } else if (confStart < bookingEnd) {
-            conflictingBookings.push(icalEventToSimpleBooking(vevent))
+            const booking = icalEventToSimpleBooking(vevent)
+            if(confEnd <= bookingEnd){
+                booking.conflictCode = codes.complete
+            }else{
+                booking.conflictCode = codes.beginning
+            }
+            conflictingBookings.push(booking)
         } else {
             continue
         }

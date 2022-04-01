@@ -263,7 +263,7 @@ export default {
       if (resourceNames.length === 0) {
         return ''
       }
-      const urlParts = [process.env.VUE_APP_BACKEND_URL + '/ical', '?token=', process.env.VUE_APP_ICAL_TOKEN]
+      const urlParts = [process.env.VUE_APP_BACKEND_URL + '/public/ical', '?token=', process.env.VUE_APP_ACCESS_TOKEN]
       for (const name of resourceNames) {
         urlParts.push('&name=' + name)
       }

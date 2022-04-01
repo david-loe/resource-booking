@@ -234,7 +234,6 @@ router.get('/resource/search', async (req, res) => {
     } else {
         res.status(400).send({ message: "Start or End Missing" })
     }
-
 })
 
 router.post('/booking', async (req, res) => {

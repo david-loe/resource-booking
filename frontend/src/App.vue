@@ -46,7 +46,7 @@
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-    <router-view v-else :resources="this.resources" />
+    <router-view :class="isLoading ? 'd-none' : 'd-block'" :resources="this.resources" />
 
     <footer class="py-3 border-top">
       <div class="container">
@@ -79,11 +79,11 @@ export default {
       isLoading: true,
       useSubresources: process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
       useService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
-      iconClass: process.env.VUE_APP_ICON_CLASS
+      iconClass: process.env.VUE_APP_ICON_CLASS,
     }
   },
   methods: {
-    async authAndGetResource() {
+    async getUser() {
       try {
         const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/user', {
           withCredentials: true,
@@ -92,11 +92,9 @@ export default {
         this.auth = res.status === 200
         this.isAdmin = res.data.isAdmin
         this.isService = res.data.isService
-        this.getResources()
       } catch (error) {
         this.$router.push('login')
       }
-      this.isLoading = false
     },
     async getResources() {
       try {
@@ -145,13 +143,17 @@ export default {
       }
       return null
     },
+    async getUserandResources() {
+      await this.getUser()
+      await this.getResources()
+      this.reload = setInterval(() => {
+        this.getResources()
+      }, 60 * 1000)
+      this.isLoading = false
+    },
   },
   beforeMount() {
-    this.authAndGetResource()
-    document.title = this.$t('headlines.resourceBooking') + ' ' + this.$t("resource.emoji")
-    this.reload = setInterval(() => {
-      this.getResources()
-    }, 60 * 1000)
+    document.title = this.$t('headlines.resourceBooking') + ' ' + this.$t('resource.emoji')
   },
 }
 </script>
