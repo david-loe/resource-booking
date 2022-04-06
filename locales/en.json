@@ -23,7 +23,8 @@
     "resources": "@:{'resource.more.upper'}",
     "service": "Service",
     "user": "User",
-    "import": "Import"
+    "import": "Import",
+    "export": "Export"
   },
   "labels": {
     "email": "Email address",
@@ -63,7 +64,8 @@
     "separator": "Separator",
     "arraySeparator": "Array Separator",
     "csv": "CSV",
-    "import": "Import"
+    "import": "Import",
+    "export": "Export"
   },
   "alerts": {
     "loginFailed": "Failed to Login!",
@@ -102,6 +104,9 @@
     "settings": {},
     "import": {
       "description": "Import multiple bookings using the CSV format."
+    },
+    "export": {
+      "description": "Export all bookings into the CSV format."
     },
     "resource": {
       "exampleName": "e.g. @:{'resource.one.upper'} 2"

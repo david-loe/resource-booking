@@ -8,7 +8,7 @@ const uid = require('uid')
  * @returns {ICAL.Component} ICAL Component
  */
 async function getServiceIcal() {
-    const resources = await Resource.find({})
+    const resources = await Resource.find()
     const serviceIcal = new ICAL.Component(['vcalendar', [], []])
     for (var resource of resources) {
         const comp = new ICAL.Component(resource.ical)
@@ -84,7 +84,7 @@ async function getFreeSubresources(conflictingBookings) {
  * @param {string} separator 
  * @returns Array of JS Objects
  */
-function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
+function csvToObjects(csv, separator = '\t', arraySeparator = ', ') {
     var lines = csv.split("\n");
     var result = [];
     var headers = lines[0].split(separator);
@@ -107,6 +107,22 @@ function csvToObjekt(csv, separator = '\t', arraySeparator = ', ') {
         result.push(obj);
     }
     return result
+}
+
+function objectsToCSV(objects, separator = '\t', arraySeparator = ', ') {
+    const array = [Object.keys(objects[0])].concat(objects)
+
+    return array.map(it => {
+        return Object.values(it).map(item => {
+            if(Array.isArray(item)){
+                return '[' + item.join(arraySeparator) + ']'
+            }else if(item === null){
+                return 'null'
+            }else{
+                return item
+            }
+        }).join(separator)
+    }).join('\n')
 }
 
 /**
@@ -141,7 +157,7 @@ async function book(booking, resource = null) {
         booking.service = booking.service.toLowerCase() === 'true'
     }
     if (typeof booking.subresources === 'string' || booking.subresources instanceof String) {
-        if (booking.subresources.toLowerCase() === 'null') {
+        if (booking.subresources.toLowerCase() === 'null' || booking.subresources === '') {
             booking.subresources = null
         } else {
             return { success: false, bookedResource: [], conflictingBookings: [], error: 'Unvalid value in subresource: ' + booking.subresources }
@@ -247,18 +263,18 @@ function getConflictingBookings(ical, startDate, endDate) {
                 continue
             } else {
                 const booking = icalEventToSimpleBooking(vevent)
-                if(confEnd <= bookingEnd){
+                if (confEnd <= bookingEnd) {
                     booking.conflictCode = codes.end
-                }else{
+                } else {
                     booking.conflictCode = codes.inside
                 }
                 conflictingBookings.push(booking)
             }
         } else if (confStart < bookingEnd) {
             const booking = icalEventToSimpleBooking(vevent)
-            if(confEnd <= bookingEnd){
+            if (confEnd <= bookingEnd) {
                 booking.conflictCode = codes.complete
-            }else{
+            } else {
                 booking.conflictCode = codes.beginning
             }
             conflictingBookings.push(booking)
@@ -283,7 +299,8 @@ module.exports = {
     icalEventToSimpleBooking: icalEventToSimpleBooking,
     resourceToSimpleResource: resourceToSimpleResource,
     getFreeSubresources: getFreeSubresources,
-    csvToObjekt: csvToObjekt,
+    csvToObjects: csvToObjects,
+    objectsToCSV: objectsToCSV,
     updateAttributeInAllBookings: updateAttributeInAllBookings,
     book: book,
     getConflictingBookings: getConflictingBookings,

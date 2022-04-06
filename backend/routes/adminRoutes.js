@@ -2,6 +2,7 @@ const router = require('express').Router()
 const Resource = require('../models/resource')
 const User = require('../models/user')
 const helper = require('../helper')
+const ICAL = require('ical.js')
 
 router.post('/resource', async (req, res) => {
     const resource = new Resource({
@@ -105,7 +106,7 @@ router.delete('/user', async (req, res) => {
 
 router.post('/csv/booking', async (req, res) => {
     if (req.body.csv && req.body.separator && req.body.arraySeparator && (req.body.separator !== req.body.arraySeparator)) {
-        const bookings = helper.csvToObjekt(req.body.csv, req.body.separator, req.body.arraySeparator)
+        const bookings = helper.csvToObjects(req.body.csv, req.body.separator, req.body.arraySeparator)
         const failedBookings = []
         for (const booking of bookings) {
             if(process.env.VUE_APP_USE_SERVICE.toLowerCase() !== 'true'){
@@ -114,9 +115,9 @@ router.post('/csv/booking', async (req, res) => {
             if(process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() !== 'true'){
                 booking.subresources = null
             }
-            const booking = await helper.book(booking)
-            if (!booking.success) {
-                failedBookings.push({ booking: booking, error: booking.error, conflictingBookings: booking.conflictingBookings })
+            const bookingResult = await helper.book(booking)
+            if (!bookingResult.success) {
+                failedBookings.push({ booking: booking, error: bookingResult.error, conflictingBookings: bookingResult.conflictingBookings })
             }
         }
         if (failedBookings.length === 0) {
@@ -127,6 +128,29 @@ router.post('/csv/booking', async (req, res) => {
 
     } else {
         res.status(400).send({ message: 'Please provide csv, a separator and a different array separator.' })
+    }
+})
+
+router.get('/csv/booking', async (req, res) => {
+    var separator = "\t"
+    var arraySeparator = ", "
+    console.log(req.query)
+    if(req.query.arraySeparator && req.query.separator && (req.query.separator !== req.query.arraySeparator)){
+        separator = req.query.separator
+        arraySeparator = req.query.arraySeparator
+    }
+    const bookings = []
+    const resources = await Resource.find()
+    for (const resource of resources){
+        const comp = new ICAL.Component(resource.ical)
+        for (const vevent of comp.getAllSubcomponents('vevent')) {
+            bookings.push(helper.icalEventToSimpleBooking(vevent))
+        }
+    }
+    if(bookings.length > 0){
+        res.send({csv: helper.objectsToCSV(bookings, separator, arraySeparator), separator: separator, arraySeparator: arraySeparator})
+    }else {
+        res.send({message: "No booking", csv: ''})
     }
 })
 

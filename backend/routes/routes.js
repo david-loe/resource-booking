@@ -25,7 +25,7 @@ function getFreeSpots(resource, startDate, endDate, minDuration = 1) {
     }
     var nothingFree = false
     for (const vevent of comp.getAllSubcomponents('vevent')) {
-        const icalEvent = new ICAL.Event(vevent);
+        const icalEvent = new ICAL.Event(vevent)
         const bookingStart = icalEvent.startDate.toJSDate()
         bookingStart.setMinutes(0, 0, 0)
         const bookingEnd = icalEvent.endDate.toJSDate()

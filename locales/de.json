@@ -23,7 +23,8 @@
     "resources": "@:{'resource.more.upper'}",
     "service": "Service",
     "user": "Benutzer",
-    "import": "Import"
+    "import": "Import",
+    "export": "Export"
   },
   "labels": {
     "email": "Email Addresse",
@@ -63,7 +64,8 @@
     "separator": "Separator",
     "arraySeparator": "Array Separator",
     "csv": "CSV",
-    "import": "Importieren"
+    "import": "Importieren",
+    "export": "Exportieren"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",
@@ -102,6 +104,9 @@
     "settings": {},
     "import": {
       "description": "Importiere mehrere Buchungen im CSV Format."
+    },
+    "export": {
+      "description": "Exportiere alle Buchungen ins CSV Format."
     },
     "resource": {
       "exampleName": "z.B. @:{'resource.one.upper'} 103"

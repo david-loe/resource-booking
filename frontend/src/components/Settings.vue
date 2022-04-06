@@ -9,9 +9,13 @@
       <h2>{{ $t('headlines.user') }}</h2>
       <UserList></UserList>
     </div>
-    <div class="container">
+    <div class="container mb-3">
       <h2>{{ $t('headlines.import') }}</h2>
       <ImportBookings></ImportBookings>
+    </div>
+    <div class="container">
+      <h2>{{ $t('headlines.export') }}</h2>
+      <ExportBookings></ExportBookings>
     </div>
 
 
@@ -22,12 +26,14 @@
 import ResourceList from './Settings/ResourceList.vue'
 import UserList from './Settings/UserList.vue'
 import ImportBookings from './Settings/ImportBookings.vue'
+import ExportBookings from './Settings/ExportBookings.vue'
 export default {
   name: 'Settings',
   components: {
     ResourceList,
     UserList,
-    ImportBookings
+    ImportBookings,
+    ExportBookings
   },
   props: ['resources'],
   data() {
