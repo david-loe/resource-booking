@@ -134,7 +134,6 @@ router.post('/csv/booking', async (req, res) => {
 router.get('/csv/booking', async (req, res) => {
     var separator = "\t"
     var arraySeparator = ", "
-    console.log(req.query)
     if(req.query.arraySeparator && req.query.separator && (req.query.separator !== req.query.arraySeparator)){
         separator = req.query.separator
         arraySeparator = req.query.arraySeparator
