@@ -6,12 +6,13 @@
         <div class="row justify-content-center">
           <div class="col-9">
             <div class="bg-light">
-              <div class="px-2 pt-2 pb-1">
-                <div class="d-inline-block">Filter:</div>
-                <div class="form-check form-check-inline float-end">
-                  <label for="onlyShowAvailableResources" class="form-check-label text-nowrap">
-                    {{ $t('labels.onlyShowAvailableResources') }}</label
-                  >
+              <div class="px-2 pt-2 pb-1 row justify-content-between">
+                <div class="col-auto">Filter:</div>
+                <div class="form-check form-check-inline col-auto">
+                  <label for="onlyShowAvailableResources" class="form-check-label">
+                    <i class="bi bi-funnel d-block d-md-none" :title="$t('labels.onlyShowAvailableResources')"></i>
+                    <template class="d-none d-md-block">{{ $t('labels.onlyShowAvailableResources') }}</template>
+                    </label>
                   <input
                     class="form-check-input"
                     type="checkbox"
