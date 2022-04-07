@@ -153,12 +153,14 @@ a[x-apple-data-detectors] {
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.summary") %></th> 
                           <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.summary %></s></td> 
                           <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.summary %></td> 
-                         </tr> 
+                         </tr>
+                         <%if (showService) {%>
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.service") %></th> 
                           <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.service %></s></td> 
                           <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.service %></td> 
                          </tr> 
+                         <% } %>
                        </table></td> 
                      </tr> 
                    </table></td> 

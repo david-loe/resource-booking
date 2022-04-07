@@ -33,4 +33,5 @@ docker-compose up --build -d
 
 1. in `.env` many customizations can be done.
 2. change *resource* into your custom resource name in `/locales/*.json`
+3. change the banner image by replacing `frontend/src/assets/banner.jpg`
 

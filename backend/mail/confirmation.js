@@ -15,7 +15,7 @@ function sendConformationMail(bookedBookings, recipientName, recipientMail) {
     var resourceStr = ""
     for (const oneBooking of bookedBookings) {
         var temp = oneBooking.resource
-        if(oneBooking.subresources !== null){
+        if (oneBooking.subresources !== null) {
             temp = temp + ' (' + oneBooking.subresources.join(', ') + ')'
         }
         resourceStr = resourceStr + temp + ', '
@@ -24,10 +24,15 @@ function sendConformationMail(bookedBookings, recipientName, recipientMail) {
 
     if (booking.service) { booking.service = '✅' }
     else { booking.service = '❌' }
-    const url = process.env.VUE_APP_FRONTEND_URL
 
     const template = fs.readFileSync('./mail/confirmation_template.ejs', { encoding: 'utf-8' })
-    const renderedHTML = ejs.render(template, { i18n: i18n, recipientName: recipientName, booking: booking, url: url })
+    const renderedHTML = ejs.render(template, {
+        i18n: i18n,
+        recipientName: recipientName,
+        booking: booking,
+        url: process.env.VUE_APP_FRONTEND_URL,
+        showService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true'
+    })
     const plainText = i18n.t("mail.confirmation.heading") + '\n\n' +
         i18n.t("mail.salutation", { recipient: recipientName }) + '\n' +
         i18n.t("mail.confirmation.content") + '\n\n' +

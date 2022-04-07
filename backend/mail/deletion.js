@@ -18,10 +18,15 @@ function sendDeletionMail(deletedBooking, recipientName, recipientMail) {
 
     if (deletedBooking.service) { deletedBooking.service = '✅' }
     else { deletedBooking.service = '❌' }
-    const url = process.env.VUE_APP_FRONTEND_URL
 
     const template = fs.readFileSync('./mail/deletion_template.ejs', { encoding: 'utf-8' })
-    const renderedHTML = ejs.render(template, { i18n: i18n, recipientName: recipientName, booking: deletedBooking, url: url })
+    const renderedHTML = ejs.render(template, {
+        i18n: i18n,
+        recipientName: recipientName,
+        booking: deletedBooking,
+        url: process.env.VUE_APP_FRONTEND_URL,
+        showService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true'
+    })
     const plainText = i18n.t("mail.deletion.heading") + '\n\n' +
         i18n.t("mail.salutation", { recipient: recipientName }) + '\n' +
         i18n.t("mail.deletion.content") + '\n\n' +
