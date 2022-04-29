@@ -118,6 +118,8 @@ export default {
         selectable: true,
         selectConstraint: { start: new Date().setHours(0, 0, 0, 0) },
         selectMinDistance: 5,
+        fixedWeekCount: false,
+        showNonCurrentDates: false,
         initialView: 'dayGridMonth',
         locales: allLocales,
         locale: process.env.VUE_APP_I18N_LOCALE,
