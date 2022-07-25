@@ -86,7 +86,11 @@
     "login": {
       "signIn": "Please sign in"
     },
-    "calendar": {},
+    "calendar": {
+      "view" :{
+        "threeweeks": "3 Weeks"
+      }
+    },
     "overview": {},
     "booking": {
       "exampleSummary": "e.g. John Doe for an interview",

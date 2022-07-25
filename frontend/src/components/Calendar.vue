@@ -120,14 +120,22 @@ export default {
         selectMinDistance: 5,
         fixedWeekCount: false,
         showNonCurrentDates: false,
-        initialView: 'dayGridMonth',
+        initialView: 'next3weeks',
         locales: allLocales,
         locale: process.env.VUE_APP_I18N_LOCALE,
         events: {},
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
-          right: 'dayGridMonth,listWeek',
+          right: 'next3weeks,dayGridMonth,listWeek',
+        },
+        views: {
+          next3weeks: {
+            type: 'dayGrid',
+            duration: { weeks: 3 },
+            buttonText: this.$t('comp.calendar.view.threeweeks'),
+            rows: 3
+          }
         },
         displayEventTime: false,
         height: 'auto',

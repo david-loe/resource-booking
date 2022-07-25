@@ -86,7 +86,11 @@
     "login": {
       "signIn": "Bitte Anmelden"
     },
-    "calendar": {},
+    "calendar": {
+      "view" :{
+        "threeweeks": "3 Wochen"
+      }
+    },
     "overview": {},
     "booking": {
       "exampleSummary": "z.B. Max Mustermann für ein Gespräch",
