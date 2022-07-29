@@ -151,6 +151,16 @@ export default {
       }, 60 * 1000)
       this.isLoading = false
     },
+    dateToHTMLInputString(date){
+      const dateObject = new Date(date)
+      const year = dateObject.getFullYear()
+      const month = (dateObject.getMonth() + 1).toString().padStart(2, '0')
+      const day = dateObject.getDate().toString().padStart(2, '0')
+      const hour = dateObject.getHours().toString().padStart(2, '0')
+      const minute = dateObject.getMinutes().toString().padStart(2, '0')
+      const str = year +'-'+ month +'-'+ day +'T'+ hour +':'+ minute
+      return str
+    }
   },
   beforeMount() {
     document.title = this.$t('headlines.resourceBooking') + ' ' + this.$t('resource.emoji')

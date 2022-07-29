@@ -81,10 +81,10 @@ export default {
   props: {
     booking: {
       type: Object,
-      default: function () {
+      default: function (props) {
         return {
-          startDate: new Date().toISOString().split('T')[0] + 'T16:00',
-          endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T12:00',
+          startDate: props.$root.dateToHTMLInputString(new Date().setHours(16,0,0,0)),
+          endDate: props.$root.dateToHTMLInputString(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).setHours(12,0,0,0)),
           summary: '',
           service: false,
           resource: undefined,
@@ -111,12 +111,8 @@ export default {
     setBooking(booking) {
       const formBooking = {}
       Object.assign(formBooking, booking)
-      formBooking.startDate = new Date(new Date(booking.startDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000)
-        .toISOString()
-        .slice(0, -8)
-      formBooking.endDate = new Date(new Date(booking.endDate).getTime() - new Date().getTimezoneOffset() * 60 * 1000)
-        .toISOString()
-        .slice(0, -8)
+      formBooking.startDate = this.$root.dateToHTMLInputString(booking.startDate)
+      formBooking.endDate = this.$root.dateToHTMLInputString(booking.endDate)
       const resource = this.$root.getResourceByName(formBooking.resource)
       if (formBooking.subresources === null && resource.isDividable) {
         formBooking.subresources = resource.subresources
@@ -137,8 +133,8 @@ export default {
     },
     clear() {
       this.formBooking = {
-        startDate: new Date().toISOString().split('T')[0] + 'T16:00',
-        endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T12:00',
+        startDate: this.$root.dateToHTMLInputString(new Date().setHours(16,0,0,0)),
+        endDate: this.$root.dateToHTMLInputString(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).setHours(12,0,0,0)),
         summary: '',
         service: false,
         resource: undefined,

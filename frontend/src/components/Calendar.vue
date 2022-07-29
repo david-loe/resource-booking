@@ -133,8 +133,7 @@ export default {
           next3weeks: {
             type: 'dayGrid',
             duration: { weeks: 3 },
-            buttonText: this.$t('comp.calendar.view.threeweeks'),
-            rows: 3
+            buttonText: this.$t('comp.calendar.view.threeweeks')
           }
         },
         displayEventTime: false,
@@ -142,6 +141,7 @@ export default {
         aspectRatio: 2.1,
         eventDrop: this.bookingCheck,
         eventClick: this.eventClick,
+        select: this.select,
         datesSet: this.changedViewDates,
       },
       dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' },
@@ -212,6 +212,13 @@ export default {
     },
     changedViewDates(dateInfo){
       this.$emit('changed-view-dates', dateInfo.start, dateInfo.end)
+    },
+    select(selectionInfo){
+      if(selectionInfo.end - selectionInfo.start > 1000 * 60 * 60 * 24){
+        this.$emit('selected-dates-in-calendar', new Date(selectionInfo.start.setHours(16,0,0,0)), new Date(new Date(selectionInfo.end.getTime() - 24 * 60 * 60 * 1000).setHours(12,0,0,0)))
+      }else{
+        this.$emit('selected-dates-in-calendar', new Date(selectionInfo.start.setHours(12,0,0,0)), new Date(new Date(selectionInfo.end.getTime() - 24 * 60 * 60 * 1000).setHours(16,0,0,0)))
+      }
     },
     async eventClick(eventClickInfo) {
       this.selectedBooking = await this.getBooking(eventClickInfo.event)

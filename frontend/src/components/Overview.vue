@@ -52,6 +52,7 @@
         tab="month"
         v-on:changed-bookings="this.$emit('changed-bookings')"
         v-on:changed-view-dates="this.setAvailableResources"
+        v-on:selected-dates-in-calendar="this.selectedDatesInCalendar"
       ></Calendar>
     </div>
 
@@ -90,6 +91,9 @@ export default {
     }
   },
   methods: {
+    selectedDatesInCalendar(startDate, endDate){
+      this.$emit('selected-dates-in-calendar', startDate, endDate)
+    },
     async setAvailableResources(startDate, endDate, force = false) {
       if (this.onlyShowAvailableResources && (startDate.getTime() !== this.calendarViewStartDate.getTime() || endDate.getTime() !== this.calendarViewEndDate.getTime() || force)) {
         const result = await this.$root.getResourcesAvailability(startDate, endDate, 1)

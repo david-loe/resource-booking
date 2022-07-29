@@ -33,7 +33,7 @@
         <h2>{{ $t('headlines.booking') }}</h2>
         <div v-if="resources.length > 0">
           <div class="container mb-3">
-            <form @submit.prevent="search()">
+            <form @submit.prevent="search(bookingData.startDate, bookingData.endDate)">
               <div class="row justify-content-center">
                 <div class="col-auto">
                   <div class="row bg-dark text-white rounded-2">
@@ -180,8 +180,8 @@ export default {
   data() {
     return {
       bookingData: {
-        startDate: new Date().toISOString().split('T')[0] + 'T16:00',
-        endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + 'T12:00',
+        startDate: this.$root.dateToHTMLInputString(new Date().setHours(16,0,0,0)),
+        endDate: this.$root.dateToHTMLInputString(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).setHours(12,0,0,0)),
         summary: '',
         service: false,
       },
@@ -202,8 +202,8 @@ export default {
       this.selectedResources = []
       this.selectedSubresources = []
     },
-    async search() {
-      this.searchresult = await this.$root.getResourcesAvailability(new Date(this.bookingData.startDate), new Date(this.bookingData.endDate))
+    async search(startDate, endDate) {
+      this.searchresult = await this.$root.getResourcesAvailability(new Date(startDate), new Date(endDate))
       this.selectedResources = []
     },
     async book() {
