@@ -2,7 +2,7 @@
   <div>
     <header class="mb-3 border-bottom bg-white bg-opacity-25">
       <div class="container">
-        <div class="d-flex flex-row align-items-center">
+        <div class="d-flex flex-row align-items-center nav">
           <div class="me-auto">
             <a href="/" class="nav-link link-dark d-flex align-items-center">
               <i :class="'fs-1 ' + iconClass"></i>
