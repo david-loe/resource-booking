@@ -75,10 +75,12 @@ export default {
       isService: false,
       resources: [],
       resourceNames: [],
+      categories: [],
       reload: null,
       isLoading: true,
       useSubresources: process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
       useService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
+      useUtilization: process.env.VUE_APP_USE_UTILIZATION.toLowerCase() === 'true',
       iconClass: process.env.VUE_APP_ICON_CLASS,
     }
   },
@@ -104,6 +106,22 @@ export default {
         if (res.status === 200) {
           this.resources = res.data.resources
           this.resourceNames = jp.query(res.data.resources, '$..name')
+        }
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.$router.push('login')
+        } else {
+          console.log(error.response.data)
+        }
+      }
+    },
+    async getCategories() {
+      try {
+        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/category', {
+          withCredentials: true,
+        })
+        if (res.status === 200) {
+          this.categories = res.data.categories
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -146,6 +164,7 @@ export default {
     async getUserandResources() {
       await this.getUser()
       await this.getResources()
+      await this.getCategories()
       this.reload = setInterval(() => {
         this.getResources()
       }, 60 * 1000)

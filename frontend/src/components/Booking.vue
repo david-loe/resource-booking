@@ -125,7 +125,7 @@
               <div class="row justify-content-center">
                 <div class="col-auto">
                   <div class="row bg-dark text-white rounded-2" style="max-width: 400px">
-                    <div class="col p-2" style="width: 300px">
+                    <div class="col p-2">
                       <label for="summary" class="form-label"> {{ $t('labels.summary') }} </label>
                       <input
                         type="text"
@@ -133,6 +133,28 @@
                         id="summary"
                         :placeholder="$t('comp.booking.exampleSummary')"
                         v-model="bookingData.summary"
+                        required
+                      />
+                    </div>
+                    <div class="w-100"></div>
+                    <div v-if="$root.categories.length > 0" class="col p-2">
+                      <label for="category" class="form-label"> {{ $t('labels.category') }} </label>
+                      <select
+                        class="form-select"
+                        id="category"
+                        v-model="bookingData.category"
+                        required>
+                          <option disabled value="">{{$t('labels.chooseCategory')}}</option>
+                          <option v-for="category of $root.categories" :value="category.name" :title="category.hint" :key="category._id">{{category.name}}</option>
+                        </select>
+                    </div>
+                    <div v-if="$root.useUtilization" class="col p-2">
+                      <label for="utilization" class="form-label"> {{ $t('labels.utilization') }} </label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="utilization"
+                        v-model="bookingData.utilization"
                         required
                       />
                     </div>
@@ -183,6 +205,8 @@ export default {
         startDate: this.$root.dateToHTMLInputString(new Date().setHours(16,0,0,0)),
         endDate: this.$root.dateToHTMLInputString(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).setHours(12,0,0,0)),
         summary: '',
+        utilization: null,
+        category: '',
         service: false,
       },
       searchresult: { available: [], unavailable: [] },
@@ -211,6 +235,8 @@ export default {
         const data = {
           resources: this.selectedResources,
           summary: this.bookingData.summary,
+          utilization: this.bookingData.utilization,
+          category: this.bookingData.category,
           startDate: new Date(this.bookingData.startDate),
           endDate: new Date(this.bookingData.endDate),
           service: this.bookingData.service,

@@ -143,6 +143,18 @@ a[x-apple-data-detectors] {
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.summary") %></th> 
                           <td style="padding:0;Margin:0"> <%= booking.summary %></td> 
                          </tr> 
+                         <%if (booking.category) {%>
+                          <tr>
+                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.category") %></th> 
+                           <td style="padding:0;Margin:0"> <%= booking.category %></td> 
+                          </tr>
+                         <% } %>
+                         <%if (booking.utilization||booking.utilization === 0) {%>
+                            <tr>
+                             <th scope="row" style="text-align:left"> <%= i18n.t("labels.utilization") %></th> 
+                             <td style="padding:0;Margin:0"> <%= booking.utilization %></td> 
+                            </tr>
+                          <% } %>
                          <%if (showService) {%>
                          <tr>
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.service") %></th> 

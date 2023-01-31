@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const Resource = require('../models/resource')
 const User = require('../models/user')
+const Category = require('../models/category')
 const helper = require('../helper')
 const ICAL = require('ical.js')
 
@@ -56,6 +57,32 @@ router.delete('/resource', async (req, res) => {
         res.status(400).send({ message: 'Name Missing' })
     }
 })
+
+router.post('/category', async (req, res) => {
+    const category = new Category({
+        name: req.body.name,
+        hint: req.body.hint
+    })
+    try {
+        res.send(await category.save())
+    } catch (error) {
+        res.status(400).send({ message: 'Unable to save category', error: error })
+    }
+})
+
+router.delete('/category', async (req, res) => {
+    if (req.query.id) {
+        try {
+            await Category.deleteOne({ _id: req.query.id })
+            res.send({ message: 'ok' })
+        } catch (error) {
+            res.status(400).send({ message: 'Unable to delete category ' + req.query.id, error: error })
+        }
+    } else {
+        res.status(400).send({ message: 'ID Missing' })
+    }
+})
+
 
 router.get('/user', async (req, res) => {
     const users = await User.find()

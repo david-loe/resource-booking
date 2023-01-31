@@ -22,6 +22,14 @@
                     <th>{{ $t('labels.to') }}</th>
                     <td>{{ new Date(selectedBooking.endDate).toLocaleDateString(undefined, dateStringOptions) }}</td>
                   </tr>
+                  <tr v-if="$root.categories.length > 0">
+                    <th>{{ $t('labels.category') }}</th>
+                    <td>{{ selectedBooking.category }}</td>
+                  </tr>
+                  <tr v-if="$root.useUtilization">
+                    <th>{{ $t('labels.utilization') }}</th>
+                    <td>{{ selectedBooking.utilization }}</td>
+                  </tr>
                   <tr>
                     <th>{{ $t('labels.resource') }}</th>
                     <td>{{ selectedBooking.resource }}</td>

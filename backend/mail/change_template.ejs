@@ -154,6 +154,20 @@ a[x-apple-data-detectors] {
                           <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.summary %></s></td> 
                           <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.summary %></td> 
                          </tr>
+                         <%if (newBooking.category||oldBooking.category) {%>
+                          <tr> 
+                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.category") %></th> 
+                           <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.category %></s></td> 
+                           <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.category %></td> 
+                          </tr> 
+                          <% } %>
+                          <%if (newBooking.utilization||oldBooking.utilization||newBooking.utilization === 0||oldBooking.utilization === 0) {%>
+                            <tr> 
+                             <th scope="row" style="text-align:left"> <%= i18n.t("labels.utilization") %></th> 
+                             <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.utilization %></s></td> 
+                             <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.utilization %></td> 
+                            </tr> 
+                            <% } %>
                          <%if (showService) {%>
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.service") %></th> 

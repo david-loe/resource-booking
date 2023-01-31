@@ -10,6 +10,10 @@
       <UserList></UserList>
     </div>
     <div class="container mb-3">
+      <h2>{{ $t('headlines.category') }}</h2>
+      <CategoryList></CategoryList>
+    </div>
+    <div class="container mb-3">
       <h2>{{ $t('headlines.import') }}</h2>
       <ImportBookings></ImportBookings>
     </div>
@@ -25,6 +29,7 @@
 <script>
 import ResourceList from './Settings/ResourceList.vue'
 import UserList from './Settings/UserList.vue'
+import CategoryList from './Settings/CategoryList.vue'
 import ImportBookings from './Settings/ImportBookings.vue'
 import ExportBookings from './Settings/ExportBookings.vue'
 export default {
@@ -32,6 +37,7 @@ export default {
   components: {
     ResourceList,
     UserList,
+    CategoryList,
     ImportBookings,
     ExportBookings
   },

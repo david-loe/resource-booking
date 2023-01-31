@@ -17,7 +17,7 @@
         />
       </div>
     </div>
-
+    
     <div class="mb-3">
       <label for="summary" class="form-label"> {{ $t('labels.summary') }} </label>
       <input
@@ -29,6 +29,30 @@
         required
       />
     </div>
+
+    <div v-if="this.$root.categories.length > 0" class="mb-3">
+      <label for="category" class="form-label"> {{ $t('labels.category') }} </label>
+      <select
+        class="form-select"
+        id="category"
+        v-model="formBooking.category"
+        required>
+          <option disabled value="">{{$t('labels.chooseCategory')}}</option>
+          <option v-for="category of $root.categories" :value="category.name"  :title="category.hint" :key="category._id">{{category.name}}</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+      <label v-if="$root.useUtilization" for="utilization" class="form-label"> {{ $t('labels.utilization') }} </label>
+      <input
+        type="number"
+        class="form-control"
+        id="utilization"
+        v-model="formBooking.utilization"
+        required
+      />
+    </div>
+
     <div class="mb-3">
       <label for="resource" class="form-label"> {{ $t('labels.resource') }} </label>
       <select class="form-select" id="resource" v-model="formBooking.resource">
@@ -86,6 +110,8 @@ export default {
           startDate: props.$root.dateToHTMLInputString(new Date().setHours(16,0,0,0)),
           endDate: props.$root.dateToHTMLInputString(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).setHours(12,0,0,0)),
           summary: '',
+          utilization: null,
+          category: '',
           service: false,
           resource: undefined,
           organizer: undefined,
@@ -136,6 +162,8 @@ export default {
         startDate: this.$root.dateToHTMLInputString(new Date().setHours(16,0,0,0)),
         endDate: this.$root.dateToHTMLInputString(new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).setHours(12,0,0,0)),
         summary: '',
+        utilization: null,
+        category: '',
         service: false,
         resource: undefined,
         organizer: undefined,

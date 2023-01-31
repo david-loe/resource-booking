@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const Resource = require('../models/resource')
 const User = require('../models/user')
+const Category = require('../models/category')
 const ICAL = require('ical.js')
 const uid = require('uid')
 const i18n = require('../i18n')
@@ -185,6 +186,10 @@ router.get('/resource', async (req, res) => {
     res.send({ resources: resources })
 })
 
+router.get('/category', async (req, res) => {
+    const categories = await Category.find()
+    res.send({ categories: categories })
+})
 
 router.get('/resource/search', async (req, res) => {
     const endDate = new Date(req.query.endDate)
@@ -248,6 +253,8 @@ router.post('/booking', async (req, res) => {
                 startDate: new Date(req.body.startDate),
                 endDate: new Date(req.body.endDate),
                 summary: req.body.summary,
+                utilization: req.body.utilization,
+                category: req.body.category,
                 organizer: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] + ' <' + req.user[process.env.LDAP_MAIL_ATTRIBUTE] + '>',
                 resource: resourceName,
                 service: req.body.service,
@@ -354,6 +361,12 @@ router.post('/booking/change', async (req, res) => {
                 newBooking.resource = req.body.new.resource
                 if (req.body.new.summary) {
                     newBooking.summary = req.body.new.summary
+                }
+                if (req.body.new.utilization) {
+                    newBooking.utilization = req.body.new.utilization
+                }
+                if (req.body.new.category) {
+                    newBooking.category = req.body.new.category
                 }
                 if (req.body.new.service !== undefined) {
                     newBooking.service = req.body.new.service

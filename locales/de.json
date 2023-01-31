@@ -65,7 +65,10 @@
     "arraySeparator": "Array Separator",
     "csv": "CSV",
     "import": "Importieren",
-    "export": "Exportieren"
+    "export": "Exportieren",
+    "utilization": "Nutzung",
+    "category": "Kategorie",
+    "chooseCategory": "Wähle eine Kategorie"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",

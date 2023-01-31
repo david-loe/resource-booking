@@ -38,6 +38,8 @@ function icalEventToSimpleBooking(vevent) {
         color: icalEvent.color,
         uid: icalEvent.uid,
         service: vevent.getFirstPropertyValue('x-service'),
+        category: vevent.getFirstPropertyValue('x-category'),
+        utilization: vevent.getFirstPropertyValue('x-utilization'),
         subresources: vevent.getFirstPropertyValue('x-subresources')
     }
 }
@@ -221,6 +223,10 @@ async function book(booking, resource = null) {
     icalEvent.startDate = ICAL.Time.fromJSDate(new Date(booking.startDate))
     icalEvent.endDate = ICAL.Time.fromJSDate(new Date(booking.endDate))
     vevent.addPropertyWithValue('x-service', booking.service)
+    vevent.addPropertyWithValue('x-category', booking.category)
+    if(booking.utilization !== null){
+        vevent.addPropertyWithValue('x-utilization', booking.utilization)
+    }
     if (booking.uid === undefined) {
         icalEvent.uid = uid.uid()
     } else {
