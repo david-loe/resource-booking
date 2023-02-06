@@ -135,7 +135,7 @@ export default {
   },
   watch: {
     resources: function () {
-      if(!this.$root.settings.onlyShowAvailableResourcesInOverview){
+      if(this.$root.settings.onlyShowAvailableResourcesInOverview){
         this.setAvailableResources(this.calendarViewStartDate, this.calendarViewEndDate, true)
       }else{
         this.overviewResources = this.resources
