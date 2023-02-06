@@ -249,6 +249,7 @@ async function book(booking, resource = null) {
     if (booking.uid === undefined) {
         booking.uid = uid.uid()
     }
+    booking.color = resource.color
     const comp = new ICAL.Component(resource.ical)
     comp.addSubcomponent(simpleBookingToIcalEvent(booking))
     resource.markModified('ical');
