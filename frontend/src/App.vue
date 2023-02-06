@@ -35,7 +35,7 @@
       </div>
     </header>
 
-    <div v-if="isLoading" class="position-absolute top-50 start-50 translate-middle">
+    <div v-if="loadState !== 'LOADED'" class="position-absolute top-50 start-50 translate-middle">
       <div class="spinner-grow me-3" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
@@ -46,7 +46,7 @@
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-    <router-view :class="isLoading ? 'd-none' : 'd-block'" :resources="this.resources" />
+    <router-view :class="loadState === 'LOADED' ? 'd-block' : 'd-none'" :resources="this.resources" />
 
     <footer class="py-3 border-top">
       <div class="container">
@@ -73,11 +73,12 @@ export default {
       name: '',
       isAdmin: false,
       isService: false,
+      settings: {},
       resources: [],
       resourceNames: [],
       categories: [],
       reload: null,
-      isLoading: true,
+      loadState: 'UNLOADED',
       useSubresources: process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
       useService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
       useUtilization: process.env.VUE_APP_USE_UTILIZATION.toLowerCase() === 'true',
@@ -85,6 +86,24 @@ export default {
     }
   },
   methods: {
+    async load() {
+      if(this.loadState === 'UNLOADED'){
+        this.loadState = 'LOADING'
+        this.loadingPromise = new Promise(async (resolve) => { // eslint-disable-line no-async-promise-executor
+          await this.getUser()
+          await this.getResources()
+          await this.getCategories()
+          this.reload = setInterval(() => {
+            this.getResources()
+          }, 60 * 1000)
+          this.loadState = 'LOADED'
+          resolve()
+        })
+        await this.loadingPromise
+      }else if(this.loadState === 'LOADING'){
+        await this.loadingPromise
+      }
+    },
     async getUser() {
       try {
         const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/user', {
@@ -94,6 +113,7 @@ export default {
         this.auth = res.status === 200
         this.isAdmin = res.data.isAdmin
         this.isService = res.data.isService
+        this.settings = res.data.settings
       } catch (error) {
         this.$router.push('login')
       }
@@ -161,15 +181,6 @@ export default {
       }
       return null
     },
-    async getUserandResources() {
-      await this.getUser()
-      await this.getResources()
-      await this.getCategories()
-      this.reload = setInterval(() => {
-        this.getResources()
-      }, 60 * 1000)
-      this.isLoading = false
-    },
     dateToHTMLInputString(date){
       const dateObject = new Date(date)
       const year = dateObject.getFullYear()
@@ -179,6 +190,20 @@ export default {
       const minute = dateObject.getMinutes().toString().padStart(2, '0')
       const str = year +'-'+ month +'-'+ day +'T'+ hour +':'+ minute
       return str
+    },
+    async pushSettings(){
+      console.log(this.settings)
+      try {
+        await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/user/settings', this.settings, {
+          withCredentials: true,
+        })
+      } catch (error) {
+        if (error.response.status === 401) {
+          this.$router.push('login')
+        } else {
+          console.log(error.response.data)
+        }
+      }
     }
   },
   beforeMount() {

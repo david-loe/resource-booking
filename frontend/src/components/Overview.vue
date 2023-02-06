@@ -18,7 +18,8 @@
                     type="checkbox"
                     id="onlyShowAvailableResources"
                     role="switch"
-                    v-model="this.onlyShowAvailableResources"
+                    v-model="$root.settings.onlyShowAvailableResourcesInOverview"
+                    @change="changeFilter"
                   />
                 </div>
               </div>
@@ -84,7 +85,6 @@ export default {
       overviewResources: [],
       selectedResources: [],
       resourceNames: [],
-      onlyShowAvailableResources: true,
       availableResources: [],
       calendarViewStartDate: new Date(),
       calendarViewEndDate: new Date(),
@@ -95,7 +95,7 @@ export default {
       this.$emit('selected-dates-in-calendar', startDate, endDate)
     },
     async setAvailableResources(startDate, endDate, force = false) {
-      if (this.onlyShowAvailableResources && (startDate.getTime() !== this.calendarViewStartDate.getTime() || endDate.getTime() !== this.calendarViewEndDate.getTime() || force)) {
+      if (this.$root.settings.onlyShowAvailableResourcesInOverview && (startDate.getTime() !== this.calendarViewStartDate.getTime() || endDate.getTime() !== this.calendarViewEndDate.getTime() || force)) {
         const result = await this.$root.getResourcesAvailability(startDate, endDate, 1)
         this.availableResources = jp.query(result.available, '$..resource')
         const availableResourceNames = jp.query(this.availableResources, '$..name')
@@ -117,32 +117,36 @@ export default {
         this.resourceNames = this.selectedResources
       }
     },
-  },
-  beforeMount() {
-    this.resourceNames = this.$root.resourceNames
-  },
-  watch: {
-    resources: function () {
-      if(this.onlyShowAvailableResources){
-        this.setAvailableResources(this.calendarViewStartDate, this.calendarViewEndDate, true)
-      }else{
-        this.overviewResources = this.resources
-      }
-    },
-    availableResources: function () {
-      if (this.onlyShowAvailableResources) {
-        this.overviewResources = this.availableResources
-        this.changeSelection()
-      }
-    },
-    onlyShowAvailableResources: function () {
-      if (this.onlyShowAvailableResources) {
+    changeFilter() {
+      if (this.$root.settings.onlyShowAvailableResourcesInOverview) {
         this.setAvailableResources(this.calendarViewStartDate, this.calendarViewEndDate, true)
         this.overviewResources = this.availableResources
       } else {
         this.overviewResources = this.$root.resources
       }
       this.changeSelection()
+      this.$root.pushSettings()
+    }
+  },
+  async beforeMount() {
+    await this.$root.load()
+    this.overviewResources = this.resources
+    this.resourceNames = this.$root.resourceNames
+  },
+  watch: {
+    resources: function () {
+      if(!this.$root.settings.onlyShowAvailableResourcesInOverview){
+        this.setAvailableResources(this.calendarViewStartDate, this.calendarViewEndDate, true)
+      }else{
+        this.overviewResources = this.resources
+      }
+      this.changeSelection()
+    },
+    availableResources: function () {
+      if (this.$root.settings.onlyShowAvailableResourcesInOverview) {
+        this.overviewResources = this.availableResources
+        this.changeSelection()
+      }
     },
   },
 }

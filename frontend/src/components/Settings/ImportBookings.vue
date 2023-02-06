@@ -42,6 +42,8 @@ export default {
         resource: 'Example Resource',
         organizer: 'Mr. Organizer <mr.organizer@email.com>',
         service: 'false',
+        category: 'Category 3',
+        utilization: '5',
         subresources: '',
       },
       exampleSubresources: ['Subresource 1', 'Subresource 4'],

@@ -58,7 +58,7 @@ export default {
     },
   },
   beforeMount() {
-    this.$root.isLoading = false
+    this.$root.loadState = 'LOADED'
   },
 }
 </script>

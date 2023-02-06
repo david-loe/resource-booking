@@ -2,6 +2,8 @@ const mailClient = require('./client')
 const i18n = require('../i18n')
 const ejs = require('ejs')
 const fs = require('fs')
+const helper = require('../helper')
+
 
 function sendConformationMail(bookedBookings, recipientName, recipientMail) {
     if (mailClient == undefined) {
@@ -9,8 +11,8 @@ function sendConformationMail(bookedBookings, recipientName, recipientMail) {
     }
     const booking = bookedBookings[0]
     const dateStringOptions = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
-    booking.startDate = new Date(booking.startDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
-    booking.endDate = new Date(booking.endDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+    booking.startDateStr = new Date(booking.startDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+    booking.endDateStr = new Date(booking.endDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
 
     var resourceStr = ""
     for (const oneBooking of bookedBookings) {
@@ -37,8 +39,8 @@ function sendConformationMail(bookedBookings, recipientName, recipientMail) {
         i18n.t("mail.salutation", { recipient: recipientName }) + '\n' +
         i18n.t("mail.confirmation.content") + '\n\n' +
         i18n.t("labels.details") + ':\n' +
-        i18n.t("labels.from") + ': ' + booking.startDate + '\n' +
-        i18n.t("labels.to") + ': ' + booking.endDate + '\n' +
+        i18n.t("labels.from") + ': ' + booking.startDateStr + '\n' +
+        i18n.t("labels.to") + ': ' + booking.endDateStr + '\n' +
         i18n.t("labels.resource") + ': ' + booking.resource + '\n' +
         i18n.t("labels.service") + ': ' + booking.service
 
@@ -49,6 +51,7 @@ function sendConformationMail(bookedBookings, recipientName, recipientMail) {
         subject: i18n.t("mail.confirmation.heading") + ": " + booking.summary, // Subject line
         text: plainText, // plain text body
         html: renderedHTML, // html body
+        icalEvent: helper.icalEventForEmailAttachments(booking, 'REQUEST', recipientMail, recipientName)
     })
 }
 

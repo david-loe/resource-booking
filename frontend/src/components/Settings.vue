@@ -10,7 +10,7 @@
       <UserList></UserList>
     </div>
     <div class="container mb-3">
-      <h2>{{ $t('headlines.category') }}</h2>
+      <h2>{{ $t('headlines.categories') }}</h2>
       <CategoryList></CategoryList>
     </div>
     <div class="container mb-3">
@@ -46,10 +46,8 @@ export default {
     return {}
   },
   methods: {},
-  beforeMount() {
-    if (this.$root.isLoading) {
-      this.$root.getUserandResources()
-    }
+  async beforeMount() {
+    await this.$root.load()
   },
 }
 </script>

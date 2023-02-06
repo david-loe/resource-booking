@@ -24,7 +24,8 @@
     "service": "Service",
     "user": "Benutzer",
     "import": "Import",
-    "export": "Export"
+    "export": "Export",
+    "categories": "Kategorien"
   },
   "labels": {
     "email": "Email Addresse",
@@ -68,7 +69,8 @@
     "export": "Exportieren",
     "utilization": "Nutzung",
     "category": "Kategorie",
-    "chooseCategory": "Wähle eine Kategorie"
+    "chooseCategory": "Wähle eine Kategorie",
+    "addCategory": "Kategorie hinzufügen"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",

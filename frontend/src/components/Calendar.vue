@@ -128,7 +128,7 @@ export default {
         selectMinDistance: 5,
         fixedWeekCount: false,
         showNonCurrentDates: false,
-        initialView: 'next3weeks',
+        initialView: this.$root.settings.initialCalendarView,
         locales: allLocales,
         locale: process.env.VUE_APP_I18N_LOCALE,
         events: {},
@@ -151,6 +151,7 @@ export default {
         eventClick: this.eventClick,
         select: this.select,
         datesSet: this.changedViewDates,
+        viewClassNames: this.changedView
       },
       dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' },
       infoModal: undefined,
@@ -220,6 +221,12 @@ export default {
     },
     changedViewDates(dateInfo){
       this.$emit('changed-view-dates', dateInfo.start, dateInfo.end)
+    },
+    changedView(arg){
+      if(this.$root.settings.initialCalendarView !== arg.view.type){
+        this.$root.settings.initialCalendarView = arg.view.type
+        this.$root.pushSettings()
+      }
     },
     select(selectionInfo){
       if(selectionInfo.end - selectionInfo.start > 1000 * 60 * 60 * 24){
@@ -295,7 +302,8 @@ export default {
       return { url: urlParts.join(''), format: 'ics' }
     },
   },
-  beforeMount() {
+  async beforeMount() {
+    await this.$root.load()
     this.calendarOptions.events = this.genEventSources(this.resourceNames)
   },
   mounted() {

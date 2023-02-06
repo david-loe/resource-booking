@@ -2,6 +2,7 @@ const mailClient = require('./client')
 const i18n = require('../i18n')
 const ejs = require('ejs')
 const fs = require('fs')
+const helper = require('../helper')
 
 function sendChangeMail(oldBooking, newBooking, recipientName, recipientMail) {
     if (mailClient == undefined) {
@@ -9,10 +10,10 @@ function sendChangeMail(oldBooking, newBooking, recipientName, recipientMail) {
     }
     const dateStringOptions = { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
     const dateOld = { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }
-    newBooking.startDate = new Date(newBooking.startDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
-    newBooking.endDate = new Date(newBooking.endDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
-    oldBooking.startDate = new Date(oldBooking.startDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateOld)
-    oldBooking.endDate = new Date(oldBooking.endDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateOld)
+    newBooking.startDateStr = new Date(newBooking.startDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+    newBooking.endDateStr = new Date(newBooking.endDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+    oldBooking.startDateStr = new Date(oldBooking.startDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateOld)
+    oldBooking.endDateStr = new Date(oldBooking.endDate).toLocaleDateString(process.env.VUE_APP_I18N_LOCALE, dateOld)
 
     if (newBooking.service) { newBooking.service = '✅' }
     else { newBooking.service = '❌' }
@@ -36,6 +37,7 @@ function sendChangeMail(oldBooking, newBooking, recipientName, recipientMail) {
         subject: i18n.t("mail.change.heading") + ": " + oldBooking.summary, // Subject line
         text: plainText, // plain text body
         html: renderedHTML, // html body
+        icalEvent: helper.icalEventForEmailAttachments(newBooking, 'REQUEST', recipientMail, recipientName)
     })
 
 }

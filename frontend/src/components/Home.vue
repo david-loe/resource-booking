@@ -25,10 +25,8 @@ export default {
       this.$refs.booking.search(startDate, endDate)
     },
   },
-  beforeMount() {
-    if (this.$root.isLoading) {
-      this.$root.getUserandResources()
-    }
+  async beforeMount() {
+    await this.$root.load()
   },
 }
 </script>

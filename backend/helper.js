@@ -2,6 +2,7 @@ const Resource = require('./models/resource')
 const User = require('./models/user')
 const ICAL = require('ical.js')
 const uid = require('uid')
+const i18n = require('./i18n')
 
 /**
  * Return all bookings with service as a ICAL Component
@@ -42,6 +43,36 @@ function icalEventToSimpleBooking(vevent) {
         utilization: vevent.getFirstPropertyValue('x-utilization'),
         subresources: vevent.getFirstPropertyValue('x-subresources')
     }
+}
+
+/**
+ * 
+ * @param booking Simple Booking
+ * @returns {ICAL.Component} vevent
+ */
+function simpleBookingToIcalEvent(booking) {
+    const vevent = new ICAL.Component('vevent')
+    const icalEvent = new ICAL.Event(vevent)
+
+    icalEvent.startDate = ICAL.Time.fromJSDate(new Date(booking.startDate))
+    icalEvent.endDate = ICAL.Time.fromJSDate(new Date(booking.endDate))
+    icalEvent.summary = booking.summary
+    icalEvent.organizer = booking.organizer
+    icalEvent.location = booking.resource
+    if(booking.color){
+        icalEvent.color = booking.color
+    }
+    icalEvent.uid = booking.uid
+    vevent.addPropertyWithValue('x-service', booking.service)
+    vevent.addPropertyWithValue('x-category', booking.category)
+    if(booking.utilization || booking.utilization === 0){
+        vevent.addPropertyWithValue('x-utilization', booking.utilization)
+    }
+    if (booking.subresources !== null) {
+        vevent.addPropertyWithValue('x-subresources', booking.subresources)
+    }
+
+    return vevent
 }
 
 function resourceToSimpleResource(resource, isPartlyBooked = false) {
@@ -214,31 +245,15 @@ async function book(booking, resource = null) {
     if (conflictingBookings.length > 0 && !subresourcesFree) {
         return { success: false, bookedResource: [], conflictingBookings: conflictingBookings, error: 'Conflicting Booking' }
     }
-    const vevent = new ICAL.Component('vevent')
-    const icalEvent = new ICAL.Event(vevent)
-    icalEvent.summary = booking.summary
-    icalEvent.location = booking.resource
-    icalEvent.organizer = booking.organizer
-    icalEvent.color = resource.color
-    icalEvent.startDate = ICAL.Time.fromJSDate(new Date(booking.startDate))
-    icalEvent.endDate = ICAL.Time.fromJSDate(new Date(booking.endDate))
-    vevent.addPropertyWithValue('x-service', booking.service)
-    vevent.addPropertyWithValue('x-category', booking.category)
-    if(booking.utilization !== null){
-        vevent.addPropertyWithValue('x-utilization', booking.utilization)
-    }
+    
     if (booking.uid === undefined) {
-        icalEvent.uid = uid.uid()
-    } else {
-        icalEvent.uid = booking.uid
-    }
-    if (booking.subresources !== null) {
-        vevent.addPropertyWithValue('x-subresources', booking.subresources)
+        booking.uid = uid.uid()
     }
     const comp = new ICAL.Component(resource.ical)
-    comp.addSubcomponent(vevent)
+    comp.addSubcomponent(simpleBookingToIcalEvent(booking))
     resource.markModified('ical');
-    return { success: true, bookedResource: await resource.save(), conflictingBookings: [], error: '' }
+
+    return { success: true, bookedResource: await resource.save(), conflictingBookings: [], error: '', booking: booking }
 }
 
 /**
@@ -300,6 +315,51 @@ async function isUserOrganizerOrAdmin(bookingOrganizer, reqUser) {
     return bookingOrganizer.indexOf(reqUser[process.env.LDAP_MAIL_ATTRIBUTE]) !== -1 || isAdmin
 }
 
+/**
+ * 
+ * @param {ICAL.Component} vevent
+ * @param {string} method
+ * @returns attachment
+ */
+function icalEventForEmailAttachments(booking, method, recipientMail, recipientName){
+
+    var icalString = `BEGIN:VCALENDAR
+METHOD:${method}
+PRODID:${i18n.t("headlines.resourceBooking")}
+VERSION:2.0
+BEGIN:VEVENT
+ORGANIZER;CN="${i18n.t("headlines.resourceBooking")} ${i18n.t("resource.emoji")}":mailto:${process.env.MAIL_SENDER_ADDRESS}
+ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=FALSE;CN="${recipientName}":mailto:${recipientMail}
+DESCRIPTION:\\n
+UID:${booking.uid}
+SUMMARY:${booking.summary}
+DTSTART;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date(booking.startDate)).toString().replaceAll(/[-:]/g,'')}
+DTEND;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date(booking.endDate)).toString().replaceAll(/[-:]/g,'')}
+CLASS:PUBLIC
+PRIORITY:5
+DTSTAMP;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date()).toString().replaceAll(/[-:]/g,'')}
+TRANSP:OPAQUE
+STATUS:${method.toUpperCase() !== 'CANCEL' ? 'CONFIRMED' : 'CANCELLED'}
+SEQUENCE:0
+LOCATION:${booking.resource}${method.toUpperCase() !== 'CANCEL' ? '\nX-MICROSOFT-CDO-BUSYSTATUS:FREE': ''}
+BEGIN:VALARM
+DESCRIPTION:REMINDER
+TRIGGER;RELATED=START:-PT${process.env.MAIL_CALENDAR_EVENT_REMINDER_TIME}H
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT
+END:VCALENDAR`
+    icalString = icalString.replaceAll('\n', '\r\n')
+    console.log(icalString)
+    const buf = Buffer.from(icalString.toString(), 'utf-8');
+    const base64Cal = buf.toString('base64');
+    return {
+            content: base64Cal,
+            method: method,
+            encoding: 'base64'
+    }    
+}
+
 module.exports = {
     getServiceIcal: getServiceIcal,
     icalEventToSimpleBooking: icalEventToSimpleBooking,
@@ -311,4 +371,5 @@ module.exports = {
     book: book,
     getConflictingBookings: getConflictingBookings,
     isUserOrganizerOrAdmin: isUserOrganizerOrAdmin,
+    icalEventForEmailAttachments: icalEventForEmailAttachments,
 }

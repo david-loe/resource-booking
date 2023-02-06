@@ -11,10 +11,7 @@ export default {
   },
   methods: {},
   async beforeMount() {
-    if (this.$root.isLoading) {
-      await this.$root.getUser()
-      this.$root.isLoading = false
-    }
+    await this.$root.load()
   },
 }
 </script>

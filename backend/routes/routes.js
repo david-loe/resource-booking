@@ -151,13 +151,8 @@ function deleteVeventByUid(ical, uid) {
 }
 
 router.get('/user', async (req, res) => {
-    var isAdmin = false;
-    var isService = false;
-    const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
-    if (user) {
-        isAdmin = user.isAdmin
-        isService = user.isService
-    } else {
+    var user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
+    if (!user) {
         var mail = req.user[process.env.LDAP_MAIL_ATTRIBUTE]
         if (Array.isArray(mail)) {
             if (mail.length > 0) {
@@ -166,20 +161,26 @@ router.get('/user', async (req, res) => {
                 mail = ""
             }
         }
-        const newUser = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], mail: mail })
+        user = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], mail: mail })
         try {
-            await newUser.save()
+            await user.save()
         } catch (error) {
             return res.status(400).send({ message: "Error while creating User" })
         }
     }
-    res.send({
-        name: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE],
-        isAdmin: isAdmin,
-        isService: isService,
-    })
+    res.send(Object.assign(user, {name: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE]}))
 })
 
+router.post('/user/settings', async (req, res) => {
+    const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
+    Object.assign(user.settings, req.body)
+    user.markModified('settings')
+    try {
+        res.send(await user.save())
+    } catch (error) {
+        res.status(400).send({ message: 'Unable to save user', error: error })
+    }
+})
 
 router.get('/resource', async (req, res) => {
     const resources = await Resource.find()
@@ -272,7 +273,7 @@ router.post('/booking', async (req, res) => {
             const bookingResult = await helper.book(booking)
             if (bookingResult.success) {
                 bookedResources.push(bookingResult.bookedResource)
-                bookedBookings.push(booking)
+                bookedBookings.push(bookingResult.booking)
             } else {
                 conflictingBookings.push(bookingResult.conflictingBookings)
                 errors.push(bookingResult.error)

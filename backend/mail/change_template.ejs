@@ -129,13 +129,13 @@ a[x-apple-data-detectors] {
                        <table border="0" class="es-table    cke_show_border" align="left" cellspacing="1" cellpadding="5" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.from") %></th> 
-                          <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.startDate %></s> </td> 
-                          <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.startDate %></td> 
+                          <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.startDateStr %></s> </td> 
+                          <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.startDateStr %></td> 
                          </tr> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.to") %></th> 
-                          <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.endDate %></s></td> 
-                          <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.endDate %></td> 
+                          <td style="font-size: 14px;padding-right:5px;Margin:0"> <s><%= oldBooking.endDateStr %></s></td> 
+                          <td style="font-size: 16px;padding:0;Margin:0"> <%= newBooking.endDateStr %></td> 
                          </tr> 
                          <tr> 
                           <th scope="row" style="text-align:left"> <%= i18n.t("labels.resource") %></th> 
