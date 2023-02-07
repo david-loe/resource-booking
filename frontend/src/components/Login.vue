@@ -48,7 +48,7 @@ export default {
           { withCredentials: true },
         )
         if (res.status === 200) {
-          this.$root.isLoading = true
+          this.$root.loadState = 'UNLOADED'
           this.$router.push('/')
         }
       } catch (error) {
