@@ -70,7 +70,9 @@
     "utilization": "Utilization",
     "category": "Category",
     "chooseCategory": "Choose a category",
-    "addCategory": "Add Category"
+    "addCategory": "Add Category",
+    "signIn": "Sign in",
+    "signInX": "Sign in with {X}"
   },
   "alerts": {
     "loginFailed": "Failed to Login!",
@@ -92,7 +94,7 @@
       "signIn": "Please sign in"
     },
     "calendar": {
-      "view" :{
+      "view": {
         "threeweeks": "3 Weeks"
       }
     },

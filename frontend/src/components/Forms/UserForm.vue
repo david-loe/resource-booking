@@ -2,12 +2,6 @@
   <form class="container" @submit.prevent="this.mode === 'add' ? this.$emit('add', this.formUser) : this.$emit('edit', this.formUser)">
     <div class="row mb-2">
       <div class="col">
-        <label for="userFormUid" class="form-label">
-          {{ $t('labels.uid') }}
-        </label>
-        <input type="text" class="form-control" id="userFormUid" v-model="formUser.uid" required :disabled="this.mode === 'edit'" />
-      </div>
-      <div class="col">
         <label for="userFormMail" class="form-label">
           {{ $t('labels.email') }}
         </label>
@@ -53,7 +47,6 @@ export default {
       type: Object,
       default: function () {
         return {
-          uid: '',
           isAdmin: false,
           isService: false,
           mail: '',
@@ -76,7 +69,6 @@ export default {
   methods: {
     clear() {
       this.formUser = {
-        uid: '',
         isAdmin: false,
         isService: false,
         mail: '',
@@ -92,5 +84,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

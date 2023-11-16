@@ -70,7 +70,9 @@
     "utilization": "Nutzung",
     "category": "Kategorie",
     "chooseCategory": "Wähle eine Kategorie",
-    "addCategory": "Kategorie hinzufügen"
+    "addCategory": "Kategorie hinzufügen",
+    "signIn": "Anmelden",
+    "signInX": "Mit {X} anmelden"
   },
   "alerts": {
     "loginFailed": "Anmeldung fehlgeschlagen!",
@@ -92,7 +94,7 @@
       "signIn": "Bitte Anmelden"
     },
     "calendar": {
-      "view" :{
+      "view": {
         "threeweeks": "3 Wochen"
       }
     },

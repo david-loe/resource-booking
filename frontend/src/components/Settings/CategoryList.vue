@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <ul class="list-group mb-3" style="max-height: 400px; overflow-y: scroll">
-      <li v-for="category of $root.categories" :key="category.uid" class="list-group-item">
+      <li v-for="category of $root.categories" :key="category._id" class="list-group-item">
         <div class="row align-items-center">
           <div class="col-auto me-auto">
             <span class="fs-6">
@@ -30,8 +30,13 @@
       id="categoryform"
       style="max-width: 650px"
     ></CategoryForm>
-    
-    <button v-if="categoryFormMode === ''" type="button" class="btn btn-secondary" v-on:click="categoryFormMode = 'add'; categoryToEdit = undefined">
+    <!-- prettier-ignore-attribute -->
+    <button
+      v-if="categoryFormMode === ''"
+      type="button"
+      class="btn btn-secondary"
+      v-on:click="categoryFormMode = 'add'; categoryToEdit = undefined"
+    >
       {{ $t('labels.addCategory') }}
     </button>
   </div>
@@ -46,15 +51,13 @@ export default {
   data() {
     return {
       categoryToEdit: undefined,
-      categoryFormMode: ''
+      categoryFormMode: '',
     }
   },
   methods: {
     async addCategory(category) {
-       try {
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/category',
-        category,
-        {
+      try {
+        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/category', category, {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -71,8 +74,7 @@ export default {
     },
     async deleteCategory(category) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/category',
-        {
+        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/category', {
           params: { id: category._id },
           withCredentials: true,
         })
@@ -91,5 +93,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

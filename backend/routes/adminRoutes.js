@@ -91,7 +91,6 @@ router.get('/user', async (req, res) => {
 
 router.post('/user', async (req, res) => {
     const user = new User({
-        uid: req.body.uid,
         isAdmin: req.body.isAdmin,
         isService: req.body.isService,
         mail: req.body.mail
@@ -104,30 +103,30 @@ router.post('/user', async (req, res) => {
 })
 
 router.post('/user/change', async (req, res) => {
-    if (req.body.uid != undefined && req.body.isAdmin != undefined && req.body.isService != undefined) {
-        const user = await User.findOne({ uid: req.body.uid })
+    if (req.body._id != undefined && req.body.isAdmin != undefined && req.body.isService != undefined) {
+        const user = await User.findOne({ _id: req.body._id })
         if (user) {
             user.isAdmin = req.body.isAdmin
             user.isService = req.body.isService
             res.send(await user.save())
         } else {
-            res.status(400).send({ message: 'No user found with uid:' + req.body.uid })
+            res.status(400).send({ message: 'No user found with _id:' + req.body._id })
         }
     } else {
-        res.status(400).send({ message: 'Please provide a uid, isAdmin and isService.' })
+        res.status(400).send({ message: 'Please provide a _id, isAdmin and isService.' })
     }
 })
 
 router.delete('/user', async (req, res) => {
-    if (req.query.uid) {
+    if (req.query.id) {
         try {
-            await User.deleteOne({ uid: req.query.uid })
+            await User.deleteOne({ _id: req.query._id })
             res.send({ message: 'ok' })
         } catch (error) {
-            res.status(400).send({ message: 'Unable to delete user ' + req.query.uid, error: error })
+            res.status(400).send({ message: 'Unable to delete user ' + req.query._id, error: error })
         }
     } else {
-        res.status(400).send({ message: 'UID Missing' })
+        res.status(400).send({ message: '_id Missing' })
     }
 })
 
@@ -136,10 +135,10 @@ router.post('/csv/booking', async (req, res) => {
         const bookings = helper.csvToObjects(req.body.csv, req.body.separator, req.body.arraySeparator)
         const failedBookings = []
         for (const booking of bookings) {
-            if(process.env.VUE_APP_USE_SERVICE.toLowerCase() !== 'true'){
+            if (process.env.VUE_APP_USE_SERVICE.toLowerCase() !== 'true') {
                 booking.service = false
             }
-            if(process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() !== 'true'){
+            if (process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() !== 'true') {
                 booking.subresources = null
             }
             const bookingResult = await helper.book(booking)
@@ -161,22 +160,22 @@ router.post('/csv/booking', async (req, res) => {
 router.get('/csv/booking', async (req, res) => {
     var separator = "\t"
     var arraySeparator = ", "
-    if(req.query.arraySeparator && req.query.separator && (req.query.separator !== req.query.arraySeparator)){
+    if (req.query.arraySeparator && req.query.separator && (req.query.separator !== req.query.arraySeparator)) {
         separator = req.query.separator
         arraySeparator = req.query.arraySeparator
     }
     const bookings = []
     const resources = await Resource.find()
-    for (const resource of resources){
+    for (const resource of resources) {
         const comp = new ICAL.Component(resource.ical)
         for (const vevent of comp.getAllSubcomponents('vevent')) {
             bookings.push(helper.icalEventToSimpleBooking(vevent))
         }
     }
-    if(bookings.length > 0){
-        res.send({csv: helper.objectsToCSV(bookings, separator, arraySeparator), separator: separator, arraySeparator: arraySeparator})
-    }else {
-        res.send({message: "No booking", csv: ''})
+    if (bookings.length > 0) {
+        res.send({ csv: helper.objectsToCSV(bookings, separator, arraySeparator), separator: separator, arraySeparator: arraySeparator })
+    } else {
+        res.send({ message: "No booking", csv: '' })
     }
 })
 

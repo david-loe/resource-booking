@@ -151,28 +151,11 @@ function deleteVeventByUid(ical, uid) {
 }
 
 router.get('/user', async (req, res) => {
-    var user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
-    if (!user) {
-        var mail = req.user[process.env.LDAP_MAIL_ATTRIBUTE]
-        if (Array.isArray(mail)) {
-            if (mail.length > 0) {
-                mail = mail[0]
-            } else {
-                mail = ""
-            }
-        }
-        user = new User({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE], mail: mail })
-        try {
-            await user.save()
-        } catch (error) {
-            return res.status(400).send({ message: "Error while creating User" })
-        }
-    }
-    res.send(Object.assign(user, {name: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE]}))
+    res.send(req.user)
 })
 
 router.post('/user/settings', async (req, res) => {
-    const user = await User.findOne({ uid: req.user[process.env.LDAP_UID_ATTRIBUTE] })
+    const user = req.user
     Object.assign(user.settings, req.body)
     user.markModified('settings')
     try {
@@ -256,7 +239,7 @@ router.post('/booking', async (req, res) => {
                 summary: req.body.summary,
                 utilization: req.body.utilization,
                 category: req.body.category,
-                organizer: req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE] + ' <' + req.user[process.env.LDAP_MAIL_ATTRIBUTE] + '>',
+                organizer: req.user.name + ' <' + req.user.mail + '>',
                 resource: resourceName,
                 service: req.body.service,
                 subresources: null
@@ -285,7 +268,7 @@ router.post('/booking', async (req, res) => {
             } else {
                 res.status(409).send({ message: "Some bookings had conflicts..", errors: errors, conflictingBookings: conflictingBookings, resources: bookedResources, startDate: req.body.startDate, endDate: req.body.endDate })
             }
-            sendConformationMail(bookedBookings, req.user[process.env.LDAP_DISPLAYNAME_ATTRIBUTE], req.user[process.env.LDAP_MAIL_ATTRIBUTE])
+            sendConformationMail(bookedBookings, req.user.name, req.user.mail)
         } else {
             res.status(400).send({ message: "No Resource Booked", errors: errors, conflictingBookings: conflictingBookings })
         }

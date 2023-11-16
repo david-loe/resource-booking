@@ -59,13 +59,13 @@ function simpleBookingToIcalEvent(booking) {
     icalEvent.summary = booking.summary
     icalEvent.organizer = booking.organizer
     icalEvent.location = booking.resource
-    if(booking.color){
+    if (booking.color) {
         icalEvent.color = booking.color
     }
     icalEvent.uid = booking.uid
     vevent.addPropertyWithValue('x-service', booking.service)
     vevent.addPropertyWithValue('x-category', booking.category)
-    if(booking.utilization || booking.utilization === 0){
+    if (booking.utilization || booking.utilization === 0) {
         vevent.addPropertyWithValue('x-utilization', booking.utilization)
     }
     if (booking.subresources !== null) {
@@ -147,11 +147,11 @@ function objectsToCSV(objects, separator = '\t', arraySeparator = ', ') {
 
     return array.map(it => {
         return Object.values(it).map(item => {
-            if(Array.isArray(item)){
+            if (Array.isArray(item)) {
                 return '[' + item.join(arraySeparator) + ']'
-            }else if(item === null){
+            } else if (item === null) {
                 return 'null'
-            }else{
+            } else {
                 return item
             }
         }).join(separator)
@@ -245,7 +245,7 @@ async function book(booking, resource = null) {
     if (conflictingBookings.length > 0 && !subresourcesFree) {
         return { success: false, bookedResource: [], conflictingBookings: conflictingBookings, error: 'Conflicting Booking' }
     }
-    
+
     if (booking.uid === undefined) {
         booking.uid = uid.uid()
     }
@@ -308,12 +308,7 @@ function getConflictingBookings(ical, startDate, endDate) {
 }
 
 async function isUserOrganizerOrAdmin(bookingOrganizer, reqUser) {
-    const user = await User.findOne({ uid: reqUser[process.env.LDAP_UID_ATTRIBUTE] })
-    var isAdmin = false;
-    if (user) {
-        isAdmin = user.isAdmin
-    }
-    return bookingOrganizer.indexOf(reqUser[process.env.LDAP_MAIL_ATTRIBUTE]) !== -1 || isAdmin
+    return bookingOrganizer.indexOf(reqUser.mail) !== -1 || reqUser.isAdmin
 }
 
 /**
@@ -322,7 +317,7 @@ async function isUserOrganizerOrAdmin(bookingOrganizer, reqUser) {
  * @param {string} method
  * @returns attachment
  */
-function icalEventForEmailAttachments(booking, method, recipientMail, recipientName){
+function icalEventForEmailAttachments(booking, method, recipientMail, recipientName) {
 
     var icalString = `BEGIN:VCALENDAR
 METHOD:${method}
@@ -334,15 +329,15 @@ ATTENDEE;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=FALSE;CN="${recipientNa
 DESCRIPTION:\\n
 UID:${booking.uid}
 SUMMARY:${booking.summary}
-DTSTART;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date(booking.startDate)).toString().replaceAll(/[-:]/g,'')}
-DTEND;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date(booking.endDate)).toString().replaceAll(/[-:]/g,'')}
+DTSTART;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date(booking.startDate)).toString().replaceAll(/[-:]/g, '')}
+DTEND;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date(booking.endDate)).toString().replaceAll(/[-:]/g, '')}
 CLASS:PUBLIC
 PRIORITY:5
-DTSTAMP;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date()).toString().replaceAll(/[-:]/g,'')}
+DTSTAMP;TZID=${process.env.TZ}:${ICAL.Time.fromJSDate(new Date()).toString().replaceAll(/[-:]/g, '')}
 TRANSP:OPAQUE
 STATUS:${method.toUpperCase() !== 'CANCEL' ? 'CONFIRMED' : 'CANCELLED'}
 SEQUENCE:0
-LOCATION:${booking.resource}${method.toUpperCase() !== 'CANCEL' ? '\nX-MICROSOFT-CDO-BUSYSTATUS:FREE': ''}
+LOCATION:${booking.resource}${method.toUpperCase() !== 'CANCEL' ? '\nX-MICROSOFT-CDO-BUSYSTATUS:FREE' : ''}
 BEGIN:VALARM
 DESCRIPTION:REMINDER
 TRIGGER;RELATED=START:-PT${process.env.MAIL_CALENDAR_EVENT_REMINDER_TIME}H
@@ -355,10 +350,10 @@ END:VCALENDAR`
     const buf = Buffer.from(icalString.toString(), 'utf-8');
     const base64Cal = buf.toString('base64');
     return {
-            content: base64Cal,
-            method: method,
-            encoding: 'base64'
-    }    
+        content: base64Cal,
+        method: method,
+        encoding: 'base64'
+    }
 }
 
 module.exports = {
