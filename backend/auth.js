@@ -90,7 +90,7 @@ if (useMicrosoft) {
         const newUser = {
           fk: { microsoft: profile._json.id },
           mail: mail,
-          name: profile._json.givenName + ' ' + profile._json.surname
+          name: profile._json.givenName ? (profile._json.givenName + ' ' + profile._json.surname) : profile._json.displayName
         }
         if (!user) {
           user = new User(newUser)
