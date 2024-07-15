@@ -42,8 +42,8 @@
         </select>
     </div>
 
-    <div class="mb-3">
-      <label v-if="$root.useUtilization" for="utilization" class="form-label"> {{ $t('labels.utilization') }} </label>
+    <div v-if="$root.useUtilization" class="mb-3">
+      <label for="utilization" class="form-label"> {{ $t('labels.utilization') }} </label>
       <input
         type="number"
         class="form-control"
