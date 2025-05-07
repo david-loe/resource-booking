@@ -2,10 +2,10 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile-${NODE_ENV}
+      dockerfile: Dockerfile.${NODE_ENV}
     restart: always
     depends_on:
-      - db  
+      - db
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -21,11 +21,11 @@ services:
     volumes:
       - db_data:/data/db
 
-# Uses ningx in production mode see /frontend/Dockerfile-production
+  # Uses ningx in production mode see /frontend/Dockerfile.production
   frontend:
     build:
       context: ./
-      dockerfile: ./frontend/Dockerfile-${NODE_ENV}
+      dockerfile: ./frontend/Dockerfile.${NODE_ENV}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -38,11 +38,11 @@ services:
     env_file:
       - .env
 
-# Test LDAP only in development mode
+  # Test LDAP only in development mode
   ldap:
     build:
       context: ./ldap
-      dockerfile: Dockerfile-${NODE_ENV}
+      dockerfile: Dockerfile.${NODE_ENV}
     environment:
       - DEBUG=false
 
