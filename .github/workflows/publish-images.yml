@@ -68,8 +68,8 @@ jobs:
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./backend/Dockerfile.production
+          context: ./backend
+          file: Dockerfile.production
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-backend.outputs.tags }}
@@ -77,8 +77,8 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./frontend/Dockerfile.production
+          context: ./frontend
+          file: Dockerfile.production
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta-frontend.outputs.tags }}
