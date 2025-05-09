@@ -11,9 +11,7 @@ const auth = require('./auth')
 const port = process.env.BACKEND_PORT
 const url = process.env.VUE_APP_BACKEND_URL
 
-mongoose.connect(process.env.MONGO_URL, {}, () => {
-  console.log(i18n.t("alerts.db.success"))
-})
+mongoose.connect(process.env.MONGO_URL)
 
 const app = express()
 
@@ -26,7 +24,7 @@ app.use(cors({
 app.use(cookierParser())
 
 app.use(session({
-  store: MongoStore.create(mongoose.connection),
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
   secret: new Date(Math.random * 100000).toString().toUpperCase(),
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
