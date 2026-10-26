@@ -77,25 +77,25 @@ export default {
         return (
           this.$t('labels.bookedUntil') +
           ': ' +
-          new Date(confictBooking.endDate).toLocaleTimeString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+          new Date(confictBooking.endDate).toLocaleTimeString(import.meta.env.VUE_APP_I18N_LOCALE, dateStringOptions)
         )
       } else if (confictBooking.conflictCode === 4) {
         return (
           this.$t('labels.bookedFrom') +
           ': ' +
-          new Date(confictBooking.startDate).toLocaleTimeString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+          new Date(confictBooking.startDate).toLocaleTimeString(import.meta.env.VUE_APP_I18N_LOCALE, dateStringOptions)
         )
       } else if (confictBooking.conflictCode === 3) {
         return (
-          new Date(confictBooking.startDate).toLocaleTimeString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions) +
+          new Date(confictBooking.startDate).toLocaleTimeString(import.meta.env.VUE_APP_I18N_LOCALE, dateStringOptions) +
           ' - ' +
-          new Date(confictBooking.endDate).toLocaleTimeString(process.env.VUE_APP_I18N_LOCALE, dateStringOptions)
+          new Date(confictBooking.endDate).toLocaleTimeString(import.meta.env.VUE_APP_I18N_LOCALE, dateStringOptions)
         )
       }
     },
     async getAvailability() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/public/availability', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/public/availability', {
           params: {
             token: this.token,
           },

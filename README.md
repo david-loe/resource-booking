@@ -9,6 +9,7 @@ Using [OpenLDAP Docker Image](https://github.com/rroemhild/docker-test-openldap)
 Using [ical.js](https://github.com/mozilla-comm/ical.js/) to generate and handle iCalendar.
 
 ## Requirements
+- Node.js 26 (see `.nvmrc`) and npm 12 for running checks outside Docker
 - [docker](https://docs.docker.com/engine/install/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 

@@ -51,15 +51,15 @@ export default {
     return {
       password: '',
       username: '',
-      useLDAP: process.env.VUE_APP_AUTH_USE_LDAP.toLocaleLowerCase() === 'true',
-      useMicrosoft: process.env.VUE_APP_AUTH_USE_MS_AZURE.toLocaleLowerCase() === 'true',
+      useLDAP: import.meta.env.VUE_APP_AUTH_USE_LDAP.toLocaleLowerCase() === 'true',
+      useMicrosoft: import.meta.env.VUE_APP_AUTH_USE_MS_AZURE.toLocaleLowerCase() === 'true',
     }
   },
   methods: {
     async login() {
       try {
         const res = await axios.post(
-          process.env.VUE_APP_BACKEND_URL + '/auth/ldapauth',
+          import.meta.env.VUE_APP_BACKEND_URL + '/auth/ldapauth',
           {
             username: this.username,
             password: this.password,
@@ -70,14 +70,14 @@ export default {
           this.$root.loadState = 'UNLOADED'
           this.$router.push(this.$route.query.redirect ? this.$route.query.redirect : '/')
         }
-      } catch (error) {
+      } catch {
         this.password = ''
         alert(this.$t('alerts.loginFailed'))
       }
     },
     microsoftLink() {
       return (
-        process.env.VUE_APP_BACKEND_URL + '/auth/microsoft' + (this.$route.query.redirect ? '?redirect=' + this.$route.query.redirect : '')
+        import.meta.env.VUE_APP_BACKEND_URL + '/auth/microsoft' + (this.$route.query.redirect ? '?redirect=' + this.$route.query.redirect : '')
       )
     },
   },

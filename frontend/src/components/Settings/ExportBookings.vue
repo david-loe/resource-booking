@@ -48,7 +48,7 @@ export default {
   methods: {
     async export() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/admin/csv/booking', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/csv/booking', {
           params: { separator: this.separator, arraySeparator: this.arraySeparator },
           withCredentials: true,
         })

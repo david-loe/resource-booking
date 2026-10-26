@@ -357,6 +357,7 @@ END:VCALENDAR`
 }
 
 module.exports = {
+    simpleBookingToIcalEvent: simpleBookingToIcalEvent,
     getServiceIcal: getServiceIcal,
     icalEventToSimpleBooking: icalEventToSimpleBooking,
     resourceToSimpleResource: resourceToSimpleResource,

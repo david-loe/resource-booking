@@ -63,7 +63,7 @@ export default {
     async import() {
       try {
         const res = await axios.post(
-          process.env.VUE_APP_BACKEND_URL + '/api/admin/csv/booking',
+          import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/csv/booking',
           { csv: this.csv, separator: this.separator, arraySeparator: this.arraySeparator },
           {
             withCredentials: true,

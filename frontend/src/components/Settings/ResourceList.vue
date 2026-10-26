@@ -80,7 +80,7 @@ export default {
     },
     async editResource(resource) {
       try {
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/resource/change', resource, {
+        const res = await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/resource/change', resource, {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -97,7 +97,7 @@ export default {
     },
     async deleteResource(name) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/resource', {
+        const res = await axios.delete(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/resource', {
           params: { name: name },
           withCredentials: true,
         })
@@ -115,7 +115,7 @@ export default {
 
     async addResource(resource) {
       try {
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/resource', resource, {
+        const res = await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/resource', resource, {
           withCredentials: true,
         })
         if (res.status === 200) {

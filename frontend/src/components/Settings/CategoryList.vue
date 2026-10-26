@@ -57,7 +57,7 @@ export default {
   methods: {
     async addCategory(category) {
       try {
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/category', category, {
+        const res = await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/category', category, {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -74,7 +74,7 @@ export default {
     },
     async deleteCategory(category) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/category', {
+        const res = await axios.delete(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/category', {
           params: { id: category._id },
           withCredentials: true,
         })
