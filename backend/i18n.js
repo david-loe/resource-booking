@@ -1,18 +1,18 @@
 const i18next = require("i18next")
 const fs = require('fs');
+const path = require('node:path')
 
-/**
- * Load locale messages
- *
- * The loaded `JSON` locale messages is pre-compiled by `@intlify/vue-i18n-loader`, which is integrated into `vue-cli-plugin-i18n`.
- * See: https://github.com/intlify/vue-i18n-loader#rocket-i18n-resource-pre-compilation
- */
+// Docker mounts translations locally; direct Node runs use the shared directory.
+const mountedLocales = path.join(__dirname, 'locales')
+const locales = fs.existsSync(mountedLocales) && fs.readdirSync(mountedLocales).some(file => file.endsWith('.json'))
+  ? mountedLocales
+  : path.join(__dirname, '../locales')
 function loadLocaleMessages() {
   const messages = {}
-  fs.readdirSync('./locales').forEach(file => {
+  fs.readdirSync(locales).forEach(file => {
       const matched = file.match(/([A-Za-z0-9-_]+)\./i)
       if (matched && matched.length > 1) {
-        const rawdata = fs.readFileSync('./locales/' + file)
+        const rawdata = fs.readFileSync(path.join(locales, file))
         const locale = matched[1]
         messages[locale] = {translation: JSON.parse(rawdata)}
       }

@@ -66,7 +66,7 @@
 
 <script>
 import Calendar from './Calendar.vue'
-import jp from 'jsonpath'
+import { JSONPath } from 'jsonpath-plus'
 export default {
   name: 'Overview',
   components: {
@@ -97,8 +97,8 @@ export default {
     async setAvailableResources(startDate, endDate, force = false) {
       if (this.$root.settings.onlyShowAvailableResourcesInOverview && (startDate.getTime() !== this.calendarViewStartDate.getTime() || endDate.getTime() !== this.calendarViewEndDate.getTime() || force)) {
         const result = await this.$root.getResourcesAvailability(startDate, endDate, 1)
-        this.availableResources = jp.query(result.available, '$..resource')
-        const availableResourceNames = jp.query(this.availableResources, '$..name')
+        this.availableResources = JSONPath({ json: result.available, path: '$..resource', eval: false })
+        const availableResourceNames = JSONPath({ json: this.availableResources, path: '$..name', eval: false })
         const newSelection = []
         for(const resource of this.selectedResources){
           if(availableResourceNames.indexOf(resource) !== -1){
@@ -112,7 +112,7 @@ export default {
     },
     changeSelection() {
       if (this.selectedResources.length === 0) {
-        this.resourceNames = jp.query(this.overviewResources, '$..name')
+        this.resourceNames = JSONPath({ json: this.overviewResources, path: '$..name', eval: false })
       } else {
         this.resourceNames = this.selectedResources
       }

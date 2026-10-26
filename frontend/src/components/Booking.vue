@@ -195,7 +195,7 @@
 <script>
 import axios from 'axios'
 import { Modal } from 'bootstrap'
-import jp from 'jsonpath'
+import { JSONPath } from 'jsonpath-plus'
 export default {
   name: 'Booking',
   props: ['resources'],
@@ -242,14 +242,14 @@ export default {
           service: this.bookingData.service,
           subresources: this.selectedSubresources,
         }
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/booking', data, {
+        const res = await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/booking', data, {
           withCredentials: true,
         })
         if (res.status === 200) {
           this.clear()
           this.booked.startDate = res.data.startDate
           this.booked.endDate = res.data.endDate
-          this.booked.resourceNames = jp.query(res.data.resources, '$..name')
+          this.booked.resourceNames = JSONPath({ json: res.data.resources, path: '$..name', eval: false })
           this.$emit('changed')
         }
       } catch (error) {

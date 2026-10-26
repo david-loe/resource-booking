@@ -65,7 +65,7 @@
 
 <script>
 import axios from 'axios'
-import jp from 'jsonpath'
+import { JSONPath } from 'jsonpath-plus'
 export default {
   data() {
     return {
@@ -79,10 +79,10 @@ export default {
       categories: [],
       reload: null,
       loadState: 'UNLOADED',
-      useSubresources: process.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
-      useService: process.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
-      useUtilization: process.env.VUE_APP_USE_UTILIZATION.toLowerCase() === 'true',
-      iconClass: process.env.VUE_APP_ICON_CLASS,
+      useSubresources: import.meta.env.VUE_APP_USE_SUBRESOURCES.toLowerCase() === 'true',
+      useService: import.meta.env.VUE_APP_USE_SERVICE.toLowerCase() === 'true',
+      useUtilization: import.meta.env.VUE_APP_USE_UTILIZATION.toLowerCase() === 'true',
+      iconClass: import.meta.env.VUE_APP_ICON_CLASS,
     }
   },
   methods: {
@@ -106,7 +106,7 @@ export default {
     },
     async getUser() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/user', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/user', {
           withCredentials: true,
         })
         this.name = res.data.name
@@ -114,18 +114,18 @@ export default {
         this.isAdmin = res.data.isAdmin
         this.isService = res.data.isService
         this.settings = res.data.settings
-      } catch (error) {
+      } catch {
         this.$router.push('login')
       }
     },
     async getResources() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/resource', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/resource', {
           withCredentials: true,
         })
         if (res.status === 200) {
           this.resources = res.data.resources
-          this.resourceNames = jp.query(res.data.resources, '$..name')
+          this.resourceNames = JSONPath({ json: res.data.resources, path: '$..name', eval: false })
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -137,7 +137,7 @@ export default {
     },
     async getCategories() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/category', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/category', {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -153,7 +153,7 @@ export default {
     },
     async getResourcesAvailability(startDate, endDate, bookingDurationInDays = undefined) {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/resource/search', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/resource/search', {
           params: {
             startDate: startDate,
             endDate: endDate,
@@ -194,7 +194,7 @@ export default {
     async pushSettings(){
       console.log(this.settings)
       try {
-        await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/user/settings', this.settings, {
+        await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/user/settings', this.settings, {
           withCredentials: true,
         })
       } catch (error) {

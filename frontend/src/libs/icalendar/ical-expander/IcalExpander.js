@@ -4,7 +4,7 @@ from https://github.com/mifi/ical-expander
 released under https://github.com/mifi/ical-expander/blob/master/LICENSE
 operates entirely in UTC
 */
-import * as ICAL from 'ical.js';
+import ICAL from 'ical.js';
 var IcalExpander = /** @class */ (function () {
     function IcalExpander(opts) {
         this.maxIterations = opts.maxIterations != null ? opts.maxIterations : 1000;

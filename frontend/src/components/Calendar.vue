@@ -88,13 +88,16 @@
 </template>
 
 <script>
-import '@fullcalendar/core/vdom'
 import FullCalendar from '@fullcalendar/vue3'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import listPlugin from '@fullcalendar/list'
-import interactionPlugin from '@fullcalendar/interaction'
-import iCalendarPlugin from '../libs/icalendar/main'
-import allLocales from '@fullcalendar/core/locales-all'
+import dayGridPlugin from '@fullcalendar/vue3/daygrid'
+import listPlugin from '@fullcalendar/vue3/list'
+import interactionPlugin from '@fullcalendar/vue3/interaction'
+import themePlugin from '@fullcalendar/vue3/themes/classic'
+import '@fullcalendar/vue3/skeleton.css'
+import '@fullcalendar/vue3/themes/classic/theme.css'
+import '@fullcalendar/vue3/themes/classic/palette.css'
+import createICalendarSource from '../libs/icalendar/main'
+import allLocales from '@fullcalendar/vue3/locales-all'
 import { Modal } from 'bootstrap'
 import BookingForm from './Forms/BookingForm.vue'
 import axios from 'axios'
@@ -121,7 +124,7 @@ export default {
   data() {
     return {
       calendarOptions: {
-        plugins: [dayGridPlugin, listPlugin, interactionPlugin, iCalendarPlugin],
+        plugins: [themePlugin, dayGridPlugin, listPlugin, interactionPlugin],
         editable: this.editable,
         selectable: true,
         selectConstraint: { start: new Date().setHours(0, 0, 0, 0) },
@@ -130,18 +133,29 @@ export default {
         showNonCurrentDates: false,
         initialView: this.$root.settings.initialCalendarView,
         locales: allLocales,
-        locale: process.env.VUE_APP_I18N_LOCALE,
-        events: {},
+        locale: import.meta.env.VUE_APP_I18N_LOCALE,
+        dayCellClass: info => [
+          info.isPast && 'booking-day-past',
+          info.isOther && 'booking-day-other',
+          info.isToday && 'booking-day-today',
+        ].filter(Boolean).join(' '),
+        dayCellTopInnerClass: 'booking-day-number',
+        dayHeaderInnerClass: 'booking-day-header',
+        eventTitleClass: 'booking-event-title',
+        events: [],
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
           right: 'next3weeks,dayGridMonth,listWeek',
         },
+        buttons: {
+          next3weeks: { text: this.$t('comp.calendar.view.threeweeks') },
+        },
         views: {
+          dayGrid: { rowEventClass: 'booking-row-event' },
           next3weeks: {
             type: 'dayGrid',
             duration: { weeks: 3 },
-            buttonText: this.$t('comp.calendar.view.threeweeks')
           }
         },
         displayEventTime: false,
@@ -151,7 +165,6 @@ export default {
         eventClick: this.eventClick,
         select: this.select,
         datesSet: this.changedViewDates,
-        viewClassNames: this.changedView
       },
       dateStringOptions: { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' },
       infoModal: undefined,
@@ -168,7 +181,7 @@ export default {
     async editBooking(newBooking) {
       try {
         const res = await axios.post(
-          process.env.VUE_APP_BACKEND_URL + '/api/booking/change',
+          import.meta.env.VUE_APP_BACKEND_URL + '/api/booking/change',
           {
             old: {
               uid: this.selectedBooking.uid,
@@ -203,7 +216,7 @@ export default {
         return {}
       }
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/booking', {
           params: {
             uid: booking.id,
             resource: booking.extendedProps.location,
@@ -220,6 +233,7 @@ export default {
       }
     },
     changedViewDates(dateInfo){
+      this.changedView(dateInfo)
       this.$emit('changed-view-dates', dateInfo.start, dateInfo.end)
     },
     changedView(arg){
@@ -242,7 +256,7 @@ export default {
     async deleteBooking(booking) {
       if (confirm('Do you realy wont to delete this booking?')) {
         try {
-          const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/booking', {
+          const res = await axios.delete(import.meta.env.VUE_APP_BACKEND_URL + '/api/booking', {
             params: {
               uid: booking.uid,
               resource: booking.resource,
@@ -265,7 +279,7 @@ export default {
     async bookingCheck(eventDropInfo) {
       try {
         const res = await axios.post(
-          process.env.VUE_APP_BACKEND_URL + '/api/booking/change',
+          import.meta.env.VUE_APP_BACKEND_URL + '/api/booking/change',
           {
             old: {
               uid: eventDropInfo.event.id,
@@ -293,13 +307,13 @@ export default {
     },
     genEventSources(resourceNames) {
       if (resourceNames.length === 0) {
-        return ''
+        return []
       }
-      const urlParts = [process.env.VUE_APP_BACKEND_URL + '/public/ical', '?token=', process.env.VUE_APP_ACCESS_TOKEN]
+      const urlParts = [import.meta.env.VUE_APP_BACKEND_URL + '/public/ical', '?token=', import.meta.env.VUE_APP_ACCESS_TOKEN]
       for (const name of resourceNames) {
         urlParts.push('&name=' + name)
       }
-      return { url: urlParts.join(''), format: 'ics' }
+      return createICalendarSource(urlParts.join(''))
     },
   },
   async beforeMount() {
@@ -319,28 +333,28 @@ export default {
 </script>
 
 <style>
-td.fc-daygrid-day.fc-day-past {
+.booking-day-past {
   background-color: var(--bs-gray-200);
 }
-td.fc-daygrid-day.fc-day-other {
+.booking-day-other {
   background-color: var(--bs-gray-400);
 }
-a.fc-daygrid-day-number {
+.booking-day-number {
   color: var(--bs-dark);
   text-decoration: none;
 }
-a.fc-col-header-cell-cushion {
+.booking-day-header {
   color: var(--bs-dark);
   text-decoration: none;
 }
-div.fc-event-title {
+.booking-event-title {
   font-weight: 500;
 }
-.fc .fc-daygrid-day.fc-day-today {
+.booking-day-today {
   background-color: rgba(var(--bs-primary-rgb), 0.25);
   font-weight: 600;
 }
-.fc-h-event {
+.booking-row-event {
   border: none;
   padding-left: 5px;
   padding-right: 5px;

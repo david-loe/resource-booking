@@ -1,31 +1,40 @@
 {
   "type": "commonjs",
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "body-parser": "^2.2.0",
-    "connect-mongo": "^5.1.0",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.4.0",
+    "connect-mongo": "^6.0.0",
     "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "express-session": "^1.18.1",
-    "i18next": "^21.10.0",
-    "ical.js": "^1.5.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.14.2",
-    "node-cron": "^3.0.3",
-    "nodemailer": "^6.10.1",
+    "cors": "^2.8.6",
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0",
+    "i18next": "^26.5.11",
+    "ical.js": "^2.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.2.1",
     "passport": "^0.7.0",
     "passport-ldapauth": "^3.0.1",
     "passport-local": "^1.0.0",
-    "passport-microsoft": "^1.1.0",
+    "passport-microsoft": "^2.1.0",
     "uid": "^2.0.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.14"
   },
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=26 <27",
+    "npm": ">=12 <13"
+  },
+  "packageManager": "npm@12.2.1",
+  "allowScripts": {
+    "bcrypt": true
   }
 }

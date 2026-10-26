@@ -67,7 +67,7 @@ export default {
     },
     async getUsers() {
       try {
-        const res = await axios.get(process.env.VUE_APP_BACKEND_URL + '/api/admin/user', {
+        const res = await axios.get(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/user', {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -83,7 +83,7 @@ export default {
     },
     async addUser(user) {
       try {
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/user', user, {
+        const res = await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/user', user, {
           withCredentials: true,
         })
         if (res.status === 200) {
@@ -100,7 +100,7 @@ export default {
     },
     async deleteUser(user) {
       try {
-        const res = await axios.delete(process.env.VUE_APP_BACKEND_URL + '/api/admin/user', {
+        const res = await axios.delete(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/user', {
           params: { id: user._id },
           withCredentials: true,
         })
@@ -117,7 +117,7 @@ export default {
     },
     async editUser(user) {
       try {
-        const res = await axios.post(process.env.VUE_APP_BACKEND_URL + '/api/admin/user/change', user, { withCredentials: true })
+        const res = await axios.post(import.meta.env.VUE_APP_BACKEND_URL + '/api/admin/user/change', user, { withCredentials: true })
         if (res.status === 200) {
           this.getUsers()
           this.userFormMode = ''
